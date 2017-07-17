@@ -1,0 +1,19 @@
+{
+  "name": "stay-in-the-light",
+  "version": "0.0.1",
+  "description": "An HTML5/Pixi game",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WilliamRADFunk/stay-in-the-light.git"
+  },
+  "author": "William R.A.D. Funk and Jorge Rodriguez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WilliamRADFunk/stay-in-the-light/issues"
+  },
+  "homepage": "https://github.com/WilliamRADFunk/stay-in-the-light#readme"
+}
