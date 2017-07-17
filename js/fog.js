@@ -1,12 +1,12 @@
 /* 
-Stay in the Light Engine v0.1.1
+Stay in the Light Engine v0.0.1
 Last Updated: 2017-July-17
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
-	Jorge Rodriguez - http://WilliamRobertFunk.com 
+	Jorge Rodriguez - http://jitorodriguez.com/
 */
 
-// Wrapped fig object
+// Wrapped fog object
 var FogWrapper = function(container) {
 	var Fog = {};
 
