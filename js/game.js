@@ -37,7 +37,7 @@ Game.prototype = {
 	 * Draw the fog of war onto the maco
 	 */
 	drawFog: function() {
-		this.fog = new FogWrapper(this.renderer, this.container);
+		this.fog = new FogWrapper(this.container);
 	},
 
 	/**

@@ -7,8 +7,7 @@ Authors:
 */
 
 // Wrapped fig object
-var FogWrapper = function(renderer, container) {
-	// Internally global game variables.
+var FogWrapper = function(container) {
 	var Fog = {};
 
 	Fog.init = function() {
