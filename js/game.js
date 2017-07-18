@@ -9,7 +9,12 @@ var Game = function() {
 	// Set the width and height of the scene.
 	this._width = 1280;
 	this._height = 720;
+	this._center = {
+		x: this._width / 2,
+		y: this._height / 2,
+	};
 	this.fog = {};
+	this.honeycomb = {};
 
 	// Setup the rendering surface.
 	this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
@@ -44,30 +49,15 @@ Game.prototype = {
 	 * Draw the fog of war onto the maco
 	 */
 	drawFog: function() {
-		this.fog = new FogWrapper(this.container);
+		this.fog = new FogWrapper(this.container, this._center);
 	},
 
 	/**
 	 * Draw the field of stars behind all of the action.
 	 */
 	drawTileMap: function() {
-		// Draw randomly positioned stars.
-		for(var i = 0; i < 1500; i++) {
-			// Generate random parameters for the stars.
-			var x = Math.round(Math.random() * this._width);
-			var y = Math.round(Math.random() * this._height);
-			var rad = Math.ceil(Math.random() * 2);
-			var alpha = Math.min(Math.random() * 0.25, 1);
-
-			// Draw the star.
-			var star = new PIXI.Graphics();
-			star.beginFill(0xFFFFFF, alpha);
-			star.drawCircle(x, y, rad);
-			star.endFill();
-
-			// Attach the star to the stage.
-			this.container.addChild(star);
-		}
+		this.honeycomb = new MapWrapper(this.container, this._center);
+		this.honeycomb.init();
 	},
 
 	/**
