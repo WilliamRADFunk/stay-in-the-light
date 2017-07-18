@@ -1,3 +1,10 @@
+/* 
+Stay in the Light v0.0.1
+Last Updated: 2017-July-17
+Authors: 
+	William R.A.D. Funk - http://WilliamRobertFunk.com
+	Jorge Rodriguez - http://jitorodriguez.com/
+*/
 var Game = function() {
 	// Set the width and height of the scene.
 	this._width = 1280;
@@ -24,7 +31,7 @@ Game.prototype = {
 	 	this.drawTileMap();
 
 	 	// Draw the fog
-	 	this.drawFog()
+	 	this.drawFog();
 
 	 	// Setup the boundaries of the game's arena.
 	 	this.setupBoundaries();
