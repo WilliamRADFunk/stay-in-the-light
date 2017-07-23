@@ -48,11 +48,24 @@ var FogWrapper = function(container, center) {
 	Fog.expand = function() {
 		// Eye of fog gets one increment bigger
 		radius += 20;
+		//MAX CIELING for radius
+		if(radius > center.y){
+			radius = center.y;
+		}
+		
+		circle.clear();
 		circle.drawCircle(center.x, center.y, radius);
 	};
 
 	Fog.contract = function() {
 		radius -= 20;
+
+		//MIN FLOOR for radius
+		if(radius < 0){
+			radius = 10;
+		}
+
+		circle.clear();
 		circle.drawCircle(center.x, center.y, radius);
 		// Eye of fog resets to smallest setting
 	};
