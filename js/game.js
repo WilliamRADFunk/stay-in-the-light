@@ -50,6 +50,18 @@ Game.prototype = {
 	 */
 	drawFog: function() {
 		this.fog = new FogWrapper(this.container, this._center);
+		this.fog.init();
+
+
+		Mousetrap.bind('a', function(){
+			this.fog.expand();
+		}.bind(this));
+
+
+		Mousetrap.bind('d', function(){
+			this.fog.contract();
+		}.bind(this));
+
 	},
 
 	/**
