@@ -11,12 +11,24 @@ var MapWrapper = function(container, center) {
 	var level = 1;
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
+	// Tracks current hextant player is hovering near
+	var hextant = null;
 	// Player's current tile. Used to determine directionality of mouse placement.
 	var activeTile = null;
 	// Publicly accessible functionality.
 	var tileMap = {};
 	// Hash table of all tiles in map.
 	var tileTable = {};
+	// Detects when the mouse clicks and moves player to new tile.
+	var mouseClickHandler = function(e) {
+		var oldActive = activeTile;
+		if(oldActive['link' + hextant]) {
+			oldActive.setInactive();
+			oldActive['link' + hextant].setActive();
+		}
+	};
+	// Captures click of mouse and passes on to handler.
+	document.addEventListener('click', mouseClickHandler);
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		var xDiff = activeTile.position.x - e.clientX;
@@ -27,16 +39,22 @@ var MapWrapper = function(container, center) {
 		// Redraws tile with one border highlighted.
 		if(angle >= 0 && angle < 60) {
 			activeTile.draw(3);
+			hextant = 3;
 		} else if(angle >= 60 && angle < 120) {
 			activeTile.draw(4);
+			hextant = 4;
 		} else if(angle >= 120 && angle < 180) {
 			activeTile.draw(5);
+			hextant = 5;
 		} else if(angle >= 180 && angle < 240) {
 			activeTile.draw(6);
+			hextant = 6;
 		} else if(angle >= 240 && angle < 300) {
 			activeTile.draw(1);
+			hextant = 1;
 		} else if(angle >= 300 && angle < 360) {
 			activeTile.draw(2);
+			hextant = 2;
 		}
 		
 	};
@@ -74,6 +92,8 @@ var MapWrapper = function(container, center) {
 			},
 			// Draws the tile and its outline boundary.
 			draw: function(line, col) {
+				hexagon.clear();
+				hoverLine.clear();
 				// The base tile without hover borders.
 				var fillColor = col || 0xAAAA00;
 				hexagon.moveTo(cX + size, cY);
@@ -117,6 +137,16 @@ var MapWrapper = function(container, center) {
 			position: {
 				x: cX,
 				y: cY
+			},
+			setActive: function() {
+				this.draw(9, 0xAAAA00);
+				this.state.isPlayer = true;
+				activeTile = this;
+			},
+			setInactive: function() {
+				this.draw(9, 0xFFFFFF);
+				this.state.isPlayer = false;
+				activeTile = null;
 			},
 			state: {
 				isDark: false,
