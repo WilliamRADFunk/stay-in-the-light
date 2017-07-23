@@ -9,17 +9,22 @@ Authors:
 // Wrapped tile map object
 var MapWrapper = function(container, center) {
 	var level = 1;
+	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
+	// Player's current tile. Used to determine directionality of mouse placement.
 	var activeTile = null;
+	// Publicly accessible functionality.
 	var tileMap = {};
+	// Hash table of all tiles in map.
 	var tileTable = {};
-
+	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		var xDiff = activeTile.position.x - e.clientX;
 		var yDiff = activeTile.position.y - e.clientY;
 		var angle = Math.atan2(yDiff, xDiff);
 		angle += Math.PI;
 		angle = angle * 180 / Math.PI;
+		// Redraws tile with one border highlighted.
 		if(angle >= 0 && angle < 60) {
 			activeTile.draw(3);
 		} else if(angle >= 60 && angle < 120) {
@@ -35,52 +40,71 @@ var MapWrapper = function(container, center) {
 		}
 		
 	};
+	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
-
+	// Tile creator
 	var Tile = function(cX, cY) {
+		// Base tile.
 		var hexagon = new PIXI.Graphics();
+		// Additional border to show player's direction focus.
+		var hoverLine = new PIXI.Graphics();
+		// Constant size of the hex tile.
 		var size = 25;
 
 		return {
+			// Sets up the basic tile info, and determines (based off neighbors) what it is.
 			build: function(isPlayer=false, isDark=false, isHidden=false, isEnemy=false, isPassable=true) {
 				this.isPlayer = isPlayer;
 				this.passable = isPassable;
 				this.isDark = isDark;
 				this.isHidden = isHidden;
 				this.isEnemy = isEnemy;
-
+				// Player tile has special hover color.
 				var col = 0xFFFFFF;
 				if(isPlayer) {
 					col = 0xAAAA00;
 					activeTile = this;
 				}
-
+				// Runs drawing functionality.
 				this.draw(9, col);
-				
-				// Attach the star to the stage.
+				// Attach the tile to the stage.
 				container.addChild(hexagon);
-
+				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
+			// Draws the tile and its outline boundary.
 			draw: function(line, col) {
+				// The base tile without hover borders.
 				var fillColor = col || 0xAAAA00;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(col);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(2, 0xFF88FF, 2);
 				for (var i = 0; i <= 6; i++) {
-					var lineConvert = line - 2;
-					if(lineConvert <= 0) lineConvert += 6;
-
-					if(i === lineConvert) {
-						hexagon.lineStyle(2, 0x00FF00, 2);
-					} else {
-						hexagon.lineStyle(2, 0xFF88FF, 2);
-					}
 					var angle = 2 * Math.PI / 6 * i,
 					x_i = cX + size * Math.cos(angle),
 					y_i = cY + size * Math.sin(angle);
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var lineConvert = line - 2;
+				if(lineConvert <= 0) lineConvert += 6;
+				// If hoverline redraw thicker boundary, with one hextant as green.
+				if(lineConvert > 0 && lineConvert <= 6) {
+					hoverLine.moveTo(cX + size, cY);
+					for (var i = 0; i <= 6; i++) {
+						if(i === lineConvert) {
+							hoverLine.lineStyle(4, 0x00FF00, 2);
+						} else {
+							hoverLine.lineStyle(4, 0xFF88FF, 2);
+						}
+						var angle = 2 * Math.PI / 6 * i,
+						x_i = cX + size * Math.cos(angle),
+						y_i = cY + size * Math.sin(angle);
+						hoverLine.lineTo(x_i, y_i);
+					}
+					// Attach the hoverLine to the stage.
+					container.addChild(hoverLine);
+				}
 			},
 			graphique: null,
 			link1: null,
@@ -103,7 +127,7 @@ var MapWrapper = function(container, center) {
 			type: 'plain'
 		};
 	};
-
+	// Creates center node and passes it into the procedurally recursive function.
 	var buildLevel = function(level) {
 		// Create first hex node.
 		var startNode = new Tile(center.x, center.y, true);
@@ -114,7 +138,7 @@ var MapWrapper = function(container, center) {
 
 		console.log(tileTable);
 	};
-
+	// Procedural generator of the tiles, which connects them through links.
 	var makeNeighborNodes = function(centerNode, count) {
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
@@ -280,22 +304,18 @@ var MapWrapper = function(container, center) {
 			makeNeighborNodes(centerNode['link' + i], count + 1);
 		}
 	};
-
+	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
 		// Place center hole at center screen
 		buildLevel(level);
 	};
-
-	tileMap.move = function(direction) {
-		// Move player to new tile
-	};
-
+	// Called to increase level...and rebuild map.
 	tileMap.nextLevel = function() {
 		// Increases level by one, and instigates a rebuild of the map.
 		level++;
 		buildLevel(level);
 	};
-
+	// Pass publically accessible functionality back to main wrapper.
 	return tileMap;
 };

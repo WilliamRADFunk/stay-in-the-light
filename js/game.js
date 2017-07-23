@@ -13,7 +13,9 @@ var Game = function() {
 		x: this._width / 2,
 		y: this._height / 2,
 	};
+	// Fog of war object
 	this.fog = {};
+	// Tile map object
 	this.honeycomb = {};
 
 	// Setup the rendering surface.
