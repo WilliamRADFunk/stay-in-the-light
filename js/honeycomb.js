@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.1
-Last Updated: 2017-July-17
+Last Updated: 2017-July-23
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -10,49 +10,104 @@ Authors:
 var MapWrapper = function(container, center) {
 	var level = 1;
 	var hexDepth = 6;
+	var activeTile = null;
 	var tileMap = {};
 	var tileTable = {};
 
-	var Tile = function(cX, cY, abc) {
+	var mouseMoveHandler = function(e) {
+		var xDiff = activeTile.position.x - e.clientX;
+		var yDiff = activeTile.position.y - e.clientY;
+		var angle = Math.atan2(yDiff, xDiff);
+		angle += Math.PI;
+		angle = angle * 180 / Math.PI;
+		if(angle >= 0 && angle < 60) {
+			activeTile.draw(3);
+		} else if(angle >= 60 && angle < 120) {
+			activeTile.draw(4);
+		} else if(angle >= 120 && angle < 180) {
+			activeTile.draw(5);
+		} else if(angle >= 180 && angle < 240) {
+			activeTile.draw(6);
+		} else if(angle >= 240 && angle < 300) {
+			activeTile.draw(1);
+		} else if(angle >= 300 && angle < 360) {
+			activeTile.draw(2);
+		}
+		
+	};
+	document.addEventListener('mousemove', mouseMoveHandler);
+
+	var Tile = function(cX, cY) {
 		var hexagon = new PIXI.Graphics();
 		var size = 25;
 
-		var col = 0xFFFFFF;
-		if(abc) col = 0x777777;
-
 		return {
-			build: function() {
+			build: function(isPlayer=false, isDark=false, isHidden=false, isEnemy=false, isPassable=true) {
+				this.isPlayer = isPlayer;
+				this.passable = isPassable;
+				this.isDark = isDark;
+				this.isHidden = isHidden;
+				this.isEnemy = isEnemy;
+
+				var col = 0xFFFFFF;
+				if(isPlayer) {
+					col = 0xAAAA00;
+					activeTile = this;
+				}
+
+				this.draw(9, col);
+				
+				// Attach the star to the stage.
+				container.addChild(hexagon);
+
+				this.graphique = hexagon;
+			},
+			draw: function(line, col) {
+				var fillColor = col || 0xAAAA00;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(col);
-				hexagon.lineStyle(2, 0xFF88FF, 2);
 				for (var i = 0; i <= 6; i++) {
+					var lineConvert = line - 2;
+					if(lineConvert <= 0) lineConvert += 6;
+
+					if(i === lineConvert) {
+						hexagon.lineStyle(2, 0x00FF00, 2);
+					} else {
+						hexagon.lineStyle(2, 0xFF88FF, 2);
+					}
 					var angle = 2 * Math.PI / 6 * i,
 					x_i = cX + size * Math.cos(angle),
 					y_i = cY + size * Math.sin(angle);
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
-
-				// Attach the star to the stage.
-				container.addChild(hexagon);
 			},
+			graphique: null,
 			link1: null,
 			link2: null,
 			link3: null,
 			link4: null,
 			link5: null,
 			link6: null,
+			passable: true,
 			position: {
 				x: cX,
 				y: cY
-			}
+			},
+			state: {
+				isDark: false,
+				isHidden: false,
+				isEnemy: false,
+				isPlayer: false,
+			},
+			type: 'plain'
 		};
 	};
 
 	var buildLevel = function(level) {
 		// Create first hex node.
 		var startNode = new Tile(center.x, center.y, true);
-		startNode.build();
+		startNode.build(true, false, false, false, true);
 		tileTable[center.x + '-' + center.y] = startNode;
 
 		makeNeighborNodes(startNode, 0);
