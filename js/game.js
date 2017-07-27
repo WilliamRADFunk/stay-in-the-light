@@ -84,6 +84,7 @@ Game.prototype = {
 		walls.drawRect(this._width - 10, 10, 10, this._height - 10);
 		walls.drawRect(0, this._height - 10, this._width, 10);
 		walls.drawRect(0, 10, 10, this._height - 20);
+		walls.endFill();
 
 		// Attach the walls to the stage.
 		this.container.addChild(walls);

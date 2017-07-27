@@ -78,7 +78,7 @@ var MapWrapper = function(container, center) {
 				this.isHidden = isHidden;
 				this.isEnemy = isEnemy;
 				// Player tile has special hover color.
-				var col = 0xFFFFFF;
+				var col = 0xAAFFAA;
 				if(isPlayer) {
 					col = 0xAAAA00;
 					activeTile = this;
@@ -144,7 +144,7 @@ var MapWrapper = function(container, center) {
 				activeTile = this;
 			},
 			setInactive: function() {
-				this.draw(9, 0xFFFFFF);
+				this.draw(9, 0xAAFFAA);
 				this.state.isPlayer = false;
 				activeTile = null;
 			},
