@@ -7,7 +7,7 @@ Authors:
 */
 
 // Wrapped tile map object
-var MapWrapper = function(container, center) {
+var MapWrapper = function(center) {
 	var level = 1;
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
@@ -86,7 +86,7 @@ var MapWrapper = function(container, center) {
 				// Runs drawing functionality.
 				this.draw(9, col);
 				// Attach the tile to the stage.
-				container.addChild(hexagon);
+				tileMap.container.addChild(hexagon);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -123,7 +123,7 @@ var MapWrapper = function(container, center) {
 						hoverLine.lineTo(x_i, y_i);
 					}
 					// Attach the hoverLine to the stage.
-					container.addChild(hoverLine);
+					tileMap.container.addChild(hoverLine);
 				}
 			},
 			graphique: null,
@@ -334,6 +334,7 @@ var MapWrapper = function(container, center) {
 			makeNeighborNodes(centerNode['link' + i], count + 1);
 		}
 	};
+	tileMap.container = new PIXI.Container();
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
