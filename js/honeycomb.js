@@ -31,8 +31,8 @@ var MapWrapper = function(center) {
 	document.addEventListener('click', mouseClickHandler);
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
-		var xDiff = activeTile.position.x - e.clientX;
-		var yDiff = activeTile.position.y - e.clientY;
+		var xDiff = activeTile.position.x - e.pageX;
+		var yDiff = activeTile.position.y - e.pageY;
 		var angle = Math.atan2(yDiff, xDiff);
 		angle += Math.PI;
 		angle = angle * 180 / Math.PI;
