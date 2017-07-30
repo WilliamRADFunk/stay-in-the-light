@@ -16,22 +16,62 @@ var FogWrapper = function(container, center) {
 	var circle;
 
 	//Fog images
-	var bgBACK = PIXI.Sprite.fromImage('./images/bgblue.jpg');
+	var bgBACK = PIXI.Sprite.fromImage('./images/bluebg.jpg');
 
 	bgBACK.anchor.set(0.5);
 
 	bgBACK.x = center.x;
 	bgBACK.y = center.y;
 
-
 	var bgFRONT = PIXI.Sprite.fromImage('./images/colorbg.jpg');
 	bgFRONT.anchor.set(0.5);
+
+	var mainSPRITE = PIXI.Sprite.fromImage('./images/dvaSprite.jpg');
+	mainSPRITE.anchor.set(0.5);
+
+	//Fog exclusive container
+	var fogContainer = new PIXI.Container();
+	fogContainer.x = center.x;
+	fogContainer.y = center.y;
+
+	//mMasking Object
+	var maskPRIME = new PIXI.Graphics();
 
 	//var mainSPRITE = PIXI.Sprite.fromImage;
 
 
 	Fog.init = function() {
 
+		radius = 80;
+
+		container.addChild(bgBACK);
+		fogContainer.addChild(bgFRONT, mainSPRITE);
+
+		container.addChild(fogContainer);
+
+		container.addChild(maskPRIME);
+		maskPRIME.x = center.x;
+		maskPRIME.y = center.y;
+		maskPRIME.lineStyle(0);
+		maskPRIME.beginFill(0x8bc5ff, 0.4);
+		maskPRIME.drawCircle(0, 0, radius);
+
+		fogContainer.mask = maskPRIME;
+
+		// container.on('pointertap', function() {
+		// 	if (!container.mask){
+		// 		container.mask = maskPRIME;
+		// 	}
+		// 	else{
+		// 		container.mask = null;
+		// 	}
+		// });
+	};
+
+	Fog.redraw = function() {
+		maskPRIME.clear();
+		maskPRIME.beginFill(0x8bc5ff, 0.4);
+		maskPRIME.drawCircle(center.x, center.y, radius);
 	};
 
 	Fog.move = function() {
@@ -46,8 +86,8 @@ var FogWrapper = function(container, center) {
 			radius = center.y;
 		}
 		
-		circle.clear();
-		circle.drawCircle(center.x, center.y, radius);
+		maskPRIME.clear();
+		maskPRIME.drawCircle(0, 0, radius);
 	};
 
 	Fog.contract = function() {
@@ -58,8 +98,8 @@ var FogWrapper = function(container, center) {
 			radius = 10;
 		}
 
-		circle.clear();
-		circle.drawCircle(center.x, center.y, radius);
+		maskPRIME.clear();
+		maskPRIME.drawCircle(0, 0, radius);
 		// Eye of fog resets to smallest setting
 	};
 
