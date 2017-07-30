@@ -70,8 +70,9 @@ Game.prototype = {
 	 * Draw the field of stars behind all of the action.
 	 */
 	drawTileMap: function() {
-		this.honeycomb = new MapWrapper(this.container, this._center);
+		this.honeycomb = new MapWrapper(this._center);
 		this.honeycomb.init();
+		this.container.addChild(this.honeycomb.container);
 	},
 
 	/**
