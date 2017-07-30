@@ -20,8 +20,8 @@ var Game = function() {
 
 	// Setup the rendering surface.
 	this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
+	this.renderer.transparent = true;
 	document.body.appendChild(this.renderer.view);
-
 	// Create the main stage to draw on.
 	this.container = new PIXI.Container();
 
