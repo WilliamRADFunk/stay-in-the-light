@@ -98,7 +98,7 @@ var MapWrapper = function(center) {
 				var fillColor = col || 0xAAAA00;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
-				hexagon.lineStyle(2, 0xFF88FF, 2);
+				hexagon.lineStyle(3, 0xFF88FF, 2);
 				for (var i = 0; i <= 6; i++) {
 					var angle = 2 * Math.PI / 6 * i,
 					x_i = cX + size * Math.cos(angle),
@@ -175,11 +175,11 @@ var MapWrapper = function(center) {
 		// No node directly above, so make one.
 		if(count < hexDepth
 			&& centerNode.link1 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)] === undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] === undefined
 		) {
-			var node = new Tile(centerNode.position.x, (centerNode.position.y - 45));
+			var node = new Tile(centerNode.position.x, (centerNode.position.y - 46));
 			node.build();
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)] = node;
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] = node;
 			centerNode.link1 = node;
 			node.link4 = centerNode;
 		// There already exists a node directly above, but the above node doesn't know it.
@@ -191,21 +191,21 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link1 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)] !== undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] !== undefined
 		) {
-			centerNode.link1 = tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)];
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)].link4 = centerNode;
+			centerNode.link1 = tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)];
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)].link4 = centerNode;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
 		// No node to the upper right, so make one.
 		if(count < hexDepth
 			&& centerNode.link2 === null
-			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)] === undefined
+			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] === undefined
 		) {
-			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y - 22));
+			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y - 23));
 			node.build();
-			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)] = node;
+			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] = node;
 			centerNode.link2 = node;
 			node.link5 = centerNode;
 		// There already exists a node to the upper right, but the above node doesn't know it.
@@ -217,10 +217,10 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link2 === null
-			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)] !== undefined
+			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] !== undefined
 		) {
-			centerNode.link2 = tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)];
-			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)].link5 = centerNode;
+			centerNode.link2 = tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)];
+			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)].link5 = centerNode;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
@@ -253,11 +253,11 @@ var MapWrapper = function(center) {
 		// No node directly below, so make one.
 		if(count < hexDepth
 			&& centerNode.link4 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)] === undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] === undefined
 		) {
-			var node = new Tile(centerNode.position.x, (centerNode.position.y + 45));
+			var node = new Tile(centerNode.position.x, (centerNode.position.y + 46));
 			node.build();
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)] = node;
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] = node;
 			centerNode.link4 = node;
 			node.link1 = centerNode;
 		// There already exists a node directly below, but the above node doesn't know it.
@@ -269,10 +269,10 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link4 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)] !== undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] !== undefined
 		) {
-			centerNode.link4 = tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)];
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)].link1 = centerNode;
+			centerNode.link4 = tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)];
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)].link1 = centerNode;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
@@ -305,11 +305,11 @@ var MapWrapper = function(center) {
 		// No node to the upper left, so make one.
 		if(count < hexDepth
 			&& centerNode.link6 === null
-			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)] === undefined
+			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] === undefined
 		) {
-			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y - 22));
+			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y - 23));
 			node.build();
-			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)] = node;
+			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] = node;
 			centerNode.link6 = node;
 			node.link3 = centerNode;
 		// There already exists a node to the upper left, but the above node doesn't know it.
@@ -321,10 +321,10 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link6 === null
-			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)] !== undefined
+			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] !== undefined
 		) {
-			centerNode.link6 = tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)];
-			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)].link3 = centerNode;
+			centerNode.link6 = tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)];
+			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)].link3 = centerNode;
 		}
 
 		if(count === hexDepth) return;
