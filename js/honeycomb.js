@@ -21,42 +21,74 @@ var MapWrapper = function(center) {
 	var tileTable = {};
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
-		var oldActive = activeTile;
-		if(oldActive['link' + hextant]) {
-			oldActive.setInactive();
-			oldActive['link' + hextant].setActive();
+		if(activeTile) {
+			var oldActive = activeTile;
+			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
+				oldActive.setInactive();
+				oldActive['link' + hextant].setActive();
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(hextant, 0x00FF00);
+				} else {
+					activeTile.draw(hextant, 0xFF0000);
+				}
+			}
 		}
 	};
 	// Captures click of mouse and passes on to handler.
 	document.addEventListener('click', mouseClickHandler);
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
-		var xDiff = activeTile.position.x - e.clientX;
-		var yDiff = activeTile.position.y - e.clientY;
-		var angle = Math.atan2(yDiff, xDiff);
-		angle += Math.PI;
-		angle = angle * 180 / Math.PI;
-		// Redraws tile with one border highlighted.
-		if(angle >= 0 && angle < 60) {
-			activeTile.draw(3);
-			hextant = 3;
-		} else if(angle >= 60 && angle < 120) {
-			activeTile.draw(4);
-			hextant = 4;
-		} else if(angle >= 120 && angle < 180) {
-			activeTile.draw(5);
-			hextant = 5;
-		} else if(angle >= 180 && angle < 240) {
-			activeTile.draw(6);
-			hextant = 6;
-		} else if(angle >= 240 && angle < 300) {
-			activeTile.draw(1);
-			hextant = 1;
-		} else if(angle >= 300 && angle < 360) {
-			activeTile.draw(2);
-			hextant = 2;
-		}
-		
+		if(activeTile) {
+			var xDiff = activeTile.position.x - e.pageX;
+			var yDiff = activeTile.position.y - e.pageY;
+			var angle = Math.atan2(yDiff, xDiff);
+			angle += Math.PI;
+			angle = angle * 180 / Math.PI;
+			// Redraws tile with one border highlighted.
+			if(angle >= 0 && angle < 60) {
+				hextant = 3;
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(3, 0x00FF00);
+				} else {
+					activeTile.draw(3, 0xFF0000);
+				}
+			} else if(angle >= 60 && angle < 120) {
+				hextant = 4;
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(4, 0x00FF00);
+				} else {
+					activeTile.draw(4, 0xFF0000);
+				}
+			} else if(angle >= 120 && angle < 180) {
+				hextant = 5;
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(5, 0x00FF00);
+				} else {
+					activeTile.draw(5, 0xFF0000);
+				}
+			} else if(angle >= 180 && angle < 240) {
+				hextant = 6;
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(6, 0x00FF00);
+				} else {
+					activeTile.draw(6, 0xFF0000);
+				}
+			} else if(angle >= 240 && angle < 300) {
+				hextant = 1;
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(1, 0x00FF00);
+				} else {
+					activeTile.draw(1, 0xFF0000);
+				}
+			} else if(angle >= 300 && angle < 360) {
+				hextant = 2;
+				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
+					activeTile.draw(2, 0x00FF00);
+				} else {
+					activeTile.draw(2, 0xFF0000);
+				}
+			}
+		}		
 	};
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
@@ -68,37 +100,13 @@ var MapWrapper = function(center) {
 		var hoverLine = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
-
-		return {
-			// Sets up the basic tile info, and determines (based off neighbors) what it is.
-			build: function(isPlayer=false, isDark=false, isHidden=false, isEnemy=false, isPassable=true) {
-				this.isPlayer = isPlayer;
-				this.passable = isPassable;
-				this.isDark = isDark;
-				this.isHidden = isHidden;
-				this.isEnemy = isEnemy;
-				// Player tile has special hover color.
-				var col = 0xAAFFAA;
-				if(isPlayer) {
-					col = 0xAAAA00;
-					activeTile = this;
-				}
-				// Runs drawing functionality.
-				this.draw(9, col);
-				// Attach the tile to the stage.
-				tileMap.container.addChild(hexagon);
-				// Lets graphic be accessible from Tile object.
-				this.graphique = hexagon;
-			},
-			// Draws the tile and its outline boundary.
-			draw: function(line, col) {
-				hexagon.clear();
-				hoverLine.clear();
+		var drawTerrain = function(terrain) {
+			if(terrain === 'plains') {
 				// The base tile without hover borders.
-				var fillColor = col || 0xAAAA00;
+				var fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
-				hexagon.lineStyle(2, 0xFF88FF, 2);
+				hexagon.lineStyle(3, 0x006400, 2);
 				for (var i = 0; i <= 6; i++) {
 					var angle = 2 * Math.PI / 6 * i,
 					x_i = cX + size * Math.cos(angle),
@@ -106,6 +114,93 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+			} else if(terrain === 'desert') {
+				// The base tile without hover borders.
+				var fillColor = 0xEDC9AF;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0xEDC9AF, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
+			} else if(terrain === 'mountains') {
+				// The base tile without hover borders.
+				var fillColor = 0x968D99;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0x968D99, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
+			} else if(terrain === 'pit') {
+				// The base tile without hover borders.
+				var fillColor = 0x654321;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0x654321, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
+			} else if(terrain === 'water') {
+				// The base tile without hover borders.
+				var fillColor = 0x40A4DF;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0x40A4DF, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
+			} else {
+				// Null space
+			}
+		};
+
+		return {
+			// Sets up the basic tile info, and determines (based off neighbors) what it is.
+			build: function(terrain, isPlayer=false, isDark=false, isHidden=false, isEnemy=false, isPassable=true) {
+				this.state.isPlayer = isPlayer;
+				this.state.passable = isPassable;
+				this.state.isDark = isDark;
+				this.state.isHidden = isHidden;
+				this.state.isEnemy = isEnemy;
+				this.type = terrain;
+				if(terrain === 'pit' || terrain === 'water' || terrain === null) {
+					this.passable = false;
+				}
+				if(this.state.isPlayer) {
+					activeTile = this;
+				}		
+				// Runs drawing functionality.
+				this.draw(9);
+				// Attach the tile to the stage.
+				tileMap.container.addChild(hexagon);
+				// Lets graphic be accessible from Tile object.
+				this.graphique = hexagon;
+			},
+			// Draws the tile and its outline boundary.
+			draw: function(line, col) {
+				if(col === undefined) {
+					col = 0x00FF00;
+				}
+				hexagon.clear();
+				hoverLine.clear();
+				drawTerrain(this.type);
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
 				// If hoverline redraw thicker boundary, with one hextant as green.
@@ -113,9 +208,9 @@ var MapWrapper = function(center) {
 					hoverLine.moveTo(cX + size, cY);
 					for (var i = 0; i <= 6; i++) {
 						if(i === lineConvert) {
-							hoverLine.lineStyle(4, 0x00FF00, 2);
+							hoverLine.lineStyle(4, col, 2);
 						} else {
-							hoverLine.lineStyle(4, 0xFF88FF, 2);
+							hoverLine.lineStyle(4, 0x000000, 2);
 						}
 						var angle = 2 * Math.PI / 6 * i,
 						x_i = cX + size * Math.cos(angle),
@@ -139,14 +234,14 @@ var MapWrapper = function(center) {
 				y: cY
 			},
 			setActive: function() {
-				this.draw(9, 0xAAAA00);
 				this.state.isPlayer = true;
 				activeTile = this;
+				this.draw(9);
 			},
 			setInactive: function() {
-				this.draw(9, 0xAAFFAA);
 				this.state.isPlayer = false;
 				activeTile = null;
+				this.draw(9);
 			},
 			state: {
 				isDark: false,
@@ -154,14 +249,14 @@ var MapWrapper = function(center) {
 				isEnemy: false,
 				isPlayer: false,
 			},
-			type: 'plain'
+			type: null
 		};
 	};
 	// Creates center node and passes it into the procedurally recursive function.
 	var buildLevel = function(level) {
 		// Create first hex node.
 		var startNode = new Tile(center.x, center.y, true);
-		startNode.build(true, false, false, false, true);
+		startNode.build(pickTileTerrain(true), true, false, false, false, true);
 		tileTable[center.x + '-' + center.y] = startNode;
 
 		makeNeighborNodes(startNode, 0);
@@ -175,11 +270,11 @@ var MapWrapper = function(center) {
 		// No node directly above, so make one.
 		if(count < hexDepth
 			&& centerNode.link1 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)] === undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] === undefined
 		) {
-			var node = new Tile(centerNode.position.x, (centerNode.position.y - 45));
-			node.build();
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)] = node;
+			var node = new Tile(centerNode.position.x, (centerNode.position.y - 46));
+			node.build(pickTileTerrain());
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] = node;
 			centerNode.link1 = node;
 			node.link4 = centerNode;
 		// There already exists a node directly above, but the above node doesn't know it.
@@ -191,21 +286,21 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link1 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)] !== undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] !== undefined
 		) {
-			centerNode.link1 = tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)];
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 45)].link4 = centerNode;
+			centerNode.link1 = tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)];
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)].link4 = centerNode;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
 		// No node to the upper right, so make one.
 		if(count < hexDepth
 			&& centerNode.link2 === null
-			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)] === undefined
+			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] === undefined
 		) {
-			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y - 22));
-			node.build();
-			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)] = node;
+			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y - 23));
+			node.build(pickTileTerrain());
+			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] = node;
 			centerNode.link2 = node;
 			node.link5 = centerNode;
 		// There already exists a node to the upper right, but the above node doesn't know it.
@@ -217,10 +312,10 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link2 === null
-			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)] !== undefined
+			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] !== undefined
 		) {
-			centerNode.link2 = tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)];
-			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 22)].link5 = centerNode;
+			centerNode.link2 = tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)];
+			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)].link5 = centerNode;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
@@ -230,7 +325,7 @@ var MapWrapper = function(center) {
 			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y + 23)] === undefined
 		) {
 			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y + 23));
-			node.build();
+			node.build(pickTileTerrain());
 			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y + 23)] = node;
 			centerNode.link3 = node;
 			node.link6 = centerNode;
@@ -253,11 +348,11 @@ var MapWrapper = function(center) {
 		// No node directly below, so make one.
 		if(count < hexDepth
 			&& centerNode.link4 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)] === undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] === undefined
 		) {
-			var node = new Tile(centerNode.position.x, (centerNode.position.y + 45));
-			node.build();
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)] = node;
+			var node = new Tile(centerNode.position.x, (centerNode.position.y + 46));
+			node.build(pickTileTerrain());
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] = node;
 			centerNode.link4 = node;
 			node.link1 = centerNode;
 		// There already exists a node directly below, but the above node doesn't know it.
@@ -269,10 +364,10 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link4 === null
-			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)] !== undefined
+			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] !== undefined
 		) {
-			centerNode.link4 = tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)];
-			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 45)].link1 = centerNode;
+			centerNode.link4 = tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)];
+			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)].link1 = centerNode;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Still more nodes to make
@@ -282,7 +377,7 @@ var MapWrapper = function(center) {
 			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y + 23)] === undefined
 		) {
 			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y + 23));
-			node.build();
+			node.build(pickTileTerrain());
 			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y + 23)] = node;
 			centerNode.link5 = node;
 			node.link2 = centerNode;
@@ -305,11 +400,11 @@ var MapWrapper = function(center) {
 		// No node to the upper left, so make one.
 		if(count < hexDepth
 			&& centerNode.link6 === null
-			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)] === undefined
+			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] === undefined
 		) {
-			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y - 22));
-			node.build();
-			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)] = node;
+			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y - 23));
+			node.build(pickTileTerrain());
+			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] = node;
 			centerNode.link6 = node;
 			node.link3 = centerNode;
 		// There already exists a node to the upper left, but the above node doesn't know it.
@@ -321,10 +416,10 @@ var MapWrapper = function(center) {
 		// A node was made above this one at some other point, but this node doesn't know it.
 		// Connect them.
 		} else if(centerNode.link6 === null
-			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)] !== undefined
+			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] !== undefined
 		) {
-			centerNode.link6 = tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)];
-			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 22)].link3 = centerNode;
+			centerNode.link6 = tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)];
+			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)].link3 = centerNode;
 		}
 
 		if(count === hexDepth) return;
@@ -332,6 +427,19 @@ var MapWrapper = function(center) {
 		// Now to recursively build out from this node's neighbors
 		for(var i = 1; i <= 6; i++) {
 			makeNeighborNodes(centerNode['link' + i], count + 1);
+		}
+	};
+	var pickTileTerrain = function(isStarter) {
+		var rando = Math.random() * 100;
+
+		if(isStarter || rando < 75) {
+			if(rando >= 0 && rando < 45) return 'plains';
+			else if(rando >= 45 && rando < 70) return 'desert';
+			else return 'mountains';
+		} else {
+			if(rando >= 75 && rando < 80) return 'pit';
+			else if(rando >= 80 && rando < 85) return 'water';
+			else return null;
 		}
 	};
 	tileMap.container = new PIXI.Container();
