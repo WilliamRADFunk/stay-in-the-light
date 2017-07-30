@@ -45,13 +45,14 @@ Game.prototype = {
 
 	 	// Begin the first frame.
 	 	requestAnimationFrame(this.tick.bind(this));
+
 	 },
 
 	 /**
 	 * Draw the fog of war onto the maco
 	 */
 	drawFog: function() {
-		this.fog = new FogWrapper(this.container, this._center);
+		this.fog = new FogWrapper(this.container, this._center, this.honeycomb.container, this.renderer);
 		this.fog.init();
 
 
@@ -97,7 +98,8 @@ Game.prototype = {
 	tick: function() {
 		// Render the stage for the current frame.
 		this.renderer.render(this.container);
-
+		//Update Fog Sprite creation for overlay
+		this.fog.renderFog();
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));
 	}

@@ -7,38 +7,52 @@ Authors:
 */
 
 // Wrapped fog object
-var FogWrapper = function(container, center) {
+var FogWrapper = function(container, center, hContainer, rEnder) {
 	var Fog = {};
-	var circle;
+	// Fog parameters and internal values
 	var radius;
 
+	//Fog internal objects / graphics
+	var circle;
+	var tilemapSnapshot;
+
+	//Fog images
+	var bgBACK = PIXI.Sprite.fromImage('./images/bluebg.jpg');
+	bgBACK.anchor.set(0.5);
+	bgBACK.x = center.x;
+	bgBACK.y = center.y;
+
+	//Fog exclusive container
+	var fogContainer = new PIXI.Container();
+	fogContainer.x = center.x;
+	fogContainer.y = center.y;
+
+	//mMasking Object
+	var maskPrime = new PIXI.Graphics();
+
+	var renderTexture = PIXI.RenderTexture.create(rEnder.width, rEnder.height);
+
 	Fog.init = function() {
+		radius = 100;
 
-		radius = 50;
-		//Layering circles...
-		// var pixiCircle = new PIXI.Graphics();
-		// pixiCircle.lineStyle(0, 0xFF00FF);  //(thickness, color)
-		// pixiCircle.beginFill(0xFF00FF, 1);
-		// pixiCircle.drawCircle(center.x, center.y, 100);   //(x,y,radius)
-		// pixiCircle.endFill();
-		// container.addChild(pixiCircle);
+		container.addChild(bgBACK);
 
-		// var pixiCircle2 = new PIXI.Graphics();
-		// pixiCircle2.lineStyle(0, 0x00ff00);  //(thickness, color)
-		// pixiCircle2.beginFill(0x00ff00, 0.4);
-		// pixiCircle2.drawCircle(center.x, center.y, 80);   //(x,y,radius)
-		// pixiCircle2.endFill();
-		// container.addChild(pixiCircle2);
-		//End of layering circles
+		container.addChild(fogContainer);
 
-		//Masking Container with circle dimension. 
-		//*Removes ability from drawing in rest of container unless within mask.*
-		circle = new PIXI.Graphics();
-		circle.lineStyle(2, 0xFF00FF);  //(thickness, color)
-		circle.drawCircle(center.x, center.y, radius);   //(x,y,radius)
-		circle.endFill();
-		container.mask = circle;
-		container.addChild(circle);
+		//Customize graphic to act as mask
+		container.addChild(maskPrime);
+		maskPrime.x = center.x;
+		maskPrime.y = center.y;
+		maskPrime.lineStyle(0);
+		maskPrime.beginFill(0x8bc5ff, 0.4);
+		maskPrime.drawCircle(0, 0, radius);
+
+		fogContainer.mask = maskPrime;
+	};
+
+	Fog.redrawFogHole = function() {
+		maskPrime.clear();
+		maskPrime.drawCircle(0, 0, radius);
 	};
 
 	Fog.move = function() {
@@ -52,22 +66,34 @@ var FogWrapper = function(container, center) {
 		if(radius > center.y){
 			radius = center.y;
 		}
-		
-		circle.clear();
-		circle.drawCircle(center.x, center.y, radius);
+		//Redraw Fog at radius
+		Fog.redrawFogHole();
 	};
 
 	Fog.contract = function() {
 		radius -= 20;
 
 		//MIN FLOOR for radius
-		if(radius < 0){
-			radius = 10;
+		if(radius < 101){
+			radius = 100;
 		}
+		//Redraw Fog at radius
+		Fog.redrawFogHole();
+	};
 
-		circle.clear();
-		circle.drawCircle(center.x, center.y, radius);
-		// Eye of fog resets to smallest setting
+	Fog.renderFog = function() {
+		if(tilemapSnapshot)
+		{
+			fogContainer.removeChild(tilemapSnapshot);
+			delete tilemapSnapshot;
+			tilemapSnapshot = null;
+		}
+		rEnder.render(hContainer, renderTexture);
+		tilemapSnapshot = new PIXI.Sprite(renderTexture);
+		tilemapSnapshot.anchor.set(0.5);
+		fogContainer.addChild(tilemapSnapshot);
+		maskPrime.clear();
+		maskPrime.drawCircle(0, 0, radius);
 	};
 
 	return Fog;
