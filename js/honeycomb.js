@@ -11,6 +11,8 @@ var MapWrapper = function(center) {
 	var level = 1;
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
+	// Prevents the procedural unhide recursion from going too far.
+	var revealDepth = 1;
 	// Tracks current hextant player is hovering near
 	var hextant = null;
 	// Player's current tile. Used to determine directionality of mouse placement.
@@ -22,7 +24,6 @@ var MapWrapper = function(center) {
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
 		if(activeTile) {
-			tileMap.container.cacheAsBitmap = false;
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
@@ -33,7 +34,6 @@ var MapWrapper = function(center) {
 					activeTile.draw(hextant, 0xFF0000);
 				}
 			}
-			tileMap.container.cacheAsBitmap = true;
 		}
 	};
 	// Captures click of mouse and passes on to handler.
@@ -41,7 +41,6 @@ var MapWrapper = function(center) {
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		if(activeTile) {
-			tileMap.container.cacheAsBitmap = false;
 			var xDiff = activeTile.position.x - e.pageX;
 			var yDiff = activeTile.position.y - e.pageY;
 			var angle = Math.atan2(yDiff, xDiff);
@@ -91,9 +90,18 @@ var MapWrapper = function(center) {
 					activeTile.draw(2, 0xFF0000);
 				}
 			}
-			tileMap.container.cacheAsBitmap = true;	
 		}
 	};
+	var showTiles = function(tile, layer) {
+		if(tile && layer <= revealDepth) {
+			tile.show();
+			for(var i = 1; i < 7; i++) {
+				showTiles(tile['link' + i], layer + 1);
+			}
+		} else {
+			return;
+		}
+	}
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
 	// Tile creator
@@ -102,6 +110,8 @@ var MapWrapper = function(center) {
 		var hexagon = new PIXI.Graphics();
 		// Additional border to show player's direction focus.
 		var hoverLine = new PIXI.Graphics();
+		// Additional hidden layer with opacity to partially conceal time.
+		var hiddenLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
 		var drawTerrain = function(terrain, isHidden, isDark) {
@@ -285,11 +295,27 @@ var MapWrapper = function(center) {
 				}
 				hexagon.endFill();
 			}
+			if(isHidden) {
+				// Layer to illustrate a fog of war effect.
+				hiddenLayer.clear();
+				hiddenLayer.moveTo(cX + size, cY);
+				hiddenLayer.beginFill(0x999999, 0.7);
+				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hiddenLayer.lineTo(x_i, y_i);
+				}
+				hiddenLayer.endFill();
+			} else {
+				hiddenLayer.clear();
+			}
 		};
 
 		return {
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
-			build: function(terrain, isPlayer=false, isDark=false, isHidden=false, isEnemy=false, isPassable=true) {
+			build: function(terrain, isPlayer=false, isDark=false, isHidden=true, isEnemy=false, isPassable=true) {
 				this.state.isPlayer = isPlayer;
 				this.state.passable = isPassable;
 				this.state.isDark = isDark;
@@ -305,7 +331,9 @@ var MapWrapper = function(center) {
 				// Runs drawing functionality.
 				this.draw(9);
 				// Attach the tile to the stage.
-				tileMap.container.addChild(hexagon);
+				tileMap.terrainContainer.addChild(hexagon);
+				// Attach hidden opacity layer.
+				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -334,8 +362,11 @@ var MapWrapper = function(center) {
 						hoverLine.lineTo(x_i, y_i);
 					}
 					// Attach the hoverLine to the stage.
-					tileMap.container.addChild(hoverLine);
+					tileMap.hoverLineContainer.addChild(hoverLine);
 				}
+			},
+			hide: function() {
+				this.state.isHidden = true;
 			},
 			graphique: null,
 			link1: null,
@@ -359,6 +390,10 @@ var MapWrapper = function(center) {
 				activeTile = null;
 				this.draw(9);
 			},
+			show: function() {
+				this.state.isHidden = false;
+				this.draw(9);
+			},
 			state: {
 				isDark: false,
 				isHidden: false,
@@ -376,6 +411,8 @@ var MapWrapper = function(center) {
 		tileTable[center.x + '-' + center.y] = startNode;
 
 		makeNeighborNodes(startNode, 0);
+
+		showTiles(activeTile, 0);
 	};
 	// Procedural generator of the tiles, which connects them through links.
 	var makeNeighborNodes = function(centerNode, count) {
@@ -557,12 +594,18 @@ var MapWrapper = function(center) {
 		}
 	};
 	tileMap.container = new PIXI.Container();
+	tileMap.terrainContainer = new PIXI.Container();
+	tileMap.hoverLineContainer = new PIXI.Container();
+	tileMap.hiddenLayerContainer = new PIXI.Container();
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
 		// Place center hole at center screen
 		buildLevel(level);
-		tileMap.container.cacheAsBitmap = true;
+		tileMap.terrainContainer.cacheAsBitmap = true;
+		tileMap.container.addChild(tileMap.terrainContainer);
+		tileMap.container.addChild(tileMap.hoverLineContainer);
+		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 	};
 	// Called to increase level...and rebuild map.
 	tileMap.nextLevel = function() {
