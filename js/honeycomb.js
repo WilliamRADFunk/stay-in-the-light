@@ -192,6 +192,21 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var pits = [
+					[0, 0], [12, 2], [-16, -3], [-7, 15], [-7, -13],
+					[3, 10], [6, -16]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				// Math.sqrt(100 - x2)
+				for(var i = 0; i < pits.length; i++) {
+					hexagon.moveTo(cX + pits[i][0], cY + pits[i][1] + Math.sqrt(-75));
+					for(var j = -9; j <= 10; j++) {
+						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] + Math.sqrt(25 - (j * j)));
+					}
+					for(var j = 10; j >= -10; j--) {
+						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] - Math.sqrt(25 - (j * j)));
+					}
+				}
 			} else if(terrain === 'water') {
 				// The base tile without hover borders.
 				var fillColor = 0x40A4DF;
