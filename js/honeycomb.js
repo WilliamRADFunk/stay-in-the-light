@@ -22,6 +22,7 @@ var MapWrapper = function(center) {
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
 		if(activeTile) {
+			tileMap.container.cacheAsBitmap = false;
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
@@ -32,6 +33,7 @@ var MapWrapper = function(center) {
 					activeTile.draw(hextant, 0xFF0000);
 				}
 			}
+			tileMap.container.cacheAsBitmap = true;
 		}
 	};
 	// Captures click of mouse and passes on to handler.
@@ -39,6 +41,7 @@ var MapWrapper = function(center) {
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		if(activeTile) {
+			tileMap.container.cacheAsBitmap = false;
 			var xDiff = activeTile.position.x - e.pageX;
 			var yDiff = activeTile.position.y - e.pageY;
 			var angle = Math.atan2(yDiff, xDiff);
@@ -88,7 +91,8 @@ var MapWrapper = function(center) {
 					activeTile.draw(2, 0xFF0000);
 				}
 			}
-		}		
+			tileMap.container.cacheAsBitmap = true;	
+		}
 	};
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
@@ -558,6 +562,7 @@ var MapWrapper = function(center) {
 		// Create map instance here
 		// Place center hole at center screen
 		buildLevel(level);
+		tileMap.container.cacheAsBitmap = true;
 	};
 	// Called to increase level...and rebuild map.
 	tileMap.nextLevel = function() {
