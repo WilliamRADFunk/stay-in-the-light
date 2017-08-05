@@ -145,12 +145,22 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
 				var treeRoot = [
-					[0, 0], [2, 2], [-3, -3], [5, 5], [-7, -7],
-					[10, 10], [2, -2], [-3, 3], [5, -5], [-7, 7],
-					[10, -10], [9, 14], [-9, 14], [14, 9], [14, 9],
-					[18, 0], [-18, 0], [2, 18], [6, 17], [-6, 17]
+					[0, 0], [2, 2], [-3, -3], [-7, -7], [10, 10],
+					[-3, 3], [5, -5], [-7, 7], [10, -10], [9, 14],
+					[14, 9], [14, 9], [18, 0], [6, 17], [-6, 17]
 				];
+				// Adds a few random ones.
+				for(var i = 0; i < 5; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 18);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					treeRoot.push(entry);
+				}
 				hexagon.lineStyle(0.5, 0x000000, 1);
 				for(var i = 0; i < treeRoot.length; i++) {
 					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1]);
@@ -180,41 +190,52 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
 				var cactus = [
-					[0, 0], [5, 5], [-7, -7], [-9, 14],
-					[6, 17], [-6, 17], [6, -12], [14, 0]
+					[0, 0], [-7, -7], [-9, 14],
+					[6, 17], [-6, 17], [6, -12],
 				];
+				// Adds a few random ones.
+				for(var i = 0; i < 3; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 16);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					cactus.push(entry);
+				}
 				hexagon.lineStyle(0.5, 0x006400, 1);
-				for(var i = 0; i < cactus.length; i++) {
-					hexagon.moveTo(cX + cactus[i][0], cY + cactus[i][1]);
-					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 10);
-					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 10);
-					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 10);
-					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 8);
-					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 8);
-					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 8);
-					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 6);
-					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 6);
-					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 6);
-					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 4);
-					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 4);
-					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 4);
-					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 2);
-					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 2);
-					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 2);
-					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1]);
-					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1]);
-					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1]);
-					hexagon.moveTo(cX + cactus[i][0] - 3, cY + cactus[i][1] - 5);
-					hexagon.lineTo(cX + cactus[i][0] + 3, cY + cactus[i][1] - 5);
-					hexagon.moveTo(cX + cactus[i][0] - 4, cY + cactus[i][1] - 7);
-					hexagon.lineTo(cX + cactus[i][0] - 2, cY + cactus[i][1] - 7);
-					hexagon.moveTo(cX + cactus[i][0] - 4, cY + cactus[i][1] - 9);
-					hexagon.lineTo(cX + cactus[i][0] - 2, cY + cactus[i][1] - 9);
-					hexagon.moveTo(cX + cactus[i][0] + 4, cY + cactus[i][1] - 7);
-					hexagon.lineTo(cX + cactus[i][0] + 2, cY + cactus[i][1] - 7);
-					hexagon.moveTo(cX + cactus[i][0] + 4, cY + cactus[i][1] - 9);
-					hexagon.lineTo(cX + cactus[i][0] + 2, cY + cactus[i][1] - 9);
+				for(var k = 0; k < cactus.length; k++) {
+					hexagon.moveTo(cX + cactus[k][0], cY + cactus[k][1]);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 10);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 10);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 10);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 8);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 8);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 8);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 6);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 6);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 6);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 4);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 4);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 4);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 2);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 2);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 2);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1]);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1]);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1]);
+					hexagon.moveTo(cX + cactus[k][0] - 3, cY + cactus[k][1] - 5);
+					hexagon.lineTo(cX + cactus[k][0] + 3, cY + cactus[k][1] - 5);
+					hexagon.moveTo(cX + cactus[k][0] - 4, cY + cactus[k][1] - 7);
+					hexagon.lineTo(cX + cactus[k][0] - 2, cY + cactus[k][1] - 7);
+					hexagon.moveTo(cX + cactus[k][0] - 4, cY + cactus[k][1] - 9);
+					hexagon.lineTo(cX + cactus[k][0] - 2, cY + cactus[k][1] - 9);
+					hexagon.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 7);
+					hexagon.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 7);
+					hexagon.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 9);
+					hexagon.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 9);
 				}
 			} else if(terrain === 'mountains') {
 				// The base tile without hover borders.
@@ -229,11 +250,21 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
 				var mountainPeak = [
 					[0, 0], [-3, -13], [15, 5], [-7, -7], [-10, 12],
-					[10, 10], [2, -2], [-3, 3], [5, -5], [-7, 7],
-					[-20, 0], [-16, 4], [0, 20], [-10, -16]
+					[10, 10], [5, -5], [-20, 0], [-16, 4], [-10, -16]
 				];
+				// Adds a few random ones.
+				for(var i = 0; i < 4; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 12);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					mountainPeak.push(entry);
+				}
 				hexagon.lineStyle(0.5, 0x000000, 1);
 				for(var i = 0; i < mountainPeak.length; i++) {
 					hexagon.moveTo(cX + mountainPeak[i][0], cY + mountainPeak[i][1]);
@@ -259,10 +290,20 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
 				var pits = [
-					[0, 0], [12, 2], [-16, -3], [-7, 15], [-7, -13],
-					[3, 10], [6, -16]
+					[12, 2], [-16, -3], [-7, 15], [-7, -13], [6, -16]
 				];
+				// Adds a few random ones.
+				for(var i = 0; i < 2; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 4);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					pits.push(entry);
+				}
 				hexagon.lineStyle(0.5, 0x000000, 1);
 				// Math.sqrt(100 - x2)
 				for(var i = 0; i < pits.length; i++) {
