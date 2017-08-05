@@ -8,6 +8,7 @@ Authors:
 
 // Wrapped tile map object
 var MapWrapper = function(center) {
+	var activeCenter = center;
 	var level = 1;
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
@@ -41,6 +42,10 @@ var MapWrapper = function(center) {
 				} else {
 					activeTile.draw(hextant, 0xFF0000);
 				}
+				activeCenter = {
+					x: activeTile.position.x,
+					y: activeTile.position.y
+				};
 			}
 		}
 	};
@@ -621,6 +626,9 @@ var MapWrapper = function(center) {
 			revealDepth = 3;
 		}
 		showTiles(activeTile, 0);
+	};
+	tileMap.getActiveCenter = function() {
+		return activeCenter;
 	};
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {

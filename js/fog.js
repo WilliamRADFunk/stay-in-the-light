@@ -68,14 +68,18 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 				fogContainer.mask = maskPrime;
 			});
 
-			radius = 75;
+			radius = 90;
 }).call(this);
 
 //# sourceMappingURL=index.js.map
 	};
 
-	Fog.redrawFogHole = function() {
+	Fog.redrawFogHole = function(center) {
 		maskPrime.clear();
+		if(center) {
+			maskPrime.x = center.x;
+			maskPrime.y = center.y;
+		}
 		maskPrime.drawCircle(0, 0, radius);
 	};
 
@@ -83,26 +87,26 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		// Move eye of the fog
 	};
 
-	Fog.expand = function() {
+	Fog.expand = function(center) {
 		// Eye of fog gets one increment bigger
-		radius += 25;
+		radius += 45;
 		//MAX CIELING for radius
-		if(radius > center.y){
-			radius = center.y;
+		if(radius > 206){
+			radius = 205;
 		}
 		//Redraw Fog at radius
-		Fog.redrawFogHole();
+		Fog.redrawFogHole(center);
 	};
 
-	Fog.contract = function() {
-		radius -= 25;
+	Fog.contract = function(center) {
+		radius -= 45;
 
 		//MIN FLOOR for radius
-		if(radius < 101){
-			radius = 100;
+		if(radius < 91){
+			radius = 90;
 		}
 		//Redraw Fog at radius
-		Fog.redrawFogHole();
+		Fog.redrawFogHole(center);
 	};
 
 	Fog.renderFog = function() {
