@@ -67,6 +67,9 @@ Game.prototype = {
 			this.honeycomb.contract();
 		}.bind(this));
 
+		document.addEventListener('playerMove', function(e) {
+			this.fog.move(this.honeycomb.getActiveCenter());
+		}.bind(this));
 	},
 
 	/**

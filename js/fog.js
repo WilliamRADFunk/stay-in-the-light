@@ -83,8 +83,8 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		maskPrime.drawCircle(0, 0, radius);
 	};
 
-	Fog.move = function() {
-		// Move eye of the fog
+	Fog.move = function(center) {
+		Fog.redrawFogHole(center);
 	};
 
 	Fog.expand = function(center) {

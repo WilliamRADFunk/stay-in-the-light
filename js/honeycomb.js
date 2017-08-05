@@ -46,6 +46,10 @@ var MapWrapper = function(center) {
 					x: activeTile.position.x,
 					y: activeTile.position.y
 				};
+				hideTiles();
+				showTiles(activeTile, 0);
+				var event = new Event('playerMove');
+    			document.dispatchEvent(event);
 			}
 		}
 	};
