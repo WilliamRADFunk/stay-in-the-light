@@ -58,11 +58,13 @@ Game.prototype = {
 
 		Mousetrap.bind('a', function(){
 			this.fog.expand();
+			this.honeycomb.expand();
 		}.bind(this));
 
 
 		Mousetrap.bind('d', function(){
 			this.fog.contract();
+			this.honeycomb.contract();
 		}.bind(this));
 
 	},

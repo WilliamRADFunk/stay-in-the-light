@@ -21,6 +21,14 @@ var MapWrapper = function(center) {
 	var tileMap = {};
 	// Hash table of all tiles in map.
 	var tileTable = {};
+	var hideTiles = function() {
+		var tiles = Object.keys(tileTable);
+		for(var i = 0; i < tiles.length; i++) {
+			if(tileTable[tiles[i]]) {
+				tileTable[tiles[i]].hide();
+			}
+		}
+	};
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
 		if(activeTile) {
@@ -367,6 +375,7 @@ var MapWrapper = function(center) {
 			},
 			hide: function() {
 				this.state.isHidden = true;
+				this.draw(9);
 			},
 			graphique: null,
 			link1: null,
@@ -393,6 +402,7 @@ var MapWrapper = function(center) {
 			show: function() {
 				this.state.isHidden = false;
 				this.draw(9);
+				activeTile.draw(hextant, 0x000000);
 			},
 			state: {
 				isDark: false,
@@ -597,6 +607,21 @@ var MapWrapper = function(center) {
 	tileMap.terrainContainer = new PIXI.Container();
 	tileMap.hoverLineContainer = new PIXI.Container();
 	tileMap.hiddenLayerContainer = new PIXI.Container();
+	tileMap.contract = function() {
+		revealDepth -= 1;
+		if(revealDepth < 1) {
+			revealDepth = 1;
+		}
+		hideTiles();
+		showTiles(activeTile, 0);
+	};
+	tileMap.expand = function() {
+		revealDepth += 1;
+		if(revealDepth > 3) {
+			revealDepth = 3;
+		}
+		showTiles(activeTile, 0);
+	};
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
@@ -604,8 +629,8 @@ var MapWrapper = function(center) {
 		buildLevel(level);
 		tileMap.terrainContainer.cacheAsBitmap = true;
 		tileMap.container.addChild(tileMap.terrainContainer);
-		tileMap.container.addChild(tileMap.hoverLineContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
+		tileMap.container.addChild(tileMap.hoverLineContainer);
 	};
 	// Called to increase level...and rebuild map.
 	tileMap.nextLevel = function() {
