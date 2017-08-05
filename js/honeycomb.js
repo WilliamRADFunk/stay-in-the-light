@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.2
-Last Updated: 2017-July-30
+Stay in the Light v0.0.3
+Last Updated: 2017-August-05
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -22,6 +22,7 @@ var MapWrapper = function(center) {
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
 		if(activeTile) {
+			tileMap.container.cacheAsBitmap = false;
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
@@ -32,6 +33,7 @@ var MapWrapper = function(center) {
 					activeTile.draw(hextant, 0xFF0000);
 				}
 			}
+			tileMap.container.cacheAsBitmap = true;
 		}
 	};
 	// Captures click of mouse and passes on to handler.
@@ -39,6 +41,7 @@ var MapWrapper = function(center) {
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		if(activeTile) {
+			tileMap.container.cacheAsBitmap = false;
 			var xDiff = activeTile.position.x - e.pageX;
 			var yDiff = activeTile.position.y - e.pageY;
 			var angle = Math.atan2(yDiff, xDiff);
@@ -88,7 +91,8 @@ var MapWrapper = function(center) {
 					activeTile.draw(2, 0xFF0000);
 				}
 			}
-		}		
+			tileMap.container.cacheAsBitmap = true;	
+		}
 	};
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
@@ -100,8 +104,8 @@ var MapWrapper = function(center) {
 		var hoverLine = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
-		var drawTerrain = function(terrain) {
-			if(terrain === 'plains') {
+		var drawTerrain = function(terrain, isHidden, isDark) {
+			if(terrain === 'forest') {
 				// The base tile without hover borders.
 				var fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
@@ -114,6 +118,28 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var treeRoot = [
+					[0, 0], [2, 2], [-3, -3], [5, 5], [-7, -7],
+					[10, 10], [2, -2], [-3, 3], [5, -5], [-7, 7],
+					[10, -10], [9, 14], [-9, 14], [14, 9], [14, 9],
+					[18, 0], [-18, 0], [2, 18], [6, 17], [-6, 17]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < treeRoot.length; i++) {
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1]);
+					hexagon.lineTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+					hexagon.lineTo(cX + treeRoot[i][0] - 1, cY + treeRoot[i][1] - 7);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+					hexagon.lineTo(cX + treeRoot[i][0] + 1, cY + treeRoot[i][1] - 7);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+					hexagon.lineTo(cX + treeRoot[i][0] - 2, cY + treeRoot[i][1] - 5);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+					hexagon.lineTo(cX + treeRoot[i][0] + 2, cY + treeRoot[i][1] - 5);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+					hexagon.lineTo(cX + treeRoot[i][0] - 3, cY + treeRoot[i][1] - 2);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+					hexagon.lineTo(cX + treeRoot[i][0] + 3, cY + treeRoot[i][1] - 2);
+				}
 			} else if(terrain === 'desert') {
 				// The base tile without hover borders.
 				var fillColor = 0xEDC9AF;
@@ -127,6 +153,42 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var cactus = [
+					[0, 0], [5, 5], [-7, -7], [-9, 14],
+					[6, 17], [-6, 17], [6, -12], [14, 0]
+				];
+				hexagon.lineStyle(0.5, 0x006400, 1);
+				for(var i = 0; i < cactus.length; i++) {
+					hexagon.moveTo(cX + cactus[i][0], cY + cactus[i][1]);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 10);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 10);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 10);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 8);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 8);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 8);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 6);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 6);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 6);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 4);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 4);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 4);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 2);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 2);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 2);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1]);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1]);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1]);
+					hexagon.moveTo(cX + cactus[i][0] - 3, cY + cactus[i][1] - 5);
+					hexagon.lineTo(cX + cactus[i][0] + 3, cY + cactus[i][1] - 5);
+					hexagon.moveTo(cX + cactus[i][0] - 4, cY + cactus[i][1] - 7);
+					hexagon.lineTo(cX + cactus[i][0] - 2, cY + cactus[i][1] - 7);
+					hexagon.moveTo(cX + cactus[i][0] - 4, cY + cactus[i][1] - 9);
+					hexagon.lineTo(cX + cactus[i][0] - 2, cY + cactus[i][1] - 9);
+					hexagon.moveTo(cX + cactus[i][0] + 4, cY + cactus[i][1] - 7);
+					hexagon.lineTo(cX + cactus[i][0] + 2, cY + cactus[i][1] - 7);
+					hexagon.moveTo(cX + cactus[i][0] + 4, cY + cactus[i][1] - 9);
+					hexagon.lineTo(cX + cactus[i][0] + 2, cY + cactus[i][1] - 9);
+				}
 			} else if(terrain === 'mountains') {
 				// The base tile without hover borders.
 				var fillColor = 0x968D99;
@@ -140,6 +202,23 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var mountainPeak = [
+					[0, 0], [-3, -13], [15, 5], [-7, -7], [-10, 12],
+					[10, 10], [2, -2], [-3, 3], [5, -5], [-7, 7],
+					[-20, 0], [-16, 4], [0, 20], [-10, -16]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < mountainPeak.length; i++) {
+					hexagon.moveTo(cX + mountainPeak[i][0], cY + mountainPeak[i][1]);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 10, cY + mountainPeak[i][1]);
+					hexagon.beginFill(0xFFFFFF);
+					hexagon.moveTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 7.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.endFill();
+				}
 			} else if(terrain === 'pit') {
 				// The base tile without hover borders.
 				var fillColor = 0x654321;
@@ -153,6 +232,21 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var pits = [
+					[0, 0], [12, 2], [-16, -3], [-7, 15], [-7, -13],
+					[3, 10], [6, -16]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				// Math.sqrt(100 - x2)
+				for(var i = 0; i < pits.length; i++) {
+					hexagon.moveTo(cX + pits[i][0], cY + pits[i][1] + Math.sqrt(-75));
+					for(var j = -9; j <= 10; j++) {
+						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] + Math.sqrt(25 - (j * j)));
+					}
+					for(var j = 10; j >= -10; j--) {
+						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] - Math.sqrt(25 - (j * j)));
+					}
+				}
 			} else if(terrain === 'water') {
 				// The base tile without hover borders.
 				var fillColor = 0x40A4DF;
@@ -166,8 +260,30 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var waves = [
+					[3, 0], [-22, 0], [-10, 15], [-10, -15]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < waves.length; i++) {
+					hexagon.moveTo(cX + waves[i][0], cY + waves[i][1]);
+					for(var j = 0; j < 20; j++) {
+						hexagon.lineTo(cX + waves[i][0] + j, cY + waves[i][1] + (3 * Math.sin(j)));
+					}
+				}
 			} else {
 				// Null space
+				// The base tile without hover borders.
+				var fillColor = 0x000000;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0x333333, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
 			}
 		};
 
@@ -200,7 +316,7 @@ var MapWrapper = function(center) {
 				}
 				hexagon.clear();
 				hoverLine.clear();
-				drawTerrain(this.type);
+				drawTerrain(this.type, this.state.isHidden, this.state.isDark);
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
 				// If hoverline redraw thicker boundary, with one hextant as green.
@@ -260,8 +376,6 @@ var MapWrapper = function(center) {
 		tileTable[center.x + '-' + center.y] = startNode;
 
 		makeNeighborNodes(startNode, 0);
-
-		console.log(tileTable);
 	};
 	// Procedural generator of the tiles, which connects them through links.
 	var makeNeighborNodes = function(centerNode, count) {
@@ -433,7 +547,7 @@ var MapWrapper = function(center) {
 		var rando = Math.random() * 100;
 
 		if(isStarter || rando < 75) {
-			if(rando >= 0 && rando < 45) return 'plains';
+			if(rando >= 0 && rando < 45) return 'forest';
 			else if(rando >= 45 && rando < 70) return 'desert';
 			else return 'mountains';
 		} else {
@@ -448,6 +562,7 @@ var MapWrapper = function(center) {
 		// Create map instance here
 		// Place center hole at center screen
 		buildLevel(level);
+		tileMap.container.cacheAsBitmap = true;
 	};
 	// Called to increase level...and rebuild map.
 	tileMap.nextLevel = function() {
