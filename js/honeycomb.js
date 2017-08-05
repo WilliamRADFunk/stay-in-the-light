@@ -162,6 +162,23 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var mountainPeak = [
+					[0, 0], [-3, -13], [15, 5], [-7, -7], [-10, 12],
+					[10, 10], [2, -2], [-3, 3], [5, -5], [-7, 7],
+					[-20, 0], [-16, 4], [0, 20], [-10, -16]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < mountainPeak.length; i++) {
+					hexagon.moveTo(cX + mountainPeak[i][0], cY + mountainPeak[i][1]);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 10, cY + mountainPeak[i][1]);
+					hexagon.beginFill(0xFFFFFF);
+					hexagon.moveTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 7.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.endFill();
+				}
 			} else if(terrain === 'pit') {
 				// The base tile without hover borders.
 				var fillColor = 0x654321;
