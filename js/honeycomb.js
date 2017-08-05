@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.1
-Last Updated: 2017-July-23
+Stay in the Light v0.0.3
+Last Updated: 2017-August-05
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -100,8 +100,8 @@ var MapWrapper = function(center) {
 		var hoverLine = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
-		var drawTerrain = function(terrain) {
-			if(terrain === 'plains') {
+		var drawTerrain = function(terrain, isHidden, isDark) {
+			if(terrain === 'forest') {
 				// The base tile without hover borders.
 				var fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
@@ -114,6 +114,28 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var treeRoot = [
+					[0, 0], [2, 2], [-3, -3], [5, 5], [-7, -7],
+					[10, 10], [2, -2], [-3, 3], [5, -5], [-7, 7],
+					[10, -10], [9, 14], [-9, 14], [14, 9], [14, 9],
+					[18, 0], [-18, 0], [2, 18], [6, 17], [-6, 17]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < treeRoot.length; i++) {
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1]);
+					hexagon.lineTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+					hexagon.lineTo(cX + treeRoot[i][0] - 1, cY + treeRoot[i][1] - 7);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+					hexagon.lineTo(cX + treeRoot[i][0] + 1, cY + treeRoot[i][1] - 7);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+					hexagon.lineTo(cX + treeRoot[i][0] - 2, cY + treeRoot[i][1] - 5);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+					hexagon.lineTo(cX + treeRoot[i][0] + 2, cY + treeRoot[i][1] - 5);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+					hexagon.lineTo(cX + treeRoot[i][0] - 3, cY + treeRoot[i][1] - 2);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+					hexagon.lineTo(cX + treeRoot[i][0] + 3, cY + treeRoot[i][1] - 2);
+				}
 			} else if(terrain === 'desert') {
 				// The base tile without hover borders.
 				var fillColor = 0xEDC9AF;
@@ -168,6 +190,18 @@ var MapWrapper = function(center) {
 				hexagon.endFill();
 			} else {
 				// Null space
+				// The base tile without hover borders.
+				var fillColor = 0x000000;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0x333333, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
 			}
 		};
 
@@ -200,7 +234,7 @@ var MapWrapper = function(center) {
 				}
 				hexagon.clear();
 				hoverLine.clear();
-				drawTerrain(this.type);
+				drawTerrain(this.type, this.state.isHidden, this.state.isDark);
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
 				// If hoverline redraw thicker boundary, with one hextant as green.
@@ -260,8 +294,6 @@ var MapWrapper = function(center) {
 		tileTable[center.x + '-' + center.y] = startNode;
 
 		makeNeighborNodes(startNode, 0);
-
-		console.log(tileTable);
 	};
 	// Procedural generator of the tiles, which connects them through links.
 	var makeNeighborNodes = function(centerNode, count) {
@@ -433,7 +465,7 @@ var MapWrapper = function(center) {
 		var rando = Math.random() * 100;
 
 		if(isStarter || rando < 75) {
-			if(rando >= 0 && rando < 45) return 'plains';
+			if(rando >= 0 && rando < 45) return 'forest';
 			else if(rando >= 45 && rando < 70) return 'desert';
 			else return 'mountains';
 		} else {
