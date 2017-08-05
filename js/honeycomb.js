@@ -205,6 +205,16 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var waves = [
+					[3, 0], [-22, 0], [-10, 15], [-10, -15]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < waves.length; i++) {
+					hexagon.moveTo(cX + waves[i][0], cY + waves[i][1]);
+					for(var j = 0; j < 20; j++) {
+						hexagon.lineTo(cX + waves[i][0] + j, cY + waves[i][1] + (3 * Math.sin(j)));
+					}
+				}
 			} else {
 				// Null space
 				// The base tile without hover borders.
