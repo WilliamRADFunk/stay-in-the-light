@@ -1,6 +1,6 @@
-/* 
-Stay in the Light v0.0.2
-Last Updated: 2017-July-30
+/*
+Stay in the Light v0.0.3
+Last Updated: 2017-August-05
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -57,14 +57,19 @@ Game.prototype = {
 
 
 		Mousetrap.bind('a', function(){
-			this.fog.expand();
+			this.fog.expand(this.honeycomb.getActiveCenter());
+			this.honeycomb.expand();
 		}.bind(this));
 
 
 		Mousetrap.bind('d', function(){
-			this.fog.contract();
+			this.fog.contract(this.honeycomb.getActiveCenter());
+			this.honeycomb.contract();
 		}.bind(this));
 
+		document.addEventListener('playerMove', function(e) {
+			this.fog.move(this.honeycomb.getActiveCenter());
+		}.bind(this));
 	},
 
 	/**

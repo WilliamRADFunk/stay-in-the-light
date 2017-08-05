@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.2
-Last Updated: 2017-July-30
+Stay in the Light v0.0.3
+Last Updated: 2017-August-05
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -8,9 +8,12 @@ Authors:
 
 // Wrapped tile map object
 var MapWrapper = function(center) {
+	var activeCenter = center;
 	var level = 1;
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
+	// Prevents the procedural unhide recursion from going too far.
+	var revealDepth = 1;
 	// Tracks current hextant player is hovering near
 	var hextant = null;
 	// Player's current tile. Used to determine directionality of mouse placement.
@@ -19,6 +22,14 @@ var MapWrapper = function(center) {
 	var tileMap = {};
 	// Hash table of all tiles in map.
 	var tileTable = {};
+	var hideTiles = function() {
+		var tiles = Object.keys(tileTable);
+		for(var i = 0; i < tiles.length; i++) {
+			if(tileTable[tiles[i]]) {
+				tileTable[tiles[i]].hide();
+			}
+		}
+	};
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
 		if(activeTile) {
@@ -31,6 +42,14 @@ var MapWrapper = function(center) {
 				} else {
 					activeTile.draw(hextant, 0xFF0000);
 				}
+				activeCenter = {
+					x: activeTile.position.x,
+					y: activeTile.position.y
+				};
+				hideTiles();
+				showTiles(activeTile, 0);
+				var event = new Event('playerMove');
+    			document.dispatchEvent(event);
 			}
 		}
 	};
@@ -88,8 +107,18 @@ var MapWrapper = function(center) {
 					activeTile.draw(2, 0xFF0000);
 				}
 			}
-		}		
+		}
 	};
+	var showTiles = function(tile, layer) {
+		if(tile && layer <= revealDepth) {
+			tile.show();
+			for(var i = 1; i < 7; i++) {
+				showTiles(tile['link' + i], layer + 1);
+			}
+		} else {
+			return;
+		}
+	}
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
 	// Tile creator
@@ -98,10 +127,12 @@ var MapWrapper = function(center) {
 		var hexagon = new PIXI.Graphics();
 		// Additional border to show player's direction focus.
 		var hoverLine = new PIXI.Graphics();
+		// Additional hidden layer with opacity to partially conceal time.
+		var hiddenLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
-		var drawTerrain = function(terrain) {
-			if(terrain === 'plains') {
+		var drawTerrain = function(terrain, isHidden, isDark) {
+			if(terrain === 'forest') {
 				// The base tile without hover borders.
 				var fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
@@ -114,6 +145,38 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
+				var treeRoot = [
+					[0, 0], [2, 2], [-3, -3], [-7, -7], [10, 10],
+					[-3, 3], [5, -5], [-7, 7], [10, -10], [9, 14],
+					[14, 9], [14, 9], [18, 0], [6, 17], [-6, 17]
+				];
+				// Adds a few random ones.
+				for(var i = 0; i < 5; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 18);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					treeRoot.push(entry);
+				}
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < treeRoot.length; i++) {
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1]);
+					hexagon.lineTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+					hexagon.lineTo(cX + treeRoot[i][0] - 1, cY + treeRoot[i][1] - 7);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+					hexagon.lineTo(cX + treeRoot[i][0] + 1, cY + treeRoot[i][1] - 7);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+					hexagon.lineTo(cX + treeRoot[i][0] - 2, cY + treeRoot[i][1] - 5);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+					hexagon.lineTo(cX + treeRoot[i][0] + 2, cY + treeRoot[i][1] - 5);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+					hexagon.lineTo(cX + treeRoot[i][0] - 3, cY + treeRoot[i][1] - 2);
+					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+					hexagon.lineTo(cX + treeRoot[i][0] + 3, cY + treeRoot[i][1] - 2);
+				}
 			} else if(terrain === 'desert') {
 				// The base tile without hover borders.
 				var fillColor = 0xEDC9AF;
@@ -127,6 +190,53 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
+				var cactus = [
+					[0, 0], [-7, -7], [-9, 14],
+					[6, 17], [-6, 17], [6, -12],
+				];
+				// Adds a few random ones.
+				for(var i = 0; i < 3; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 16);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					cactus.push(entry);
+				}
+				hexagon.lineStyle(0.5, 0x006400, 1);
+				for(var k = 0; k < cactus.length; k++) {
+					hexagon.moveTo(cX + cactus[k][0], cY + cactus[k][1]);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 10);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 10);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 10);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 8);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 8);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 8);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 6);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 6);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 6);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 4);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 4);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 4);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 2);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 2);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 2);
+					hexagon.lineTo(cX + cactus[k][0], cY + cactus[k][1]);
+					hexagon.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1]);
+					hexagon.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1]);
+					hexagon.moveTo(cX + cactus[k][0] - 3, cY + cactus[k][1] - 5);
+					hexagon.lineTo(cX + cactus[k][0] + 3, cY + cactus[k][1] - 5);
+					hexagon.moveTo(cX + cactus[k][0] - 4, cY + cactus[k][1] - 7);
+					hexagon.lineTo(cX + cactus[k][0] - 2, cY + cactus[k][1] - 7);
+					hexagon.moveTo(cX + cactus[k][0] - 4, cY + cactus[k][1] - 9);
+					hexagon.lineTo(cX + cactus[k][0] - 2, cY + cactus[k][1] - 9);
+					hexagon.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 7);
+					hexagon.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 7);
+					hexagon.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 9);
+					hexagon.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 9);
+				}
 			} else if(terrain === 'mountains') {
 				// The base tile without hover borders.
 				var fillColor = 0x968D99;
@@ -140,6 +250,33 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
+				var mountainPeak = [
+					[0, 0], [-3, -13], [15, 5], [-7, -7], [-10, 12],
+					[10, 10], [5, -5], [-20, 0], [-16, 4], [-10, -16]
+				];
+				// Adds a few random ones.
+				for(var i = 0; i < 4; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 12);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					mountainPeak.push(entry);
+				}
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < mountainPeak.length; i++) {
+					hexagon.moveTo(cX + mountainPeak[i][0], cY + mountainPeak[i][1]);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 10, cY + mountainPeak[i][1]);
+					hexagon.beginFill(0xFFFFFF);
+					hexagon.moveTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 7.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+					hexagon.lineTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+					hexagon.endFill();
+				}
 			} else if(terrain === 'pit') {
 				// The base tile without hover borders.
 				var fillColor = 0x654321;
@@ -153,6 +290,31 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				// preset ones to ensure a decent look.
+				var pits = [
+					[12, 2], [-16, -3], [-7, 15], [-7, -13], [6, -16]
+				];
+				// Adds a few random ones.
+				for(var i = 0; i < 2; i ++) {
+					var entry = [];
+					for(var j = 0; j < 2; j ++) {
+						var num = Math.floor(Math.random() * 4);
+						num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+						entry[j] = num;
+					}
+					pits.push(entry);
+				}
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				// Math.sqrt(100 - x2)
+				for(var i = 0; i < pits.length; i++) {
+					hexagon.moveTo(cX + pits[i][0], cY + pits[i][1] + Math.sqrt(-75));
+					for(var j = -9; j <= 10; j++) {
+						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] + Math.sqrt(25 - (j * j)));
+					}
+					for(var j = 10; j >= -10; j--) {
+						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] - Math.sqrt(25 - (j * j)));
+					}
+				}
 			} else if(terrain === 'water') {
 				// The base tile without hover borders.
 				var fillColor = 0x40A4DF;
@@ -166,14 +328,52 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var waves = [
+					[3, 0], [-22, 0], [-10, 15], [-10, -15]
+				];
+				hexagon.lineStyle(0.5, 0x000000, 1);
+				for(var i = 0; i < waves.length; i++) {
+					hexagon.moveTo(cX + waves[i][0], cY + waves[i][1]);
+					for(var j = 0; j < 20; j++) {
+						hexagon.lineTo(cX + waves[i][0] + j, cY + waves[i][1] + (3 * Math.sin(j)));
+					}
+				}
 			} else {
 				// Null space
+				// The base tile without hover borders.
+				var fillColor = 0x000000;
+				hexagon.moveTo(cX + size, cY);
+				hexagon.beginFill(fillColor);
+				hexagon.lineStyle(3, 0x333333, 2);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_i, y_i);
+				}
+				hexagon.endFill();
+			}
+			if(isHidden) {
+				// Layer to illustrate a fog of war effect.
+				hiddenLayer.clear();
+				hiddenLayer.moveTo(cX + size, cY);
+				hiddenLayer.beginFill(0x999999, 0.7);
+				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					hiddenLayer.lineTo(x_i, y_i);
+				}
+				hiddenLayer.endFill();
+			} else {
+				hiddenLayer.clear();
 			}
 		};
 
 		return {
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
-			build: function(terrain, isPlayer=false, isDark=false, isHidden=false, isEnemy=false, isPassable=true) {
+			build: function(terrain, isPlayer=false, isDark=false, isHidden=true, isEnemy=false, isPassable=true) {
 				this.state.isPlayer = isPlayer;
 				this.state.passable = isPassable;
 				this.state.isDark = isDark;
@@ -189,7 +389,9 @@ var MapWrapper = function(center) {
 				// Runs drawing functionality.
 				this.draw(9);
 				// Attach the tile to the stage.
-				tileMap.container.addChild(hexagon);
+				tileMap.terrainContainer.addChild(hexagon);
+				// Attach hidden opacity layer.
+				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -200,7 +402,7 @@ var MapWrapper = function(center) {
 				}
 				hexagon.clear();
 				hoverLine.clear();
-				drawTerrain(this.type);
+				drawTerrain(this.type, this.state.isHidden, this.state.isDark);
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
 				// If hoverline redraw thicker boundary, with one hextant as green.
@@ -218,8 +420,12 @@ var MapWrapper = function(center) {
 						hoverLine.lineTo(x_i, y_i);
 					}
 					// Attach the hoverLine to the stage.
-					tileMap.container.addChild(hoverLine);
+					tileMap.hoverLineContainer.addChild(hoverLine);
 				}
+			},
+			hide: function() {
+				this.state.isHidden = true;
+				this.draw(9);
 			},
 			graphique: null,
 			link1: null,
@@ -243,6 +449,11 @@ var MapWrapper = function(center) {
 				activeTile = null;
 				this.draw(9);
 			},
+			show: function() {
+				this.state.isHidden = false;
+				this.draw(9);
+				activeTile.draw(hextant, 0x000000);
+			},
 			state: {
 				isDark: false,
 				isHidden: false,
@@ -261,7 +472,7 @@ var MapWrapper = function(center) {
 
 		makeNeighborNodes(startNode, 0);
 
-		console.log(tileTable);
+		showTiles(activeTile, 0);
 	};
 	// Procedural generator of the tiles, which connects them through links.
 	var makeNeighborNodes = function(centerNode, count) {
@@ -433,7 +644,7 @@ var MapWrapper = function(center) {
 		var rando = Math.random() * 100;
 
 		if(isStarter || rando < 75) {
-			if(rando >= 0 && rando < 45) return 'plains';
+			if(rando >= 0 && rando < 45) return 'forest';
 			else if(rando >= 45 && rando < 70) return 'desert';
 			else return 'mountains';
 		} else {
@@ -443,11 +654,36 @@ var MapWrapper = function(center) {
 		}
 	};
 	tileMap.container = new PIXI.Container();
+	tileMap.terrainContainer = new PIXI.Container();
+	tileMap.hoverLineContainer = new PIXI.Container();
+	tileMap.hiddenLayerContainer = new PIXI.Container();
+	tileMap.contract = function() {
+		revealDepth -= 1;
+		if(revealDepth < 1) {
+			revealDepth = 1;
+		}
+		hideTiles();
+		showTiles(activeTile, 0);
+	};
+	tileMap.expand = function() {
+		revealDepth += 1;
+		if(revealDepth > 3) {
+			revealDepth = 3;
+		}
+		showTiles(activeTile, 0);
+	};
+	tileMap.getActiveCenter = function() {
+		return activeCenter;
+	};
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
 		// Place center hole at center screen
 		buildLevel(level);
+		tileMap.terrainContainer.cacheAsBitmap = true;
+		tileMap.container.addChild(tileMap.terrainContainer);
+		tileMap.container.addChild(tileMap.hiddenLayerContainer);
+		tileMap.container.addChild(tileMap.hoverLineContainer);
 	};
 	// Called to increase level...and rebuild map.
 	tileMap.nextLevel = function() {

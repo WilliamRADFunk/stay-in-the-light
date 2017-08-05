@@ -1,6 +1,6 @@
-/* 
-Stay in the Light v0.0.2
-Last Updated: 2017-July-30
+/*
+Stay in the Light v0.0.3
+Last Updated: 2017-August-05
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -8,6 +8,13 @@ Authors:
 
 // Wrapped fog object
 var FogWrapper = function(container, center, hContainer, rEnder) {
+
+	//Aliases
+	var loader = new PIXI.loaders.Loader();
+
+	var frames = [];
+	var anim;
+
 	var Fog = {};
 	// Fog parameters and internal values
 	var radius;
@@ -15,12 +22,6 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 	//Fog internal objects / graphics
 	var circle;
 	var tilemapSnapshot;
-
-	//Fog images
-	var bgBACK = PIXI.Sprite.fromImage('./images/bluebg.jpg');
-	bgBACK.anchor.set(0.5);
-	bgBACK.x = center.x;
-	bgBACK.y = center.y;
 
 	//Fog exclusive container
 	var fogContainer = new PIXI.Container();
@@ -32,53 +33,80 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 
 	var renderTexture = PIXI.RenderTexture.create(rEnder.width, rEnder.height);
 
+	var fogSprite;
+
 	Fog.init = function() {
-		radius = 100;
 
-		container.addChild(bgBACK);
+		loader.add("./images/fogFinal.json");
+		(function() {
+			"use strict";
+			loader.load((loader, resources) => {
 
-		container.addChild(fogContainer);
+				fogSprite = new PIXI.Sprite(resources["./images/fogFinal.json"].textures["Fog_0001_Layer-01.png"]);
 
-		//Customize graphic to act as mask
-		container.addChild(maskPrime);
-		maskPrime.x = center.x;
-		maskPrime.y = center.y;
-		maskPrime.lineStyle(0);
-		maskPrime.beginFill(0x8bc5ff, 0.4);
-		maskPrime.drawCircle(0, 0, radius);
+				//Loop through frame count for fog and save 'frames' into frames array.
+			for (var i = 1; i < 23; i++) {
+				var val = i < 10 ? '0' + i : i;
+				// magically works since the spritesheet was loaded with the pixi loader
+				frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.png'));
+			}
+				//Instantiate and set animation Sprite
+				anim = new PIXI.extras.AnimatedSprite(frames);
+				anim.animationSpeed = 0.3;
+				anim.play();
+				//Add Animation contents to the container
+				container.addChild(anim);
+				container.addChild(fogContainer);
+				//Customize graphic to act as mask
+				container.addChild(maskPrime);
+				maskPrime.x = center.x;
+				maskPrime.y = center.y;
+				maskPrime.lineStyle(0);
+				maskPrime.beginFill(0x8bc5ff, 0.4);
+				maskPrime.drawCircle(0, 0, radius);
+				//Apply Mask
+				fogContainer.mask = maskPrime;
+			});
 
-		fogContainer.mask = maskPrime;
+			radius = 90;
+}).call(this);
+
+//# sourceMappingURL=index.js.map
 	};
 
-	Fog.redrawFogHole = function() {
+	Fog.redrawFogHole = function(center) {
 		maskPrime.clear();
+		if(center) {
+			maskPrime.x = center.x;
+			maskPrime.y = center.y;
+		}
 		maskPrime.drawCircle(0, 0, radius);
 	};
 
-	Fog.move = function() {
-		// Move eye of the fog
+	Fog.move = function(center) {
+		Fog.redrawFogHole(center);
 	};
 
-	Fog.expand = function() {
+	Fog.expand = function(center) {
 		// Eye of fog gets one increment bigger
-		radius += 20;
+		radius += 45;
 		//MAX CIELING for radius
-		if(radius > center.y){
-			radius = center.y;
+		if(radius > 206){
+			radius = 205;
 		}
 		//Redraw Fog at radius
-		Fog.redrawFogHole();
+		Fog.redrawFogHole(center);
 	};
 
-	Fog.contract = function() {
-		radius -= 20;
+	Fog.contract = function(center) {
+		radius -= 45;
 
 		//MIN FLOOR for radius
-		if(radius < 101){
-			radius = 100;
+		if(radius < 91){
+			radius = 90;
 		}
 		//Redraw Fog at radius
-		Fog.redrawFogHole();
+		Fog.redrawFogHole(center);
 	};
 
 	Fog.renderFog = function() {
@@ -94,6 +122,7 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		fogContainer.addChild(tilemapSnapshot);
 		maskPrime.clear();
 		maskPrime.drawCircle(0, 0, radius);
+
 	};
 
 	return Fog;
