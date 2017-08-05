@@ -149,6 +149,42 @@ var MapWrapper = function(center) {
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
+				var cactus = [
+					[0, 0], [5, 5], [-7, -7], [-9, 14],
+					[6, 17], [-6, 17], [6, -12], [14, 0]
+				];
+				hexagon.lineStyle(0.5, 0x006400, 1);
+				for(var i = 0; i < cactus.length; i++) {
+					hexagon.moveTo(cX + cactus[i][0], cY + cactus[i][1]);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 10);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 10);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 10);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 8);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 8);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 8);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 6);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 6);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 6);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 4);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 4);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 4);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1] - 2);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1] - 2);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1] - 2);
+					hexagon.lineTo(cX + cactus[i][0], cY + cactus[i][1]);
+					hexagon.moveTo(cX + cactus[i][0] - 1, cY + cactus[i][1]);
+					hexagon.lineTo(cX + cactus[i][0] + 1, cY + cactus[i][1]);
+					hexagon.moveTo(cX + cactus[i][0] - 3, cY + cactus[i][1] - 5);
+					hexagon.lineTo(cX + cactus[i][0] + 3, cY + cactus[i][1] - 5);
+					hexagon.moveTo(cX + cactus[i][0] - 4, cY + cactus[i][1] - 7);
+					hexagon.lineTo(cX + cactus[i][0] - 2, cY + cactus[i][1] - 7);
+					hexagon.moveTo(cX + cactus[i][0] - 4, cY + cactus[i][1] - 9);
+					hexagon.lineTo(cX + cactus[i][0] - 2, cY + cactus[i][1] - 9);
+					hexagon.moveTo(cX + cactus[i][0] + 4, cY + cactus[i][1] - 7);
+					hexagon.lineTo(cX + cactus[i][0] + 2, cY + cactus[i][1] - 7);
+					hexagon.moveTo(cX + cactus[i][0] + 4, cY + cactus[i][1] - 9);
+					hexagon.lineTo(cX + cactus[i][0] + 2, cY + cactus[i][1] - 9);
+				}
 			} else if(terrain === 'mountains') {
 				// The base tile without hover borders.
 				var fillColor = 0x968D99;
