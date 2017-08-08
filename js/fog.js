@@ -44,23 +44,25 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 				fogSprite = new PIXI.Sprite(resources["./images/fogFinal.json"].textures["Fog_0001_Layer-01.jpg"]);
 
 				//Loop through frame count for fog and save 'frames' into frames array.
-			for (var i = 1; i < 33; i++) {
-				var val = i < 10 ? '0' + i : i;
-				// magically works since the spritesheet was loaded with the pixi loader
-				frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.jpg'));
-			}
-
-			for(var j = 0; j < 5; j++) {
-				for(var k = 0; k < 3; k++) {
-					var anim = new PIXI.extras.AnimatedSprite(frames);
-					anim.position.x += (j * 256);
-					anim.position.y += (k * 256);
-					anim.animationSpeed = 0.3;
-					anim.play();
-					//Add Animation contents to the container
-					container.addChild(anim);
+				for (var i = 1; i < 33; i++) {
+					var val = i < 10 ? '0' + i : i;
+					// magically works since the spritesheet was loaded with the pixi loader
+					frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.jpg'));
 				}
-			}
+
+				// Custom tilemapping of the smaller fog animation
+				for(var j = 0; j < 5; j++) {
+					for(var k = 0; k < 3; k++) {
+						var anim = new PIXI.extras.AnimatedSprite(frames);
+						anim.position.x += (j * 256);
+						anim.position.y += (k * 256);
+						anim.animationSpeed = 0.3;
+						anim.play();
+						//Add Animation contents to the container
+						container.addChild(anim);
+					}
+				}
+				
 				container.addChild(fogContainer);
 				//Customize graphic to act as mask
 				container.addChild(maskPrime);
