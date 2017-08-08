@@ -42,16 +42,18 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 			"use strict";
 			loader.load((loader, resources) => {
 
-				fogSprite = new PIXI.Sprite(resources["./images/fogFinal.json"].textures["Fog_0001_Layer-01.png"]);
+				fogSprite = new PIXI.Sprite(resources["./images/fogFinal.json"].textures["Fog_0001_Layer-01.jpg"]);
 
 				//Loop through frame count for fog and save 'frames' into frames array.
-			for (var i = 1; i < 23; i++) {
+			for (var i = 1; i < 33; i++) {
 				var val = i < 10 ? '0' + i : i;
 				// magically works since the spritesheet was loaded with the pixi loader
-				frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.png'));
+				frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.jpg'));
 			}
 				//Instantiate and set animation Sprite
 				anim = new PIXI.extras.AnimatedSprite(frames);
+				anim.scale.x = 5;
+				anim.scale.y = 4;
 				anim.animationSpeed = 0.3;
 				anim.play();
 				//Add Animation contents to the container
