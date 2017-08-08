@@ -13,7 +13,6 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 	var loader = new PIXI.loaders.Loader();
 
 	var frames = [];
-	var anim;
 
 	var Fog = {};
 	// Fog parameters and internal values
@@ -50,14 +49,18 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 				// magically works since the spritesheet was loaded with the pixi loader
 				frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.jpg'));
 			}
-				//Instantiate and set animation Sprite
-				anim = new PIXI.extras.AnimatedSprite(frames);
-				anim.scale.x = 5;
-				anim.scale.y = 4;
-				anim.animationSpeed = 0.3;
-				anim.play();
-				//Add Animation contents to the container
-				container.addChild(anim);
+
+			for(var j = 0; j < 5; j++) {
+				for(var k = 0; k < 3; k++) {
+					var anim = new PIXI.extras.AnimatedSprite(frames);
+					anim.position.x += (j * 256);
+					anim.position.y += (k * 256);
+					anim.animationSpeed = 0.3;
+					anim.play();
+					//Add Animation contents to the container
+					container.addChild(anim);
+				}
+			}
 				container.addChild(fogContainer);
 				//Customize graphic to act as mask
 				container.addChild(maskPrime);
