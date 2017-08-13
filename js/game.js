@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.3
-Last Updated: 2017-August-05
+Stay in the Light v0.0.5
+Last Updated: 2017-August-13
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -13,6 +13,8 @@ var Game = function() {
 		x: this._width / 2,
 		y: this._height / 2,
 	};
+	// Enemies array
+	this.enemies = [];
 	// Fog of war object
 	this.fog = {};
 	// Tile map object
@@ -33,22 +35,30 @@ Game.prototype = {
 	/**
 	 * Build the scene and begin animating.
 	 */
-	 build: function() {
-	 	// Draw the star-field in the background.
-	 	this.drawTileMap();
+	build: function() {
+		// Draw the star-field in the background.
+		this.drawTileMap();
 
-	 	// Draw the fog
-	 	this.drawFog();
+		// Draw the fog
+		this.drawFog();
 
-	 	// Setup the boundaries of the game's arena.
-	 	this.setupBoundaries();
+		// Setup the boundaries of the game's arena.
+		this.setupBoundaries();
 
-	 	// Begin the first frame.
-	 	requestAnimationFrame(this.tick.bind(this));
+		// Create an enemy and place it on the map
+		this.createEnemies();
 
-	 },
+		// Begin the first frame.
+		requestAnimationFrame(this.tick.bind(this));
 
-	 /**
+	},
+	createEnemies: function() {
+		var enemy = new EnemyWrapper(this._center, this.honeycomb);
+		enemy.init();
+		this.enemies.push(enemy);
+	},
+
+	/**
 	 * Draw the fog of war onto the maco
 	 */
 	drawFog: function() {
