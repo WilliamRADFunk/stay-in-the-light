@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.3
-Last Updated: 2017-August-05
+Stay in the Light v0.0.5
+Last Updated: 2017-August-13
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -8,13 +8,13 @@ Authors:
 
 // Wrapped fog object
 var FogWrapper = function(container, center, hContainer, rEnder) {
-
+	// Publicly accessible functionality.
+	var Fog = {};
 	//Aliases
 	var loader = new PIXI.loaders.Loader();
 
 	var frames = [];
 
-	var Fog = {};
 	// Fog parameters and internal values
 	var radius;
 
@@ -76,9 +76,8 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 			});
 
 			radius = 90;
-}).call(this);
-
-//# sourceMappingURL=index.js.map
+		}).call(this);
+		//# sourceMappingURL=index.js.map
 	};
 
 	Fog.redrawFogHole = function(center) {
