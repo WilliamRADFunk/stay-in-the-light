@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.5
-Last Updated: 2017-August-13
+Last Updated: 2017-August-26
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -26,6 +26,8 @@ var MapWrapper = function(center) {
 	var revealDepth = 1;
 	// Hash table of all tiles in map.
 	var tileTable = {};
+	// Array of passable nodes. Used for quick check of game over, no islands, and win scenario.
+	var freeNodes = [];
 
 	/*** Internal constructors ***/
 	// Tile creator
@@ -321,7 +323,8 @@ var MapWrapper = function(center) {
 				this.draw(9);
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
-			build: function(terrain, isPlayer=false, isDark=false, isHidden=true, isEnemy=false, isPassable=true) {
+			build: function(id, terrain, isPlayer=false, isDark=false, isHidden=true, isEnemy=false, isPassable=true) {
+				this.id = id;
 				this.state.isPlayer = isPlayer;
 				this.state.passable = isPassable;
 				this.state.isDark = isDark;
@@ -379,6 +382,7 @@ var MapWrapper = function(center) {
 				this.state.isHidden = true;
 				this.draw(9);
 			},
+			id: '',
 			goDark: function() {
 				this.state.isDark = true;
 			},
@@ -429,15 +433,71 @@ var MapWrapper = function(center) {
 	/*** Internal functions ***/
 	// Creates center node and passes it into the procedurally recursive function.
 	var buildLevel = function(level) {
-		// Create first hex node.
-		var startNode = new Tile(center.x, center.y, true);
-		startNode.build(pickTileTerrain(true), true, false, false, false, true);
-		tileTable[center.x + '-' + center.y] = startNode;
+		// Loop to find suitable tilemap, and avoid islands.
+		while(true) {
+			// Create first hex node.
+			var startNode = new Tile(center.x, center.y, true);
+			startNode.build(
+				center.x + '-' + center.y,
+				pickTileTerrain(true),
+				true,
+				false,
+				false,
+				false,
+				true
+			);
+			tileTable[center.x + '-' + center.y] = startNode;
 
-		makeNeighborNodes(startNode, 0);
+			makeNeighborNodes(startNode, 0);
 
-		showTiles(activeTile, 0);
+			showTiles(activeTile, 0);
+
+			if(checkForIslands(startNode)) {
+				break;
+			} else {
+				tileTable = [];
+				freeNodes = [];
+				tileMap.terrainContainer.clear();
+				tileMap.hiddenLayerContainer.clear();
+				tileMap.hoverContainer.clear();
+				tileMap.enemyLayerContainer.clear();
+			}
+		};
 	};
+	// Starts from the center node and verifies that all passable nodes are reachable
+	// from the center. If the center can reach them all, then any other passable node
+	// can reach any other passable node.
+	var checkForIslands = function(startNode) {
+		console.log(freeNodes.length);
+		for(var i = 0; i < freeNodes.length; i++) {
+			if(hasReachablePath(startNode, freeNodes[i])) {
+				console.log('Found it: ' + freeNodes[i].id);
+				freeNodes.splice(0, 1);
+				i -= 1;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+	var hasReachablePath = function(startNode, endNode) {
+		if(startNode === undefined || startNode === null || startNode.passable === false) {
+			return false;
+		}
+		if(startNode.id === endNode.id) {
+			return true;
+		}
+		startNode.checked = true;
+		for(var i = 1 ; i < 7; i++) {
+			
+		}
+		return (hasReachablePath(startNode.link1, endNode)
+			|| hasReachablePath(startNode.link2, endNode)
+			|| hasReachablePath(startNode.link3, endNode)
+			|| hasReachablePath(startNode.link4, endNode)
+			|| hasReachablePath(startNode.link5, endNode)
+			|| hasReachablePath(startNode.link6, endNode));
+	}
 	// Picks, at random, a tile in the tileTable where an enemy might start.
 	// This spot makes sure it isn't on the player, isn't adjacent to the player,
 	// and isn't on an impassable tile.
@@ -488,8 +548,11 @@ var MapWrapper = function(center) {
 			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] === undefined
 		) {
 			var node = new Tile(centerNode.position.x, (centerNode.position.y - 46));
-			node.build(pickTileTerrain());
+			node.build(centerNode.position.x + '-' + (centerNode.position.y - 46), pickTileTerrain());
 			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] = node;
+			if(node.passable) {
+				freeNodes.push(node);
+			}
 			centerNode.link1 = node;
 			node.link4 = centerNode;
 		// There already exists a node directly above, but the above node doesn't know it.
@@ -514,8 +577,11 @@ var MapWrapper = function(center) {
 			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] === undefined
 		) {
 			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y - 23));
-			node.build(pickTileTerrain());
+			node.build((centerNode.position.x + 39) + '-' + (centerNode.position.y - 23), pickTileTerrain());
 			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] = node;
+			if(node.passable) {
+				freeNodes.push(node);
+			}
 			centerNode.link2 = node;
 			node.link5 = centerNode;
 		// There already exists a node to the upper right, but the above node doesn't know it.
@@ -540,8 +606,11 @@ var MapWrapper = function(center) {
 			&& tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y + 23)] === undefined
 		) {
 			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y + 23));
-			node.build(pickTileTerrain());
+			node.build((centerNode.position.x + 39) + '-' + (centerNode.position.y + 23), pickTileTerrain());
 			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y + 23)] = node;
+			if(node.passable) {
+				freeNodes.push(node);
+			}
 			centerNode.link3 = node;
 			node.link6 = centerNode;
 		// There already exists a node to the lower right, but the above node doesn't know it.
@@ -566,8 +635,11 @@ var MapWrapper = function(center) {
 			&& tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] === undefined
 		) {
 			var node = new Tile(centerNode.position.x, (centerNode.position.y + 46));
-			node.build(pickTileTerrain());
+			node.build(centerNode.position.x + '-' + (centerNode.position.y + 46), pickTileTerrain());
 			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] = node;
+			if(node.passable) {
+				freeNodes.push(node);
+			}
 			centerNode.link4 = node;
 			node.link1 = centerNode;
 		// There already exists a node directly below, but the above node doesn't know it.
@@ -592,8 +664,11 @@ var MapWrapper = function(center) {
 			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y + 23)] === undefined
 		) {
 			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y + 23));
-			node.build(pickTileTerrain());
+			node.build((centerNode.position.x - 39) + '-' + (centerNode.position.y + 23), pickTileTerrain());
 			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y + 23)] = node;
+			if(node.passable) {
+				freeNodes.push(node);
+			}
 			centerNode.link5 = node;
 			node.link2 = centerNode;
 		// There already exists a node to the lower left, but the above node doesn't know it.
@@ -618,8 +693,11 @@ var MapWrapper = function(center) {
 			&& tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] === undefined
 		) {
 			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y - 23));
-			node.build(pickTileTerrain());
+			node.build((centerNode.position.x - 39) + '-' + (centerNode.position.y - 23), pickTileTerrain());
 			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] = node;
+			if(node.passable) {
+				freeNodes.push(node);
+			}
 			centerNode.link6 = node;
 			node.link3 = centerNode;
 		// There already exists a node to the upper left, but the above node doesn't know it.
@@ -765,8 +843,13 @@ var MapWrapper = function(center) {
 	};
 	tileMap.expand = function() {
 		revealDepth += 1;
+		// Max size if too many keypresses.
 		if(revealDepth > 3) {
 			revealDepth = 3;
+		}
+		// Dev Mode for fog off
+		if(document.isFogOff) {
+			revealDepth = 6;
 		}
 		showTiles(activeTile, 0);
 	};

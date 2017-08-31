@@ -5,4 +5,5 @@ Authors:
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
 */
+document.isFogOff = true;
 var game = new Game();
