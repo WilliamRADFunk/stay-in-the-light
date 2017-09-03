@@ -55,11 +55,10 @@ Game.prototype = {
 		this.createEnemies();
 
 		// Draw the fog
-		if(!document.isFogOff) {
-			this.drawFog();
-		} else {
-			this.honeycomb.expand();
-		}
+		// Dev Mode: comment next line for fog off
+		this.drawFog();
+		// Dev Mode: for fog off
+		// this.honeycomb.expand();
 
 		// Begin the first frame.
 		requestAnimationFrame(this.tick.bind(this));
@@ -129,9 +128,8 @@ Game.prototype = {
 		// Render the stage for the current frame.
 		this.renderer.render(this.container);
 		//Update Fog Sprite creation for overlay
-		if(!document.isFogOff) {
-			this.fog.renderFog();
-		}
+		// Dev Mode: comment next line for fog off
+		this.fog.renderFog();
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));
 	}

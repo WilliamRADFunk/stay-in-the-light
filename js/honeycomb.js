@@ -455,12 +455,13 @@ var MapWrapper = function(center) {
 			if(checkForIslands(startNode)) {
 				break;
 			} else {
+				console.log('Islands found! Trying again.');
 				tileTable = [];
 				freeNodes = [];
-				tileMap.terrainContainer.clear();
-				tileMap.hiddenLayerContainer.clear();
-				tileMap.hoverContainer.clear();
-				tileMap.enemyLayerContainer.clear();
+				tileMap.terrainContainer = new PIXI.Container();
+				tileMap.hiddenLayerContainer = new PIXI.Container();
+				tileMap.hoverContainer = new PIXI.Container();
+				tileMap.enemyLayerContainer = new PIXI.Container();
 			}
 		};
 	};
@@ -468,10 +469,13 @@ var MapWrapper = function(center) {
 	// from the center. If the center can reach them all, then any other passable node
 	// can reach any other passable node.
 	var checkForIslands = function(startNode) {
-		console.log(freeNodes.length);
+		var initialFreeNodesLenth = freeNodes.length;
 		for(var i = 0; i < freeNodes.length; i++) {
-			if(hasReachablePath(startNode, freeNodes[i])) {
-				console.log('Found it: ' + freeNodes[i].id);
+			if(hasReachablePath(startNode, freeNodes[i], 0)) {
+				var percentComplete = Math.ceil((1 - (freeNodes.length/initialFreeNodesLenth)) * 100);
+				if(percentComplete % 10 === 0) {
+					console.log("Loading: ", percentComplete);
+				}
 				freeNodes.splice(0, 1);
 				i -= 1;
 			} else {
@@ -479,25 +483,26 @@ var MapWrapper = function(center) {
 			}
 		}
 		return true;
-	}
-	var hasReachablePath = function(startNode, endNode) {
-		if(startNode === undefined || startNode === null || startNode.passable === false) {
+	};
+	// Recursive function that seeks out a path to find a single node in the freenode array.
+	var hasReachablePath = function(startNode, endNode, depth) {
+		// If the link passed in was empty, an impassable node, or too far down the recursive path, then fail it.
+		if(startNode === undefined || startNode === null || startNode.passable === false || depth >= 10) {
 			return false;
 		}
-		if(startNode.id === endNode.id) {
+		// The passed in node was a success.
+		if(startNode.id == endNode.id) {
 			return true;
 		}
-		startNode.checked = true;
 		for(var i = 1 ; i < 7; i++) {
-			
+			// One of this nodes links has a path to the end node, continue to pass along the true value.
+			if(hasReachablePath(startNode['link' + i], endNode, depth + 1)) {
+				return true;
+			}
 		}
-		return (hasReachablePath(startNode.link1, endNode)
-			|| hasReachablePath(startNode.link2, endNode)
-			|| hasReachablePath(startNode.link3, endNode)
-			|| hasReachablePath(startNode.link4, endNode)
-			|| hasReachablePath(startNode.link5, endNode)
-			|| hasReachablePath(startNode.link6, endNode));
-	}
+		// If this point was reached, there was no path this way.
+		return false;
+	};
 	// Picks, at random, a tile in the tileTable where an enemy might start.
 	// This spot makes sure it isn't on the player, isn't adjacent to the player,
 	// and isn't on an impassable tile.
@@ -847,10 +852,8 @@ var MapWrapper = function(center) {
 		if(revealDepth > 3) {
 			revealDepth = 3;
 		}
-		// Dev Mode for fog off
-		if(document.isFogOff) {
-			revealDepth = 6;
-		}
+		// Dev Mode: for fog off
+		// revealDepth = 6;
 		showTiles(activeTile, 0);
 	};
 	tileMap.getActiveCenter = function() {
