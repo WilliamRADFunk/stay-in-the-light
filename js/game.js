@@ -19,6 +19,7 @@ var Game = function() {
 	this.fog = {};
 	// Tile map object
 	this.honeycomb = {};
+	this.counter = 0;
 
 	// Setup the rendering surface.
 	this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
@@ -117,5 +118,13 @@ Game.prototype = {
 		this.fog.renderFog();
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));
+
+		//LOOP to allow enemy to make a move
+		// this.counter++;
+		// if(this.counter > 300)
+		// {
+		// 	this.counter = 0;
+		// 	this.enemies[0].takeTurn();
+		// }
 	}
 };
