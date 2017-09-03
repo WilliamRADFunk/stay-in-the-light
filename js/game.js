@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.5
-Last Updated: 2017-August-13
+Stay in the Light v0.0.6
+Last Updated: September-03
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -37,11 +37,17 @@ Game.prototype = {
 	 * Build the scene and begin animating.
 	 */
 	build: function() {
-		// Draw the star-field in the background.
+		// Draw the tilemap, terrain, and linking.
 		this.drawTileMap();
 
-		// Draw the fog
-		this.drawFog();
+		Mousetrap.bind('a', function(){
+			this.honeycomb.expand();
+		}.bind(this));
+
+
+		Mousetrap.bind('d', function(){
+			this.honeycomb.contract();
+		}.bind(this));
 
 		// Setup the boundaries of the game's arena.
 		this.setupBoundaries();
@@ -49,10 +55,20 @@ Game.prototype = {
 		// Create an enemy and place it on the map
 		this.createEnemies();
 
+		// Draw the fog
+		// Dev Mode: comment next line for fog off
+		this.drawFog();
+		// Dev Mode: for fog off
+		// this.honeycomb.expand();
+
 		// Begin the first frame.
 		requestAnimationFrame(this.tick.bind(this));
 
 	},
+
+	/**
+	 * Picks suitable place on tilemap to place enemies
+	 */
 	createEnemies: function() {
 		var enemy = new EnemyWrapper(this._center, this.honeycomb);
 		enemy.init();
@@ -69,13 +85,11 @@ Game.prototype = {
 
 		Mousetrap.bind('a', function(){
 			this.fog.expand(this.honeycomb.getActiveCenter());
-			this.honeycomb.expand();
 		}.bind(this));
 
 
 		Mousetrap.bind('d', function(){
 			this.fog.contract(this.honeycomb.getActiveCenter());
-			this.honeycomb.contract();
 		}.bind(this));
 
 		document.addEventListener('playerMove', function(e) {
@@ -84,7 +98,7 @@ Game.prototype = {
 	},
 
 	/**
-	 * Draw the field of stars behind all of the action.
+	 * Draw the tile map and terrain on which the game is played.
 	 */
 	drawTileMap: function() {
 		this.honeycomb = new MapWrapper(this._center);
@@ -93,7 +107,7 @@ Game.prototype = {
 	},
 
 	/**
-	 * Draw the boundaries of the space arena.
+	 * Draw the boundaries of the tile mapped world.
 	 */
 	setupBoundaries: function() {
 		var walls = new PIXI.Graphics();
@@ -115,6 +129,7 @@ Game.prototype = {
 		// Render the stage for the current frame.
 		this.renderer.render(this.container);
 		//Update Fog Sprite creation for overlay
+		// Dev Mode: comment next line for fog off
 		this.fog.renderFog();
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));
