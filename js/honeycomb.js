@@ -13,12 +13,12 @@ var MapWrapper = function(center) {
 
 	/*** Internal Variables ***/
 	// create a new Sprite from an image path
-	var enemy1 = PIXI.Sprite.fromImage('./images/knightRed_N.png');
-	var enemy2 = PIXI.Sprite.fromImage('./images/knightRed_NE.png');
-	var enemy3 = PIXI.Sprite.fromImage('./images/knightRed_SE.png');
-	var enemy4 = PIXI.Sprite.fromImage('./images/knightRed_S.png');
-	var enemy5 = PIXI.Sprite.fromImage('./images/knightRed_SW.png');
-	var enemy6 = PIXI.Sprite.fromImage('./images/knightRed_NW.png');
+	var enemy1 = PIXI.Sprite.fromImage('./images/enemy_N.png');
+	var enemy2 = PIXI.Sprite.fromImage('./images/enemy_NE.png');
+	var enemy3 = PIXI.Sprite.fromImage('./images/enemy_SE.png');
+	var enemy4 = PIXI.Sprite.fromImage('./images/enemy_S.png');
+	var enemy5 = PIXI.Sprite.fromImage('./images/enemy_SW.png');
+	var enemy6 = PIXI.Sprite.fromImage('./images/enemy_NW.png');
 	// center the sprite's anchor point
 	enemy1.anchor.set(0.5);
 	enemy1.scale.x = 0.4;
@@ -43,12 +43,12 @@ var MapWrapper = function(center) {
 	var currentEnemyGraphic;
 
 	// create a new Sprite from an image path
-	var player1 = PIXI.Sprite.fromImage('./images/knightBlue_N.png');
-	var player2 = PIXI.Sprite.fromImage('./images/knightBlue_NE.png');
-	var player3 = PIXI.Sprite.fromImage('./images/knightBlue_SE.png');
-	var player4 = PIXI.Sprite.fromImage('./images/knightBlue_S.png');
-	var player5 = PIXI.Sprite.fromImage('./images/knightBlue_SW.png');
-	var player6 = PIXI.Sprite.fromImage('./images/knightBlue_NW.png');
+	var player1 = PIXI.Sprite.fromImage('./images/player_N.png');
+	var player2 = PIXI.Sprite.fromImage('./images/player_NE.png');
+	var player3 = PIXI.Sprite.fromImage('./images/player_SE.png');
+	var player4 = PIXI.Sprite.fromImage('./images/player_S.png');
+	var player5 = PIXI.Sprite.fromImage('./images/player_SW.png');
+	var player6 = PIXI.Sprite.fromImage('./images/player_NW.png');
 	// center the sprite's anchor point
 	player1.anchor.set(0.5);
 	player1.scale.x = 0.4;
