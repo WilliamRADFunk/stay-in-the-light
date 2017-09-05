@@ -39,15 +39,6 @@ Game.prototype = {
 		// Draw the tilemap, terrain, and linking.
 		this.drawTileMap();
 
-		Mousetrap.bind('a', function(){
-			this.honeycomb.expand();
-		}.bind(this));
-
-
-		Mousetrap.bind('d', function(){
-			this.honeycomb.contract();
-		}.bind(this));
-
 		// Setup the boundaries of the game's arena.
 		this.setupBoundaries();
 
@@ -84,11 +75,13 @@ Game.prototype = {
 
 		Mousetrap.bind('a', function(){
 			this.fog.expand(this.honeycomb.getActiveCenter());
+			this.honeycomb.expand();
 		}.bind(this));
 
 
 		Mousetrap.bind('d', function(){
 			this.fog.contract(this.honeycomb.getActiveCenter());
+			this.honeycomb.contract();
 		}.bind(this));
 
 		document.addEventListener('playerMove', function(e) {
