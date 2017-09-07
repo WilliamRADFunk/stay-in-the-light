@@ -13,6 +13,14 @@ var Game = function() {
 		x: this._width / 2,
 		y: this._height / 2,
 	};
+	// Keep track of ticks passed to mod for timing.
+	this.tickCounter = 0;
+	// Loading Bar object
+	this.loadingBar = {};
+	// Flag to see if loading is done.
+	this.isLoaded = false;
+	// Flag to see if build has been called already.
+	this.isBuildStarted = false;
 	// Enemies array
 	this.enemies = [];
 	// Fog of war object
@@ -27,8 +35,7 @@ var Game = function() {
 	// Create the main stage to draw on.
 	this.container = new PIXI.Container();
 
-	// Start running the game.
-	this.build();
+	this.load();
 };
 
 Game.prototype = {
@@ -39,9 +46,6 @@ Game.prototype = {
 		// Draw the tilemap, terrain, and linking.
 		this.drawTileMap();
 
-		// Setup the boundaries of the game's arena.
-		this.setupBoundaries();
-
 		// Create an enemy and place it on the map
 		this.createEnemies();
 
@@ -50,6 +54,21 @@ Game.prototype = {
 		this.drawFog();
 		// Dev Mode: for fog off
 		// this.honeycomb.expand();
+
+		this.container.removeChild(this.loadingBar.container);
+		this.isLoaded = true;
+
+	},
+
+	/**
+	 * Build the scene and begin animating.
+	 */
+	load: function() {		
+		// Create loading bar
+		this.setupLoadingBar();
+
+		// Setup the boundaries of the game's arena.
+		this.setupBoundaries();
 
 		// Begin the first frame.
 		requestAnimationFrame(this.tick.bind(this));
@@ -115,14 +134,33 @@ Game.prototype = {
 	},
 
 	/**
+	 * Draw the loading bar and activate progress listeners.
+	 */
+	setupLoadingBar: function() {
+		this.loadingBar = new LoadingBarWrapper(this._center);
+		this.loadingBar.init();
+		this.container.addChild(this.loadingBar.container);
+	},
+
+	/**
 	 * Fires at the end of the gameloop to reset and redraw the canvas.
 	 */
 	tick: function() {
+		this.tickCounter++;
 		// Render the stage for the current frame.
 		this.renderer.render(this.container);
 		//Update Fog Sprite creation for overlay
 		// Dev Mode: comment next line for fog off
-		this.fog.renderFog();
+		if(this.isLoaded) {
+			this.fog.renderFog();
+		} else {
+			this.loadingBar.takeTurn();
+		}
+
+		if(this.tickCounter >= 660 && !this.isBuildStarted) {
+			this.isBuildStarted = true;
+			this.build();
+		}
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));
 	}
