@@ -19,8 +19,6 @@ var Game = function() {
 	this.loadingBar = {};
 	// Flag to see if loading is done.
 	this.isLoaded = false;
-	// Flag to see if build has been called already.
-	this.isBuildStarted = false;
 	// Enemies array
 	this.enemies = [];
 	// Fog of war object
@@ -31,11 +29,11 @@ var Game = function() {
 	// Setup the rendering surface.
 	this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
 	this.renderer.transparent = true;
-	document.body.appendChild(this.renderer.view);
+	document.getElementById('game-stage').appendChild(this.renderer.view);
 	// Create the main stage to draw on.
 	this.container = new PIXI.Container();
 
-	this.load();
+	this.build();
 };
 
 Game.prototype = {
@@ -43,36 +41,46 @@ Game.prototype = {
 	 * Build the scene and begin animating.
 	 */
 	build: function() {
-		// Draw the tilemap, terrain, and linking.
-		this.drawTileMap();
-
-		// Create an enemy and place it on the map
-		this.createEnemies();
-
-		// Draw the fog
-		// Dev Mode: comment next line for fog off
-		this.drawFog();
-		// Dev Mode: for fog off
-		// this.honeycomb.expand();
-
-		this.container.removeChild(this.loadingBar.container);
-		this.isLoaded = true;
-
-	},
-
-	/**
-	 * Build the scene and begin animating.
-	 */
-	load: function() {		
 		// Create loading bar
-		this.setupLoadingBar();
+		// this.setupLoadingBar();
 
-		// Setup the boundaries of the game's arena.
-		this.setupBoundaries();
+		var loadScreen = document.getElementById('loading-screen');
+		var gameStage = document.getElementById('game-stage');
 
-		// Begin the first frame.
-		requestAnimationFrame(this.tick.bind(this));
+		document.addEventListener('loaded', function(e) {
+			console.log('LOADED!!!');
+			setTimeout(function() {
+				loadScreen.style.display = 'none';
+				gameStage.style.display = 'block';
+			}, 3000);
+		}.bind(this));
 
+		var ensureDOMisLoaded = setInterval(function() {
+			if (/loaded|complete/.test(document.readyState)) {
+				clearInterval(ensureDOMisLoaded);
+				// Setup the boundaries of the game's arena.
+				this.setupBoundaries();
+
+				// TODO:  Send to webworker
+				// Create the tilemap, terrain, and linking.
+				this.createTileMap();
+
+				// Create an enemy and place it on the map
+				this.createEnemies();
+
+				// Draw the fog
+				// Dev Mode: comment next line for fog off
+				this.drawFog();
+				// Dev Mode: for fog off
+				// this.honeycomb.expand();
+
+				// Attaches the tilemap to container
+				this.drawTileMap();
+
+				// Begin the first frame.
+				requestAnimationFrame(this.tick.bind(this));
+			}
+		}.bind(this), 20);
 	},
 
 	/**
@@ -85,18 +93,24 @@ Game.prototype = {
 	},
 
 	/**
+	 * Creates the tile map and terrain on which the game is played.
+	 */
+	createTileMap: function() {
+		this.honeycomb = new MapWrapper(this._center);
+		this.honeycomb.init();
+	},
+
+	/**
 	 * Draw the fog of war onto the maco
 	 */
 	drawFog: function() {
 		this.fog = new FogWrapper(this.container, this._center, this.honeycomb.container, this.renderer);
 		this.fog.init();
 
-
 		Mousetrap.bind('a', function(){
 			this.fog.expand(this.honeycomb.getActiveCenter());
 			this.honeycomb.expand();
 		}.bind(this));
-
 
 		Mousetrap.bind('d', function(){
 			this.fog.contract(this.honeycomb.getActiveCenter());
@@ -109,12 +123,16 @@ Game.prototype = {
 	},
 
 	/**
-	 * Draw the tile map and terrain on which the game is played.
+	 * Draws the tile map onto the stage.
 	 */
 	drawTileMap: function() {
-		this.honeycomb = new MapWrapper(this._center);
-		this.honeycomb.init();
 		this.container.addChild(this.honeycomb.container);
+		// Removes the loading bar and triggers the fog drawing iteration
+		this.container.removeChild(this.loadingBar.container);
+		this.isLoaded = true;
+		// Calls out to turn off loading screen
+		var event = new Event('loaded');
+    	document.dispatchEvent(event);
 	},
 
 	/**
@@ -153,13 +171,6 @@ Game.prototype = {
 		// Dev Mode: comment next line for fog off
 		if(this.isLoaded) {
 			this.fog.renderFog();
-		} else {
-			this.loadingBar.takeTurn();
-		}
-
-		if(this.tickCounter >= 660 && !this.isBuildStarted) {
-			this.isBuildStarted = true;
-			this.build();
 		}
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));

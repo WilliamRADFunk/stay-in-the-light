@@ -530,18 +530,23 @@ var MapWrapper = function(center) {
 	// can reach any other passable node.
 	var checkForIslands = function(startNode) {
 		var initialFreeNodesLenth = freeNodes.length;
-		for(var i = 0; i < freeNodes.length; i++) {
-			if(hasReachablePath(startNode, freeNodes[i], 0)) {
-				var percentComplete = Math.ceil((1 - (freeNodes.length/initialFreeNodesLenth)) * 100);
+		var tempFreeNodes = [];
+		for(var i = 0; i < initialFreeNodesLenth; i++) {
+			tempFreeNodes.push(freeNodes[i]);
+		}
+
+		while(tempFreeNodes.length) {
+			if(hasReachablePath(startNode, tempFreeNodes[0], 0)) {
+				var percentComplete = Math.ceil((1 - (tempFreeNodes.length/initialFreeNodesLenth)) * 100);
 				if(percentComplete % 10 === 0) {
 					console.log("Loading: ", percentComplete);
 				}
-				freeNodes.splice(0, 1);
-				i -= 1;
+				tempFreeNodes.splice(0, 1);
 			} else {
 				return false;
 			}
 		}
+			
 		return true;
 	};
 	// Recursive function that seeks out a path to find a single node in the freenode array.
