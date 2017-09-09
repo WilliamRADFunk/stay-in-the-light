@@ -111,7 +111,7 @@ Game.prototype = {
 	 */
 	createEnemies: function() {
 		// Sets up variables and function definitions
-		var enemy = new EnemyWrapper(this._center, this.honeycomb, this.loadingCallback);
+		var enemy = new EnemyWrapper(this._center, this.honeycomb);
 		// Move loading bar progress by a small degree.
 		this.loadingCallback(5);
 		// Places enemy unit on board and creates his attributes.
@@ -126,7 +126,7 @@ Game.prototype = {
 	 */
 	createTileMap: function() {
 		// Sets up variables and function definitions
-		this.honeycomb = new MapWrapper(this._center, this.loadingCallback);
+		this.honeycomb = new MapWrapper(this._center);
 		// Move loading bar progress by a small degree.
 		this.loadingCallback(5);
 		// Runs through actual terrain build and recursive checks.
@@ -140,7 +140,7 @@ Game.prototype = {
 	 */
 	drawFog: function() {
 		// Sets up variables and function definitions
-		this.fog = new FogWrapper(this.container, this._center, this.honeycomb.container, this.renderer, this.loadingCallback);
+		this.fog = new FogWrapper(this.container, this._center, this.honeycomb.container, this.renderer);
 		// Move loading bar progress by a small degree.
 		this.loadingCallback(5);
 		// Loads fog as mask to main container.
@@ -169,9 +169,8 @@ Game.prototype = {
 	 */
 	drawTileMap: function() {
 		this.container.addChild(this.honeycomb.container);
-		// Removes the loading bar and triggers the fog drawing iteration
-		// this.container.removeChild(this.loadingBar.container);
 		this.isLoaded = true;
+		this.honeycomb.addPlayer();
 	},
 
 	/**

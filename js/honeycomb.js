@@ -386,7 +386,7 @@ var MapWrapper = function(center) {
 				}
 				if(this.state.isPlayer) {
 					activeTile = this;
-				}		
+				}
 				// Runs drawing functionality.
 				this.draw(9);
 				// Attach the tile to the stage.
@@ -900,6 +900,9 @@ var MapWrapper = function(center) {
 	tileMap.hiddenLayerContainer = new PIXI.Container();
 
 	/*** Publicly accessible functions ***/
+	tileMap.addPlayer = function() {
+		activeTile.draw(4, 0x00FF00);
+	}
 	tileMap.contract = function() {
 		revealDepth -= 1;
 		if(revealDepth < 1) {
