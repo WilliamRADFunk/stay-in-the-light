@@ -12,6 +12,8 @@ var MapWrapper = function(center) {
 	var tileMap = {};
 
 	/*** Internal Variables ***/
+	// Used when an incremental stage of loading is completed.
+	var loadingEvent = new Event('loading');
 	// create a new Sprite from an image path
 	var enemy1 = PIXI.Sprite.fromImage('./images/enemy_N.png');
 	var enemy2 = PIXI.Sprite.fromImage('./images/enemy_NE.png');
@@ -38,6 +40,9 @@ var MapWrapper = function(center) {
 	enemy6.anchor.set(0.5);
 	enemy6.scale.x = 0.4;
 	enemy6.scale.y = 0.4;
+
+	// Move loading bar progress by a small degree.
+	document.dispatchEvent(loadingEvent);
 
 	var enemies = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6];
 	var currentEnemyGraphic;
@@ -68,6 +73,9 @@ var MapWrapper = function(center) {
 	player6.anchor.set(0.5);
 	player6.scale.x = 0.4;
 	player6.scale.y = 0.4;
+
+	// Move loading bar progress by a small degree.
+	document.dispatchEvent(loadingEvent);
 
 	var players = [player1, player2, player3, player4, player5, player6];
 	var currentPlayerGraphic;
@@ -538,8 +546,10 @@ var MapWrapper = function(center) {
 		while(tempFreeNodes.length) {
 			if(hasReachablePath(startNode, tempFreeNodes[0], 0)) {
 				var percentComplete = Math.ceil((1 - (tempFreeNodes.length/initialFreeNodesLenth)) * 100);
-				if(percentComplete % 10 === 0) {
+				if(percentComplete % 5 === 0) {
 					console.log("Loading: ", percentComplete);
+					// Move loading bar progress by a small degree.
+					document.dispatchEvent(loadingEvent);
 				}
 				tempFreeNodes.splice(0, 1);
 			} else {
@@ -579,6 +589,9 @@ var MapWrapper = function(center) {
 			var tileKey = tileTableArray[Math.floor(Math.random() * tileTableArray.length)];
 			tile = tileTable[tileKey];
 			isTileFound = isPassable(tile) && isNotNearPlayer(tile);
+
+			// Move loading bar progress by a small degree.
+			document.dispatchEvent(loadingEvent);
 		} while(!isTileFound);
 		tile.addEnemy();
 		return tile;

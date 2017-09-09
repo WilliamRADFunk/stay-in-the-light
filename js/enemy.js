@@ -10,6 +10,9 @@ Authors:
 var EnemyWrapper = function(center, tileMap) {
 	// Publicly accessible functionality.
 	var Enemy = {};
+	// Used when an incremental stage of loading is completed.
+	var loadingEvent = new Event('loading');
+	
 	var enemyTile = null;
 	/**
 	 * variables accessible to everything internal to EnemyWrapper go here

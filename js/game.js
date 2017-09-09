@@ -30,8 +30,16 @@ var Game = function() {
 	this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
 	this.renderer.transparent = true;
 	document.getElementById('game-stage').appendChild(this.renderer.view);
+	// Setup the rendering surface.
+	this.renderer2 = new PIXI.CanvasRenderer(this._width, this._height);
+	this.renderer2.transparent = true;
+	document.getElementById('loading-stage').appendChild(this.renderer2.view);
 	// Create the main stage to draw on.
 	this.container = new PIXI.Container();
+	// Create the main stage to draw on.
+	this.container2 = new PIXI.Container();
+	// Used when an incremental stage of loading is completed.
+	this.loadingEvent = new Event('loading');
 
 	this.build();
 };
@@ -42,18 +50,7 @@ Game.prototype = {
 	 */
 	build: function() {
 		// Create loading bar
-		// this.setupLoadingBar();
-
-		var loadScreen = document.getElementById('loading-screen');
-		var gameStage = document.getElementById('game-stage');
-
-		document.addEventListener('loaded', function(e) {
-			console.log('LOADED!!!');
-			setTimeout(function() {
-				loadScreen.style.display = 'none';
-				gameStage.style.display = 'block';
-			}, 3000);
-		}.bind(this));
+		this.setupLoadingBar();
 
 		var ensureDOMisLoaded = setInterval(function() {
 			if (/loaded|complete/.test(document.readyState)) {
@@ -61,7 +58,6 @@ Game.prototype = {
 				// Setup the boundaries of the game's arena.
 				this.setupBoundaries();
 
-				// TODO:  Send to webworker
 				// Create the tilemap, terrain, and linking.
 				this.createTileMap();
 
@@ -77,8 +73,9 @@ Game.prototype = {
 				// Attaches the tilemap to container
 				this.drawTileMap();
 
-				// Begin the first frame.
-				requestAnimationFrame(this.tick.bind(this));
+				// Calls out to turn off loading screen
+				var event = new Event('loaded');
+				document.dispatchEvent(event);
 			}
 		}.bind(this), 20);
 	},
@@ -90,6 +87,8 @@ Game.prototype = {
 		var enemy = new EnemyWrapper(this._center, this.honeycomb);
 		enemy.init();
 		this.enemies.push(enemy);
+		// Move loading bar progress by a small degree.
+		document.dispatchEvent(this.loadingEvent);
 	},
 
 	/**
@@ -98,6 +97,8 @@ Game.prototype = {
 	createTileMap: function() {
 		this.honeycomb = new MapWrapper(this._center);
 		this.honeycomb.init();
+		// Move loading bar progress by a small degree.
+		document.dispatchEvent(this.loadingEvent);
 	},
 
 	/**
@@ -120,6 +121,9 @@ Game.prototype = {
 		document.addEventListener('playerMove', function(e) {
 			this.fog.move(this.honeycomb.getActiveCenter());
 		}.bind(this));
+
+		// Move loading bar progress by a small degree.
+		document.dispatchEvent(this.loadingEvent);
 	},
 
 	/**
@@ -128,11 +132,10 @@ Game.prototype = {
 	drawTileMap: function() {
 		this.container.addChild(this.honeycomb.container);
 		// Removes the loading bar and triggers the fog drawing iteration
-		this.container.removeChild(this.loadingBar.container);
+		// this.container.removeChild(this.loadingBar.container);
 		this.isLoaded = true;
-		// Calls out to turn off loading screen
-		var event = new Event('loaded');
-    	document.dispatchEvent(event);
+		// Move loading bar progress by a small degree.
+		document.dispatchEvent(this.loadingEvent);
 	},
 
 	/**
@@ -149,6 +152,8 @@ Game.prototype = {
 
 		// Attach the walls to the stage.
 		this.container.addChild(walls);
+		// Move loading bar progress by a small degree.
+		document.dispatchEvent(this.loadingEvent);
 	},
 
 	/**
@@ -157,7 +162,35 @@ Game.prototype = {
 	setupLoadingBar: function() {
 		this.loadingBar = new LoadingBarWrapper(this._center);
 		this.loadingBar.init();
-		this.container.addChild(this.loadingBar.container);
+		this.container2.addChild(this.loadingBar.container);
+
+		var loadingStage = document.getElementById('loading-stage');
+		var gameStage = document.getElementById('game-stage');
+
+		document.addEventListener('loaded', function(e) {
+			console.log('LOADED!!!');
+			this.loadingBar.drawLoadingBarProgress(true);
+			this.renderer2.render(this.container2);
+			setTimeout(function() {
+				loadingStage.style.display = 'none';
+				gameStage.style.display = 'block';
+
+				// Begin the first frame.
+				requestAnimationFrame(this.tick.bind(this));
+			}.bind(this), 2000);
+		}.bind(this));
+
+		document.addEventListener('loading', function(e) {
+			console.log('loading!!!');
+			this.loadingBar.drawLoadingBarProgress();
+			this.renderer2.render(this.container2);
+		}.bind(this));
+
+		this.loadingBar.drawBaseLoadingBar();
+		this.renderer2.render(this.container2);
+
+		// Move loading bar progress by a small degree.
+		document.dispatchEvent(this.loadingEvent);
 	},
 
 	/**
@@ -167,6 +200,7 @@ Game.prototype = {
 		this.tickCounter++;
 		// Render the stage for the current frame.
 		this.renderer.render(this.container);
+		this.renderer2.render(this.container2);
 		//Update Fog Sprite creation for overlay
 		// Dev Mode: comment next line for fog off
 		if(this.isLoaded) {
