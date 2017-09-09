@@ -222,18 +222,34 @@ var LoadingBarWrapper = function(center) {
 
 		if(currentPercentage <= 20) {
 			drawWordStay(true);
+			var copyrightText = new PIXI.Text('Copyright 2017: Tenacious Teal Games', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			copyrightText.x = 50;
+			copyrightText.y = 600;
+			LoadingBar.container.addChild(copyrightText);
 		} else if(currentPercentage <= 35) {
 			drawWordStay(false);
 			drawWordIn(true);
+			var progsText = new PIXI.Text('Programmed By: William Funk & Jorge Rodriguez', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			progsText.x = 50;
+			progsText.y = 620;
+			LoadingBar.container.addChild(progsText);
 		} else if(currentPercentage <= 80) {
 			drawWordStay(false);
 			drawWordIn(false);
 			drawWordThe(true);
+			var artText = new PIXI.Text('Art By: William Funk, Andrea Acosta Duarte, & Kenny Graphics', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			artText.x = 50;
+			artText.y = 640;
+			LoadingBar.container.addChild(artText);
 		} else {
 			drawWordStay(false);
 			drawWordIn(false);
 			drawWordThe(false);
 			drawWordLight(true);
+			var musicText = new PIXI.Text('Music & Sound FX By: Some brave soul', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			musicText.x = 50;
+			musicText.y = 660;
+			LoadingBar.container.addChild(musicText);
 		}
 	};
 
