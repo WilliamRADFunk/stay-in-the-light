@@ -25,23 +25,33 @@ var Game = function() {
 	this.fog = {};
 	// Tile map object
 	this.honeycomb = {};
+	// Start Screen object
+	this.startScreen = {};
 
-	// Setup the rendering surface.
+	// Setup the rendering surface for main game scene.
 	this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
 	this.renderer.transparent = true;
 	document.getElementById('game-stage').appendChild(this.renderer.view);
-	// Setup the rendering surface.
+	// Setup the rendering surface for loading bar scene
 	this.rendererForLoadingBar = new PIXI.CanvasRenderer(this._width, this._height);
 	this.rendererForLoadingBar.transparent = true;
 	document.getElementById('loading-stage').appendChild(this.rendererForLoadingBar.view);
+	// Setup the rendering surface for loading bar scene
+	this.rendererForStartScreen = new PIXI.CanvasRenderer(this._width, this._height);
+	this.rendererForStartScreen.transparent = true;
+	document.getElementById('start-stage').appendChild(this.rendererForStartScreen.view);
 	// Create the main stage to draw on.
 	this.container = new PIXI.Container();
-	// Create the main stage to draw on.
+	// Create the loading bar stage to draw on.
 	this.containerForLoadingBar = new PIXI.Container();
+	// Create the loading bar stage to draw on.
+	this.containerForStartScreen = new PIXI.Container();
 	// Used when an incremental stage of loading is completed.
 	this.loadingCallback;
 
-	this.build();
+	this.start();
+
+	// this.build();
 };
 
 Game.prototype = {
@@ -215,6 +225,69 @@ Game.prototype = {
 	},
 
 	/**
+	 * Draws the start screen and animates until player clicks play.
+	 */
+	start: function() {
+		this.startScreen = new StartScreenWrapper(this._center);
+		this.startScreen.init();
+		this.containerForStartScreen.addChild(this.startScreen.container);
+		this.rendererForStartScreen.render(this.containerForStartScreen);
+
+		var interval = 2000;
+		var flickeringInterval = function() {
+        	clearInterval(flickeringLightsInterval);
+
+			this.startScreen.drawStartScreenWords();
+			this.rendererForStartScreen.render(this.containerForStartScreen);
+
+			if(interval === 2000) {
+				interval = 150;
+			} else if(interval === 150) {
+				interval = 100;
+			} else if(interval === 100) {
+				interval = 105;
+			} else {
+				interval = 2000;
+			}
+
+			flickeringLightsInterval = setInterval(flickeringInterval, interval);
+		}.bind(this);
+
+
+		var flickeringLightsInterval = setInterval(flickeringInterval, interval);
+
+		this.startScreen.drawOptions();
+		this.rendererForStartScreen.render(this.containerForStartScreen);
+
+		// Detects when the mouse moves and calculates which hex-rant player is hovering over.
+		var mouseMoveHandler = function(e) {
+			var mX = e.pageX;
+			var mY = e.pageY;
+			if(mX >= 640 && mX <= 715) {
+				if(mY >= 400 && mY <= 420) {
+					this.startScreen.drawOptions(0);
+				} else if(mY >= 440 && mY <= 460) {
+					this.startScreen.drawOptions(1);
+				} else if(mY >= 480 && mY <= 500) {
+					this.startScreen.drawOptions(2);
+				} else {
+					this.startScreen.drawOptions();
+				}
+			} else {
+				this.startScreen.drawOptions();
+			}
+			this.rendererForStartScreen.render(this.containerForStartScreen);
+		}.bind(this);
+		var mouseClickHandler = function(e) {
+			console.log(e);
+		}.bind(this);
+		// Captures click of mouse and passes on to handler.
+		document.addEventListener('click', mouseClickHandler);
+		// Captures movement of mouse and passes on to handler.
+		document.addEventListener('mousemove', mouseMoveHandler);
+	},
+
+	/**
 	 * Fires at the end of the gameloop to reset and redraw the canvas.
 	 */
 	tick: function() {
@@ -222,6 +295,7 @@ Game.prototype = {
 		// Render the stage for the current frame.
 		this.renderer.render(this.container);
 		this.rendererForLoadingBar.render(this.containerForLoadingBar);
+		this.rendererForStartScreen.render(this.containerForStartScreen);
 		//Update Fog Sprite creation for overlay
 		// Dev Mode: comment next line for fog off
 		if(this.isLoaded) {
