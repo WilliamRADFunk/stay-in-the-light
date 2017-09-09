@@ -33,6 +33,17 @@ var LoadingBarWrapper = function(center) {
 	];
 	var excuseText;
 	var currentExcuseIndex = 0;
+	var stayText;
+	var inText;
+	var theText;
+	var lightText;
+
+	var light1 = new PIXI.Graphics();
+	var light2 = new PIXI.Graphics();
+	var light3 = new PIXI.Graphics();
+	var light4 = new PIXI.Graphics();
+
+	var lights = [light1, light2, light3, light4];
 
 	/**
 	 * internal constructors (like Tile in honeycomb.js) accessible to everything
@@ -43,6 +54,105 @@ var LoadingBarWrapper = function(center) {
 	/**
 	 * functions accessible to everything internal to LoadingBarWrapper go here
 	 * aka starts with 'var'
+	**/
+	var drawLight = function(lightIndex, sX, isLit) {
+		lights[lightIndex].clear();
+
+		var fillColor = 0xCFB53B;
+		if(isLit) {
+			lights[lightIndex].beginFill(fillColor);
+		}
+		lights[lightIndex].moveTo(sX, 20);
+		lights[lightIndex].lineStyle(5, 0xCFB53B, 2);
+		lights[lightIndex].lineTo(sX, 40);
+		lights[lightIndex].lineTo(sX - 25, 65);
+		lights[lightIndex].lineTo(sX + 25, 65);
+		lights[lightIndex].lineTo(sX, 40);
+		if(isLit) {
+			lights[lightIndex].endFill(fillColor);
+			lights[lightIndex].beginFill(fillColor, 0.2);
+			lights[lightIndex].lineStyle(1, 0xCFB53B, 2);
+			lights[lightIndex].moveTo(sX - 25, 65);
+			lights[lightIndex].lineTo(sX - 55, 95);
+			lights[lightIndex].lineTo(sX + 55, 95);
+			lights[lightIndex].lineTo(sX + 25, 65);
+			lights[lightIndex].endFill(fillColor);
+		}
+		LoadingBar.container.addChild(lights[lightIndex]);
+	};
+	var drawWordStay = function(isLit) {
+		if(stayText && isLit) {
+			drawLight(0, 175, true);
+			LoadingBar.container.removeChild(stayText);
+			stayText = new PIXI.Text('Stay', {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+		} else if(stayText) {
+			drawLight(0, 175, false);
+			LoadingBar.container.removeChild(stayText);
+			stayText = new PIXI.Text('Stay', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		} else {
+			drawLight(0, 175, false);
+			stayText = new PIXI.Text('Stay', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		}
+		stayText.x = 50;
+		stayText.y = 100;
+		LoadingBar.container.addChild(stayText);
+	};
+	var drawWordIn = function(isLit) {
+		if(inText && isLit) {
+			drawLight(1, 460, true);
+			LoadingBar.container.removeChild(inText);
+			inText = new PIXI.Text('in', {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+		} else if(inText) {
+			drawLight(1, 460, false);
+			LoadingBar.container.removeChild(inText);
+			inText = new PIXI.Text('in', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		} else {
+			drawLight(1, 460, false);
+			inText = new PIXI.Text('in', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		}
+		inText.x = 400;
+		inText.y = 100;
+		LoadingBar.container.addChild(inText);
+	};
+	var drawWordThe = function(isLit) {
+		if(theText && isLit) {
+			drawLight(2, 730, true);
+			LoadingBar.container.removeChild(theText);
+			theText = new PIXI.Text('the', {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+		} else if(theText) {
+			drawLight(2, 730, false);
+			LoadingBar.container.removeChild(theText);
+			theText = new PIXI.Text('the', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		} else {
+			drawLight(2, 730, false);
+			theText = new PIXI.Text('the', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		}
+		theText.x = 650;
+		theText.y = 100;
+		LoadingBar.container.addChild(theText);
+	};
+	var drawWordLight = function(isLit) {
+		if(lightText && isLit) {
+			drawLight(3, 1075, true);
+			LoadingBar.container.removeChild(lightText);
+			lightText = new PIXI.Text('Light', {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+		} else if(lightText) {
+			drawLight(3, 1075, false);
+			LoadingBar.container.removeChild(lightText);
+			lightText = new PIXI.Text('Light', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+
+		} else {
+			drawLight(3, 1075, false);
+			lightText = new PIXI.Text('Light', {fontFamily: 'Courier', fontSize: 96, fontWeight: 100, fill: 0xCFB53B, align: 'left'});
+		}
+		lightText.x = 950;
+		lightText.y = 100;
+		LoadingBar.container.addChild(lightText);
+	};
+
+	/**
+	 * variables accessible publicly from LoadingBarWrapper go here
+	 * aka starts with 'LoadingBar'
 	**/
 	LoadingBar.drawBaseLoadingBar = function() {
 		percentageText = new PIXI.Text('1 %', {fontFamily: 'Courier', fontSize: 24, fill: 0xCFB53B, align: 'left'});
@@ -72,6 +182,10 @@ var LoadingBarWrapper = function(center) {
 		excuseText.y = center.y + 40;
 		LoadingBar.container.addChild(percentageText);
 		LoadingBar.container.addChild(excuseText);
+		drawWordStay(false);
+		drawWordIn(false);
+		drawWordThe(false);
+		drawWordLight(false);
 	};
 	LoadingBar.drawLoadingBarProgress = function(amount, isLoaded) {
 		currentPercentage += amount;
@@ -105,12 +219,23 @@ var LoadingBarWrapper = function(center) {
 		loadingBox.lineTo(center.x - 100, center.y + 20);
 		loadingBox.lineTo(center.x - 100, center.y - 20);
 		loadingBox.endFill();
-	};	
 
-	/**
-	 * variables accessible publicly from LoadingBarWrapper go here
-	 * aka starts with 'LoadingBar'
-	**/
+		if(currentPercentage <= 20) {
+			drawWordStay(true);
+		} else if(currentPercentage <= 35) {
+			drawWordStay(false);
+			drawWordIn(true);
+		} else if(currentPercentage <= 80) {
+			drawWordStay(false);
+			drawWordIn(false);
+			drawWordThe(true);
+		} else {
+			drawWordStay(false);
+			drawWordIn(false);
+			drawWordThe(false);
+			drawWordLight(true);
+		}
+	};
 
 	/**
 	 * functions accessible publicly from LoadingBarWrapper go here
