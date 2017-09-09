@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.7
-Last Updated: 2017-August-13
+Stay in the Light v0.0.8
+Last Updated: 2017-September-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -10,6 +10,7 @@ Authors:
 var FogWrapper = function(container, center, hContainer, rEnder) {
 	// Publicly accessible functionality.
 	var Fog = {};
+	
 	//Aliases
 	var loader = new PIXI.loaders.Loader();
 
@@ -43,12 +44,18 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 
 				fogSprite = new PIXI.Sprite(resources["./images/fogFinal.json"].textures["Fog_0001_Layer-01.jpg"]);
 
+				// Move loading bar progress by a small degree.
+				document.dispatchEvent(loadingEvent);
+
 				//Loop through frame count for fog and save 'frames' into frames array.
 				for (var i = 1; i < 33; i++) {
 					var val = i < 10 ? '0' + i : i;
 					// magically works since the spritesheet was loaded with the pixi loader
 					frames.push(PIXI.Texture.fromFrame('Fog_0001_Layer-' + val + '.jpg'));
 				}
+
+				// Move loading bar progress by a small degree.
+				document.dispatchEvent(loadingEvent);
 
 				// Custom tilemapping of the smaller fog animation
 				for(var j = 0; j < 5; j++) {
@@ -62,6 +69,9 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 						container.addChild(anim);
 					}
 				}
+
+				// Move loading bar progress by a small degree.
+				document.dispatchEvent(loadingEvent);
 				
 				container.addChild(fogContainer);
 				//Customize graphic to act as mask
@@ -73,6 +83,9 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 				maskPrime.drawCircle(0, 0, radius);
 				//Apply Mask
 				fogContainer.mask = maskPrime;
+
+				// Move loading bar progress by a small degree.
+				document.dispatchEvent(loadingEvent);
 			});
 
 			radius = 90;
