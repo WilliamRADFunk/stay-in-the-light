@@ -1,5 +1,5 @@
 /*
-Stay in the Light v0.0.7
+Stay in the Light v0.0.8
 Last Updated: 2017-September-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -10,8 +10,7 @@ Authors:
 var FogWrapper = function(container, center, hContainer, rEnder) {
 	// Publicly accessible functionality.
 	var Fog = {};
-	// Used when an incremental stage of loading is completed.
-	var loadingEvent = new Event('loading');
+	
 	//Aliases
 	var loader = new PIXI.loaders.Loader();
 
