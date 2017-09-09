@@ -78,7 +78,6 @@ var LoadingBarWrapper = function(center) {
 			lights[lightIndex].lineTo(sX + 25, 65);
 			lights[lightIndex].endFill(fillColor);
 		}
-		LoadingBar.container.addChild(lights[lightIndex]);
 	};
 	var drawWordStay = function(isLit) {
 		if(stayText && isLit) {
@@ -262,6 +261,11 @@ var LoadingBarWrapper = function(center) {
 	// and setup any internal logic for the LoadingBar.
 	LoadingBar.init = function() {
 		LoadingBar.container = new PIXI.Container();
+
+		LoadingBar.container.addChild(lights[0]);
+		LoadingBar.container.addChild(lights[1]);
+		LoadingBar.container.addChild(lights[2]);
+		LoadingBar.container.addChild(lights[3]);
 	};
 
 	// Return public api object at very end.
