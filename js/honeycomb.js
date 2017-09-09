@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.7
-Last Updated: 2017-September-04
+Last Updated: 2017-September-09
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -92,8 +92,6 @@ var MapWrapper = function(center) {
 	/*** Internal constructors ***/
 	// Tile creator
 	var Tile = function(cX, cY) {
-		// Additional opacity layer to show enemy's current tile.
-		var enemyLayer = new PIXI.Graphics();
 		// Base tile.
 		var hexagon = new PIXI.Graphics();
 		// Additional opacity layer to highlight player's current tile.
@@ -358,20 +356,7 @@ var MapWrapper = function(center) {
 			} else {
 				hoverLayer.clear();
 			}
-			/*** Below: This is temporary, only to track movement of enemy AI ***/
 			if(isEnemy) {
-				// Layer to illustrate a fog of war effect.
-				// enemyLayer.clear();
-				// enemyLayer.moveTo(cX + size, cY);
-				// enemyLayer.beginFill(0x0000FF, 0.5);
-				// for (var i = 0; i <= 6; i++) {
-				// 	var angle = 2 * Math.PI / 6 * i,
-				// 	x_i = cX + size * Math.cos(angle),
-				// 	y_i = cY + size * Math.sin(angle);
-				// 	enemyLayer.lineTo(x_i, y_i);
-				// }
-				// enemyLayer.endFill();
-				// move the sprite to the center of the screen
 				if(currentEnemyGraphic) {
 					tileMap.enemyLayerContainer.removeChild(currentEnemyGraphic);
 				}
@@ -380,7 +365,6 @@ var MapWrapper = function(center) {
 				currentEnemyGraphic.y = cY - 5;
 				tileMap.enemyLayerContainer.addChild(currentEnemyGraphic);
 			}
-			/*** Above: This is temporary, only to track movement of enemy AI ***/
 		};
 
 		return {
@@ -402,7 +386,7 @@ var MapWrapper = function(center) {
 				}
 				if(this.state.isPlayer) {
 					activeTile = this;
-				}		
+				}
 				// Runs drawing functionality.
 				this.draw(9);
 				// Attach the tile to the stage.
@@ -546,18 +530,20 @@ var MapWrapper = function(center) {
 	// can reach any other passable node.
 	var checkForIslands = function(startNode) {
 		var initialFreeNodesLenth = freeNodes.length;
-		for(var i = 0; i < freeNodes.length; i++) {
-			if(hasReachablePath(startNode, freeNodes[i], 0)) {
-				var percentComplete = Math.ceil((1 - (freeNodes.length/initialFreeNodesLenth)) * 100);
-				if(percentComplete % 10 === 0) {
-					console.log("Loading: ", percentComplete);
-				}
-				freeNodes.splice(0, 1);
-				i -= 1;
+		var tempFreeNodes = [];
+		for(var i = 0; i < initialFreeNodesLenth; i++) {
+			tempFreeNodes.push(freeNodes[i]);
+		}
+
+		while(tempFreeNodes.length) {
+			if(hasReachablePath(startNode, tempFreeNodes[0], 0)) {
+				var percentComplete = Math.ceil((1 - (tempFreeNodes.length/initialFreeNodesLenth)) * 100);
+				tempFreeNodes.splice(0, 1);
 			} else {
 				return false;
 			}
 		}
+			
 		return true;
 	};
 	// Recursive function that seeks out a path to find a single node in the freenode array.
@@ -914,6 +900,9 @@ var MapWrapper = function(center) {
 	tileMap.hiddenLayerContainer = new PIXI.Container();
 
 	/*** Publicly accessible functions ***/
+	tileMap.addPlayer = function() {
+		activeTile.draw(4, 0x00FF00);
+	}
 	tileMap.contract = function() {
 		revealDepth -= 1;
 		if(revealDepth < 1) {
