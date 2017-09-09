@@ -19,19 +19,19 @@ var LoadingBarWrapper = function(center) {
 	var percentageText;
 
 	var excuses = [
-		'Planting trees to make the forests...',
-		'Shaving the desert cacti to meet OSEA standards...',
-		'Digging ditches to make pits...',
-		'Making mountains out of mole hills...',
-		'Forming bucket brigade to fill ocean tiles...',
-		'Sucking space out of the null tiles...',
+		'Trimming trees in the forests...',
+		'Combing the desert for rebel spies...',
 		'Injecting pure evil into the enemy units...',
+		'Making mountains out of mole hills...',
+		'Forming bucket brigades to fill ocean tiles...',
+		'Digging ditches to make pits...',
+		'Sucking space out of the null tiles...',
 		'Plugging in the fog of war machine...',
 		'Charging player\'s light batteries...',
 		'Tightening straps on player\'s armor...',
 		'Spawning all the things...',
 	];
-	var currentExcuse;
+	var excuseText;
 	var currentExcuseIndex = 0;
 
 	/**
@@ -46,6 +46,7 @@ var LoadingBarWrapper = function(center) {
 	**/
 	LoadingBar.drawBaseLoadingBar = function() {
 		percentageText = new PIXI.Text('1 %', {fontFamily: 'Courier', fontSize: 24, fill: 0xCFB53B, align: 'left'});
+		excuseText = new PIXI.Text(excuses[currentExcuseIndex], {fontFamily: 'Courier', fontSize: 24, fill: 0xCFB53B, align: 'left'});
 
 		var fillColor = 0xCFB53B;
 		loadingBox.moveTo(center.x - 100, center.y - 20);
@@ -67,17 +68,25 @@ var LoadingBarWrapper = function(center) {
 
 		percentageText.x = center.x + 110;
 		percentageText.y = center.y - 10;
+		excuseText.x = center.x - 100;
+		excuseText.y = center.y + 40;
 		LoadingBar.container.addChild(percentageText);
+		LoadingBar.container.addChild(excuseText);
 	};
-	LoadingBar.drawLoadingBarProgress = function(isLoaded) {
-		currentPercentage++;
+	LoadingBar.drawLoadingBarProgress = function(amount, isLoaded) {
+		currentPercentage += amount;
 		if(currentPercentage >= 95) {
 			currentPercentage = 95;
 		} else if(isLoaded) {
 			currentPercentage = 99;
 		}
+		currentExcuseIndex++;
+		if(currentExcuseIndex >= excuses.length || isLoaded) {
+			currentExcuseIndex = excuses.length - 1;
+		}
 
-		percentageText.setText(currentPercentage + ' %');
+		percentageText.text = currentPercentage + ' %';
+		excuseText.text = excuses[currentExcuseIndex];
 
 		loadingBox.clear();
 
