@@ -202,19 +202,24 @@ var GameWrapper = function() {
 		/**
 		 * Draw the boundaries of the tile mapped world.
 		 */
-		setupBoundaries: function() {
+		setupBoundaries: function(stage=0, color=0xFFFFFF) {
 			var walls = new PIXI.Graphics();
-			walls.beginFill(0xFFFFFF, 0.5);
+			walls.beginFill(color, 0.5);
 			walls.drawRect(0, 0, this._width, 10);
 			walls.drawRect(this._width - 10, 10, 10, this._height - 10);
 			walls.drawRect(0, this._height - 10, this._width, 10);
 			walls.drawRect(0, 10, 10, this._height - 20);
 			walls.endFill();
-
 			// Attach the walls to the stage.
-			this.container.addChild(walls);
-			// Move loading bar progress by a small degree.
-			this.loadingCallback(20);
+			if(stage === 1) {
+				this.containerForLoadingBar.addChild(walls);
+			} else if(stage === 2) {
+				this.containerForStartScreen.addChild(walls);
+			} else {
+				this.container.addChild(walls);
+				// Move loading bar progress by a small degree.
+				this.loadingCallback(20);
+			}
 		},
 
 		/**
@@ -234,6 +239,7 @@ var GameWrapper = function() {
 			}.bind(this);
 
 			this.loadingBar.drawBaseLoadingBar();
+			this.setupBoundaries(1, 0xCFB53B);
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
 
 			// Move loading bar progress by a small degree.
@@ -247,6 +253,7 @@ var GameWrapper = function() {
 			this.startScreen = new StartScreenWrapper(this._center);
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
+			this.setupBoundaries(2, 0xCFB53B);
 			this.rendererForStartScreen.render(this.containerForStartScreen);
 
 			var interval = 2000;

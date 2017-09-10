@@ -62,7 +62,7 @@ var LoadingBarWrapper = function(center) {
 		if(isLit) {
 			lights[lightIndex].beginFill(fillColor);
 		}
-		lights[lightIndex].moveTo(sX, 20);
+		lights[lightIndex].moveTo(sX, 10);
 		lights[lightIndex].lineStyle(5, 0xCFB53B, 2);
 		lights[lightIndex].lineTo(sX, 40);
 		lights[lightIndex].lineTo(sX - 25, 65);

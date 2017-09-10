@@ -62,7 +62,7 @@ var StartScreenWrapper = function(center) {
 		if(isLit) {
 			light.beginFill(fillColor);
 		}
-		light.moveTo(640, 20);
+		light.moveTo(640, 10);
 		light.lineStyle(5, 0xCFB53B, 2);
 		light.lineTo(640, 40);
 		light.lineTo(640 - 25, 65);
@@ -155,7 +155,7 @@ var StartScreenWrapper = function(center) {
 		} else {
 			startText = new PIXI.Text('Start', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		}
-		startText.x = 640;
+		startText.x = 600;
 		startText.y = 400;
 		StartScreen.container.addChild(startText);
 	};
@@ -171,7 +171,7 @@ var StartScreenWrapper = function(center) {
 		} else {
 			difficultyText = new PIXI.Text('Difficulty', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		}
-		difficultyText.x = 640;
+		difficultyText.x = 600;
 		difficultyText.y = 440;
 		StartScreen.container.addChild(difficultyText);
 
@@ -294,7 +294,7 @@ var StartScreenWrapper = function(center) {
 		} else {
 			helpText = new PIXI.Text('Help', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		}
-		helpText.x = 640;
+		helpText.x = 600;
 		helpText.y = 480;
 		StartScreen.container.addChild(helpText);
 	};
