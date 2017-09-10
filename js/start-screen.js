@@ -334,7 +334,7 @@ var StartScreenWrapper = function(center) {
 		numOfTopDarkTiles++;
 		// If beyond max, switch animation to the light side.
 		if(numOfTopDarkTiles > 31) {
-			numOfTopDarkTiles = 1;
+			numOfTopDarkTiles = 0;
 			clearInterval(darkTileAnimation);
 			lightTileAnimation = setInterval(drawLightTileAnimation, 600);
 			return;
@@ -464,7 +464,7 @@ var StartScreenWrapper = function(center) {
 		numOfTopLightTiles++;
 		// If beyond max, switch animation to the light side.
 		if(numOfTopLightTiles > 31) {
-			numOfTopLightTiles = 1;
+			numOfTopLightTiles = 0;
 			clearInterval(lightTileAnimation);
 			darkTileAnimation = setInterval(drawDarkTileAnimation, 600);
 			return;
