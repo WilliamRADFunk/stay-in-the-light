@@ -282,8 +282,8 @@ var GameWrapper = function() {
 				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 400 && mY <= 420) {
 						this.startScreen.drawOptions(0);
-					} else if(mY >= 440 && mY <= 460) {
-						this.startScreen.drawOptions(1, this.difficulty);
+					} else if(mY >= 420 && mY <= 480) {
+						this.startScreen.drawOptions(1, this.difficulty, mX);
 					} else if(mY >= 480 && mY <= 500) {
 						this.startScreen.drawOptions(2);
 					} else {
@@ -297,7 +297,7 @@ var GameWrapper = function() {
 			var mouseClickHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
-				if(mX >= 640 && mX <= 715) {
+				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 400 && mY <= 420) {
 						var loadingStage = document.getElementById('loading-stage');
 						var startStage = document.getElementById('start-stage');
@@ -309,8 +309,17 @@ var GameWrapper = function() {
 						document.removeEventListener('mousemove', mouseMoveHandler);
 						// Start the actual game.
 						this.build();
-					} else if(mY >= 440 && mY <= 460) {
-						// this.startScreen.drawOptions(1);
+					} else if(mY > 420 && mY <= 480) {
+						if(mX >= 800 && mX < 830) {
+							this.difficulty = 1;
+							mouseMoveHandler({pageX: mX, pageY: mY});
+						} else if(mX >= 845 && mX < 875) {
+							this.difficulty = 2;
+							mouseMoveHandler({pageX: mX, pageY: mY});
+						} else if(mX >= 890 && mX < 930) {
+							this.difficulty = 3;
+							mouseMoveHandler({pageX: mX, pageY: mY});
+						}
 					} else if(mY >= 480 && mY <= 500) {
 						// this.startScreen.drawOptions(2);
 					}

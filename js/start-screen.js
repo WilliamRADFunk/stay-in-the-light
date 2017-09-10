@@ -21,6 +21,7 @@ var StartScreenWrapper = function(center) {
 	var lightText;
 	var startText;
 	var difficultyText;
+	var difficultyLevelText;
 	var helpText;
 	var isLit = false;
 
@@ -158,7 +159,7 @@ var StartScreenWrapper = function(center) {
 		startText.y = 400;
 		StartScreen.container.addChild(startText);
 	};
-	var drawWordDifficulty = function(isHighlighted, difficulty) {
+	var drawWordDifficulty = function(isHighlighted, difficulty, mX) {
 		if(difficultyText && isHighlighted) {
 			StartScreen.container.removeChild(difficultyText);
 			difficultyText = new PIXI.Text('Difficulty', {fontFamily: 'Courier', fontSize: 24, fontWeight: 800, fill: 0xFFFFFF, align: 'left'});
@@ -185,6 +186,10 @@ var StartScreenWrapper = function(center) {
 		if(currentDifficulty3) {
 			StartScreen.container.removeChild(currentDifficulty3);
 			currentDifficulty3 = null;
+		}
+		if(difficultyLevelText) {
+			StartScreen.container.removeChild(difficultyLevelText);
+			difficultyLevelText = null;
 		}
 
 		if(isHighlighted) {
@@ -246,6 +251,35 @@ var StartScreenWrapper = function(center) {
 				currentDifficulty2.scale.y = 0.6;
 				StartScreen.container.addChild(currentDifficulty2);
 			}
+
+			if(mX >= 800 && mX < 830) {
+				if(!difficultyLevelText) {
+					difficultyLevelText = new PIXI.Text('Easy', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+					difficultyLevelText.x = 975;
+					difficultyLevelText.y = 450;
+					StartScreen.container.addChild(difficultyLevelText);
+				} else {
+					difficultyLevelText.text = 'Easy';
+				}
+			} else if(mX >= 845 && mX < 875) {
+				if(!difficultyLevelText) {
+					difficultyLevelText = new PIXI.Text('Normal', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+					difficultyLevelText.x = 975;
+					difficultyLevelText.y = 450;
+					StartScreen.container.addChild(difficultyLevelText);
+				} else {
+					difficultyLevelText.text = 'Normal';
+				}
+			} else if(mX >= 890 && mX < 930) {
+				if(!difficultyLevelText) {
+					difficultyLevelText = new PIXI.Text('Extreme', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+					difficultyLevelText.x = 975;
+					difficultyLevelText.y = 450;
+					StartScreen.container.addChild(difficultyLevelText);
+				} else {
+					difficultyLevelText.text = 'Extreme';
+				}
+			}
 		}
 	};
 	var drawWordHelp = function(isHighlighted) {
@@ -277,7 +311,7 @@ var StartScreenWrapper = function(center) {
 		drawWordLight();
 	};
 
-	StartScreen.drawOptions = function(option, difficulty) {
+	StartScreen.drawOptions = function(option, difficulty, mX) {
 		switch(option) {
 			case 0: {
 				drawWordStart(true);
@@ -286,7 +320,7 @@ var StartScreenWrapper = function(center) {
 				break;
 			}
 			case 1: {
-				drawWordDifficulty(true, difficulty);
+				drawWordDifficulty(true, difficulty, mX);
 				drawWordStart(false);
 				drawWordHelp(false);
 				break;
