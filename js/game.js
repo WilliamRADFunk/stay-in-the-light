@@ -254,14 +254,14 @@ var GameWrapper = function() {
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
-			this.rendererForStartScreen.render(this.containerForStartScreen);
+
+			var loopId;
 
 			var interval = 2000;
 			var flickeringInterval = function() {
 	        	clearInterval(flickeringLightsInterval);
 
 				this.startScreen.drawStartScreenWords();
-				this.rendererForStartScreen.render(this.containerForStartScreen);
 
 				if(interval === 2000) {
 					interval = 150;
@@ -280,7 +280,6 @@ var GameWrapper = function() {
 			var flickeringLightsInterval = setInterval(flickeringInterval, interval);
 
 			this.startScreen.drawOptions();
-			this.rendererForStartScreen.render(this.containerForStartScreen);
 
 			// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 			var mouseMoveHandler = function(e) {
@@ -299,13 +298,17 @@ var GameWrapper = function() {
 				} else {
 					this.startScreen.drawOptions();
 				}
-				this.rendererForStartScreen.render(this.containerForStartScreen);
 			}.bind(this);
 			var mouseClickHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 400 && mY <= 420) {
+						if(this.startScreenAniLoop) {
+							var id = window.cancelAnimationFrame(this.startScreenAniLoop);
+							this.startScreenAniLoop = undefined;
+						}
+						this.startScreen.killProcesses();
 						var loadingStage = document.getElementById('loading-stage');
 						var startStage = document.getElementById('start-stage');
 						startStage.style.display = 'none';
@@ -336,6 +339,9 @@ var GameWrapper = function() {
 			document.addEventListener('click', mouseClickHandler);
 			// Captures movement of mouse and passes on to handler.
 			document.addEventListener('mousemove', mouseMoveHandler);
+
+			// Begin the first frame.
+			this.startScreenAniLoop = requestAnimationFrame(this.tickStartScreen.bind(this));
 		},
 
 		/**
@@ -346,7 +352,6 @@ var GameWrapper = function() {
 			// Render the stage for the current frame.
 			this.renderer.render(this.container);
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
-			this.rendererForStartScreen.render(this.containerForStartScreen);
 			//Update Fog Sprite creation for overlay
 			// Dev Mode: comment next line for fog off
 			if(this.isLoaded) {
@@ -354,6 +359,16 @@ var GameWrapper = function() {
 			}
 			// Begin the next frame.
 			requestAnimationFrame(this.tick.bind(this));
+		},
+
+		/**
+		 * Fires at the end of the gameloop to reset and redraw the canvas.
+		 */
+		tickStartScreen: function() {
+			// Render the stage for the current frame.
+			this.rendererForStartScreen.render(this.containerForStartScreen);
+			// Begin the next frame.
+			this.startScreenAniLoop = requestAnimationFrame(this.tickStartScreen.bind(this));
 		}
 	};
 	// Sets the game in motion.

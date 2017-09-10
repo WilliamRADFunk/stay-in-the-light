@@ -38,11 +38,37 @@ var StartScreenWrapper = function(center) {
 	var enemyOutline3 = PIXI.Sprite.fromImage('./images/enemy_outline.png');
 	enemyOutline3.anchor.set(0.5);
 
+	var startScreenBaddyUp = PIXI.Sprite.fromImage('./images/enemy_NE.png');
+	startScreenBaddyUp.anchor.set(0.5);
+	startScreenBaddyUp.scale.x = 0.4;
+	startScreenBaddyUp.scale.y = 0.4;
+	var startScreenBaddyDown = PIXI.Sprite.fromImage('./images/enemy_SE.png');
+	startScreenBaddyDown.anchor.set(0.5);
+	startScreenBaddyDown.scale.x = 0.4;
+	startScreenBaddyDown.scale.y = 0.4;
+	var currentBaddy;
+
+	var startScreenGoodyUp = PIXI.Sprite.fromImage('./images/player_NE.png');
+	startScreenGoodyUp.anchor.set(0.5);
+	startScreenGoodyUp.scale.x = 0.4;
+	startScreenGoodyUp.scale.y = 0.4;
+	var startScreenGoodyDown = PIXI.Sprite.fromImage('./images/player_SE.png');
+	startScreenGoodyDown.anchor.set(0.5);
+	startScreenGoodyDown.scale.x = 0.4;
+	startScreenGoodyDown.scale.y = 0.4;
+	var currentGoody;
+
 	var currentDifficulty1;
 	var currentDifficulty2;
 	var currentDifficulty3;
 
 	var light = new PIXI.Graphics();
+
+	var darkTileAnimation;
+	var numOfTopDarkTiles = 0;
+	var lightTileAnimation;
+	var numOfTopLightTiles = 0;
+	var topTileGraphic = new PIXI.Graphics();
 
 	/**
 	 * internal constructors (like Tile in honeycomb.js) accessible to everything
@@ -298,6 +324,265 @@ var StartScreenWrapper = function(center) {
 		helpText.y = 480;
 		StartScreen.container.addChild(helpText);
 	};
+	var drawDarkTileAnimation = function() {
+		// Clear out what the last enemy graphic was.
+		if(currentBaddy) {
+			StartScreen.container.removeChild(currentBaddy);
+			currentBaddy = null;
+		}
+
+		numOfTopDarkTiles++;
+		// If beyond max, switch animation to the light side.
+		if(numOfTopDarkTiles > 31) {
+			numOfTopDarkTiles = 1;
+			clearInterval(darkTileAnimation);
+			lightTileAnimation = setInterval(drawLightTileAnimation, 600);
+			return;
+		}
+		// Clear previous iteration of the drawing.
+		topTileGraphic.clear();
+
+		var centerX = 40;
+		var centerY = 260;
+		var size = 25;
+
+		// Fill in the dark tiles from left to right,
+		// second is light if dark number is odd, and dar if even.
+		for(var i = 0; i < numOfTopDarkTiles; i+=2) {
+			// Paint top hex
+			var fillColor = 0x000000;
+			topTileGraphic.lineStyle(3, 0xCFB53B, 2);
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+
+			// If on the last block don't paint another.
+			if(i+1 === numOfTopDarkTiles && i+1 === 31) {
+				break;
+			}
+
+			// When numOfTopDarkTiles if becomes necessary to paint the additional even block.
+			// Check between even and odd.
+			if(i+1 >= numOfTopDarkTiles) { // Light
+				fillColor = 0xCFB53B;
+				topTileGraphic.lineStyle(3, 0xC0C0C0, 2);
+			} else { // Dark
+				fillColor = 0x000000;
+				topTileGraphic.lineStyle(3, 0xCFB53B, 2);
+			}
+			// Paint bottom hex
+			centerX += 40;
+			centerY += 23
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+			centerX += 40;
+			centerY -= 23
+		}
+		// Fill in the tiles tiles from left to right, top to bottom.
+		for(var i = 0; i < 28 - (numOfTopDarkTiles - 1); i+=2) {
+			var fillColor = 0xCFB53B;
+			topTileGraphic.lineStyle(3, 0xC0C0C0, 2);
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+
+			centerX += 40;
+			centerY += 23
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+			centerX += 40;
+			centerY -= 23
+		}
+		// There is an odd number of total hexes. Make sure to add this one last node,
+		// but check to see if it should be light or dark.
+		if(numOfTopDarkTiles <= 30) { // Light
+				fillColor = 0xCFB53B;
+				topTileGraphic.lineStyle(3, 0xC0C0C0, 2);
+		} else { // Dark
+			fillColor = 0x000000;
+			topTileGraphic.lineStyle(3, 0xCFB53B, 2);
+		}
+		topTileGraphic.moveTo(centerX + size, centerY);
+		topTileGraphic.beginFill(fillColor);
+		for (var j = 0; j <= 6; j++) {
+			var angle = 2 * Math.PI / 6 * j,
+			x_j = centerX + size * Math.cos(angle),
+			y_j = centerY + size * Math.sin(angle);
+			topTileGraphic.lineTo(x_j, y_j);
+		}
+		topTileGraphic.endFill();
+
+		// If top hex have enemy pointing toward lower right, upper right otherwise.
+		if(numOfTopDarkTiles % 2 === 0) {
+			centerY = 283;
+			currentBaddy = startScreenBaddyUp;
+		} else {
+			centerY = 260;
+			currentBaddy = startScreenBaddyDown;
+		}
+		centerX = numOfTopDarkTiles * 40;
+		currentBaddy.x = centerX;
+		currentBaddy.y = centerY;
+
+		StartScreen.container.addChild(topTileGraphic);
+		StartScreen.container.addChild(currentBaddy);
+	};
+
+	var drawLightTileAnimation = function() {
+		// Clear out what the last enemy graphic was.
+		if(currentGoody) {
+			StartScreen.container.removeChild(currentGoody);
+			currentGoody = null;
+		}
+
+		numOfTopLightTiles++;
+		// If beyond max, switch animation to the light side.
+		if(numOfTopLightTiles > 31) {
+			numOfTopLightTiles = 1;
+			clearInterval(lightTileAnimation);
+			darkTileAnimation = setInterval(drawDarkTileAnimation, 600);
+			return;
+		}
+		// Clear previous iteration of the drawing.
+		topTileGraphic.clear();
+
+		var centerX = 40;
+		var centerY = 260;
+		var size = 25;
+
+		// Fill in the dark tiles from left to right,
+		// second is light if dark number is odd, and dar if even.
+		for(var i = 0; i < numOfTopLightTiles; i+=2) {
+			// Paint top hex
+			var fillColor = 0xCFB53B;
+			topTileGraphic.lineStyle(3, 0xC0C0C0, 2);
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+
+			// If on the last block don't paint another.
+			if(i+1 === numOfTopLightTiles && i+1 === 31) {
+				break;
+			}
+
+			// When numOfTopLightTiles if becomes necessary to paint the additional even block.
+			// Check between even and odd.
+			if(i+1 >= numOfTopLightTiles) { // Light
+				fillColor = 0x000000;
+				topTileGraphic.lineStyle(3, 0xCFB53B, 2);
+			} else { // Dark
+				fillColor = 0xCFB53B;
+				topTileGraphic.lineStyle(3, 0xC0C0C0, 2);
+			}
+			// Paint bottom hex
+			centerX += 40;
+			centerY += 23
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+			centerX += 40;
+			centerY -= 23
+		}
+		// Fill in the tiles tiles from left to right, top to bottom.
+		for(var i = 0; i < 28 - (numOfTopLightTiles - 1); i+=2) {
+			var fillColor = 0x000000;
+			topTileGraphic.lineStyle(3, 0xCFB53B, 2);
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+
+			centerX += 40;
+			centerY += 23
+			topTileGraphic.moveTo(centerX + size, centerY);
+			topTileGraphic.beginFill(fillColor);
+			for (var j = 0; j <= 6; j++) {
+				var angle = 2 * Math.PI / 6 * j,
+				x_j = centerX + size * Math.cos(angle),
+				y_j = centerY + size * Math.sin(angle);
+				topTileGraphic.lineTo(x_j, y_j);
+			}
+			topTileGraphic.endFill();
+			centerX += 40;
+			centerY -= 23
+		}
+		// There is an odd number of total hexes. Make sure to add this one last node,
+		// but check to see if it should be light or dark.
+		if(numOfTopLightTiles <= 30) { // Light
+				fillColor = 0x000000;
+				topTileGraphic.lineStyle(3, 0xCFB53B, 2);
+		} else { // Dark
+			fillColor = 0xCFB53B;
+			topTileGraphic.lineStyle(3, 0xC0C0C0, 2);
+		}
+		topTileGraphic.moveTo(centerX + size, centerY);
+		topTileGraphic.beginFill(fillColor);
+		for (var j = 0; j <= 6; j++) {
+			var angle = 2 * Math.PI / 6 * j,
+			x_j = centerX + size * Math.cos(angle),
+			y_j = centerY + size * Math.sin(angle);
+			topTileGraphic.lineTo(x_j, y_j);
+		}
+		topTileGraphic.endFill();
+
+		// If top hex have enemy pointing toward lower right, upper right otherwise.
+		if(numOfTopLightTiles % 2 === 0) {
+			centerY = 283;
+			currentGoody = startScreenGoodyUp;
+		} else {
+			centerY = 260;
+			currentGoody = startScreenGoodyDown;
+		}
+		centerX = numOfTopLightTiles * 40;
+		currentGoody.x = centerX;
+		currentGoody.y = centerY;
+
+		StartScreen.container.addChild(topTileGraphic);
+		StartScreen.container.addChild(currentGoody);
+	};
 
 	/**
 	 * variables accessible publicly from StartScreenWrapper go here
@@ -339,6 +624,11 @@ var StartScreenWrapper = function(center) {
 		}
 	};
 
+	StartScreen.killProcesses = function() {
+		clearInterval(lightTileAnimation);
+		clearInterval(darkTileAnimation);
+	};
+
 	/**
 	 * functions accessible publicly from StartScreenWrapper go here
 	 * aka starts with 'StartScreen'
@@ -354,6 +644,9 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(difficultyLevel2);
 		StartScreen.container.addChild(difficultyLevel3);
 		StartScreen.drawStartScreenWords();
+
+		drawDarkTileAnimation();
+		darkTileAnimation = setInterval(drawDarkTileAnimation, 600);
 	};
 
 	// Return public api object at very end.
