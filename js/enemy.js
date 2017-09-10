@@ -1,5 +1,5 @@
 /* 
-Stay in the Light v0.0.8
+Stay in the Light v0.0.9
 Last Updated: 2017-August-13
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
