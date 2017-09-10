@@ -85,6 +85,8 @@ var StartScreenWrapper = function(center) {
 	var buttonAniIteration = 0;
 	var buttonAnimation;
 	var unfoggedGraphic = new PIXI.Graphics();
+	var fogHelpText1;
+	var fogHelpText2;
 
 	var currentDifficulty1;
 	var currentDifficulty2;
@@ -371,35 +373,52 @@ var StartScreenWrapper = function(center) {
 				StartScreen.container.removeChild(currentHelpGoody);
 				currentHelpGoody = null;
 			}
+			if(fogHelpText1) {
+				StartScreen.container.removeChild(fogHelpText1);
+				fogHelpText1 = null;
+			}
+			if(fogHelpText2) {
+				StartScreen.container.removeChild(fogHelpText2);
+				fogHelpText2 = null;
+			}
 			unfoggedGraphic.clear();
 			buttonAniIteration = 0;
 		}
 	};
-	var drawUnfoggedTiles = function(layers) {
-		var centerX = 150;
+	var drawUnfoggedTiles = function(layers=0) {
+		var centerX = 160;
 		var centerY = 500;
 		var size = 25;
 
-		// Paint top hex
-		var fillColor = 0xCFB53B;
-		unfoggedGraphic.lineStyle(3, 0xC0C0C0, 2);
-		unfoggedGraphic.moveTo(centerX + size, centerY);
-		unfoggedGraphic.beginFill(fillColor);
-		for (var j = 0; j <= 6; j++) {
-			var angle = 2 * Math.PI / 6 * j,
-			x_j = centerX + size * Math.cos(angle),
-			y_j = centerY + size * Math.sin(angle);
-			unfoggedGraphic.lineTo(x_j, y_j);
+		drawHelpTile(centerX, centerY);
+
+		for(var i = 0; i < layers; i++) {
+			drawHelpTile( centerX, (centerY - ((i + 1) * 46)) );
+			drawHelpTile( (centerX + ((i + 1) * 39)) , (centerY - ((i + 1) * 23)) );
+			drawHelpTile( (centerX + ((i + 1) * 39)) , (centerY + ((i + 1) * 23)) );
+			drawHelpTile( centerX, (centerY + ((i + 1) * 46)) );
+			drawHelpTile( (centerX - ((i + 1) * 39)) , (centerY + ((i + 1) * 23)) );
+			drawHelpTile( (centerX - ((i + 1) * 39)) , (centerY - ((i + 1) * 23)) );
 		}
-		unfoggedGraphic.endFill();
-
-
 
 		currentHelpGoody = startScreenHelpGoody;
 		currentHelpGoody.x = centerX;
 		currentHelpGoody.y = centerY;
 		StartScreen.container.addChild(currentHelpGoody);
 	}
+	var drawHelpTile = function(x, y) {
+		var fillColor = 0xCFB53B;
+		unfoggedGraphic.lineStyle(3, 0xC0C0C0, 2);
+		unfoggedGraphic.moveTo(x + 25, y);
+		unfoggedGraphic.beginFill(fillColor);
+		for (var j = 0; j <= 6; j++) {
+			var angle = 2 * Math.PI / 6 * j,
+			x_j = x + 25 * Math.cos(angle),
+			y_j = y + 25 * Math.sin(angle);
+			unfoggedGraphic.lineTo(x_j, y_j);
+		}
+		unfoggedGraphic.endFill();
+	};
 	var drawHelpFogAnimation = function() {
 		unfoggedGraphic.clear();
 		if(currentAButton) {
@@ -414,15 +433,23 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.removeChild(currentHelpGoody);
 			currentHelpGoody = null;
 		}
+		if(fogHelpText1) {
+			StartScreen.container.removeChild(fogHelpText1);
+			fogHelpText1 = null;
+		}
+		if(fogHelpText2) {
+			StartScreen.container.removeChild(fogHelpText2);
+			fogHelpText2 = null;
+		}
 
 		if(buttonAniIteration === 0) {
 			// Draw basic map
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 			
@@ -430,11 +457,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 1) {
 			// Draw basic map expanded once
 			currentAButton = aButtonGold;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -442,11 +469,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 2) {
 			// Draw basic map expanded once
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -454,11 +481,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 3) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonGold;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -466,11 +493,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 4) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -478,11 +505,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 5) {
 			// Draw basic map expanded thrice
 			currentAButton = aButtonGold;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -490,11 +517,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 6 || buttonAniIteration === 7) { // Pause before switch
 			// Draw basic map expanded thrice
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -502,11 +529,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 8) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonGold;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -514,11 +541,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 9) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -526,11 +553,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 10) {
 			// Draw basic map expanded Once
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonGold;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -538,11 +565,11 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 11) {
 			// Draw basic map expanded Once
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonBlack;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
@@ -550,16 +577,37 @@ var StartScreenWrapper = function(center) {
 		} else if(buttonAniIteration === 12) {
 			// Draw basic map
 			currentAButton = aButtonBlack;
-			currentAButton.x = 100;
+			currentAButton.x = 110;
 			currentAButton.y = 400;
 			StartScreen.container.addChild(currentAButton);
 			currentDButton = dButtonGold;
-			currentDButton.x = 200;
+			currentDButton.x = 210;
 			currentDButton.y = 400;
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(0);
 		}
+
+		if(buttonAniIteration >= 0 && buttonAniIteration <= 6) {
+			fogHelpText1 = new PIXI.Text('Pressing \'A\' key increases map visibility,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+			fogHelpText1.x = 50;
+			fogHelpText1.y = 675;
+			StartScreen.container.addChild(fogHelpText1);
+			fogHelpText2 = new PIXI.Text('but decreases player movement speed', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+			fogHelpText2.x = 50;
+			fogHelpText2.y = 690;
+			StartScreen.container.addChild(fogHelpText2);
+		} else {
+			fogHelpText1 = new PIXI.Text('Pressing \'D\' key decreases map visibility,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+			fogHelpText1.x = 50;
+			fogHelpText1.y = 675;
+			StartScreen.container.addChild(fogHelpText1);
+			fogHelpText2 = new PIXI.Text('but increases player movement speed', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+			fogHelpText2.x = 50;
+			fogHelpText2.y = 690;
+			StartScreen.container.addChild(fogHelpText2);
+		}
+
 		buttonAniIteration++;
 		if(buttonAniIteration > 12) {
 			buttonAniIteration = 0;
