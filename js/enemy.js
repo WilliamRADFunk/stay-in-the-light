@@ -11,6 +11,7 @@ var EnemyWrapper = function(center, tileMap) {
 	// Publicly accessible functionality.
 	var Enemy = {};
 	var enemyTile = null;
+	
 	/**
 	 * variables accessible to everything internal to EnemyWrapper go here
 	 * aka starts with 'var'
@@ -21,6 +22,11 @@ var EnemyWrapper = function(center, tileMap) {
 	var tileToMove = -1;
 	//Dictates amount of 'turn-by-turn' modes the enemy can have
 	const options = 3;
+	//Sets a boolean decider to all false [modeOptions]
+	var modeOptions = [];
+	for (n = 0; n < options; ++n) {
+		modeOptions[n] = false;
+	}
 
 	/**
 	 * internal constructors (like Tile in honeycomb.js) accessible to everything
@@ -32,6 +38,11 @@ var EnemyWrapper = function(center, tileMap) {
 	 * functions accessible to everything internal to EnemyWrapper go here
 	 * aka starts with 'var'
 	**/
+	var resetModeOptions = function(){
+		for(n = 0; n < options; ++n){
+			modeOptions[n] = true;
+		}
+	};
 
 	var recalculate = function(){
 		//Will decide starting direction the enemy should go. (0 --> links1 || links2,  1 --> links3 || links4,  2 --)
@@ -41,16 +52,21 @@ var EnemyWrapper = function(center, tileMap) {
 			var rand = (Math.floor(Math.random() * options));
 			mode = rand;
 		}
+		else{
+			//Increment mode to cycle through options.
+			bumpMove();
+			//takeTurn();
+		}
 	};
 
 	var makeMove = function(tileNumber){
 
 		tileToMove = tileNumber;
 		//first check for FORCED DECISIONS (EX: player tile is next to enemy on move update)
-		tileToMove = checkMove(tileNumber);
-
+		//tileToMove = checkMove(tileNumber);
 		//Simple Movement Command when tile space to move to is SET
 		if(tileNumber === 1){
+			//console.log('my params', enemyTile, enemyTile.link1);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link1)){
 					enemyTile = enemyTile.link1;
 				} else {
@@ -58,6 +74,7 @@ var EnemyWrapper = function(center, tileMap) {
 				}
 		}
 		if(tileNumber === 2){
+			//console.log('my params', enemyTile, enemyTile.link2);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link2)){
 					enemyTile = enemyTile.link2;
 				} else {
@@ -65,6 +82,7 @@ var EnemyWrapper = function(center, tileMap) {
 				}
 		}
 		if(tileNumber === 3){
+			//console.log('my params', enemyTile, enemyTile.link3);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link3)){
 					enemyTile = enemyTile.link3;
 				} else {
@@ -72,18 +90,21 @@ var EnemyWrapper = function(center, tileMap) {
 				}
 		}
 		if(tileNumber === 4){
+			//console.log('my params', enemyTile, enemyTile.link4);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link4)){
 					enemyTile = enemyTile.link4;
 				} else {
 					// 	/** Something went wrong in choosing a next tile **/
 				}
 		}if(tileNumber === 5){
+			//console.log('my params', enemyTile, enemyTile.link5);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link5)){
 					enemyTile = enemyTile.link5;
 				} else {
 					// 	/** Something went wrong in choosing a next tile **/
 				}
 		}if(tileNumber === 6){
+			//console.log('my params', enemyTile, enemyTile.link6);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link6)){
 					enemyTile = enemyTile.link6;
 				} else {
@@ -92,8 +113,26 @@ var EnemyWrapper = function(center, tileMap) {
 		}
 	};
 
-	var checkMove = function(direction){
-		//Check if link space is not transversable or if 'empty' (EDGE CASES)
+	var checkMoves = function(){
+		//Check if link spaces are not transversable or if 'empty' (EDGE CASES)
+		if(enemyTile.link1 == null && enemyTile.link2 == null){
+			modeOptions[0] = false;
+		}
+
+		if(enemyTile.link3 == null && enemyTile.link4 == null){
+			modeOptions[1] = false;
+		}
+
+		if(enemyTile.link5 == null && enemyTile.link6 == null){
+			modeOptions[2] = false;
+		}
+	};
+
+	var bumpMove = function(){
+		mode++;
+		if(mode > options){
+			mode = 0;
+		}
 	};
 
 	var checkPlayer = function(originalMove){
@@ -184,6 +223,7 @@ var EnemyWrapper = function(center, tileMap) {
 		// insatiate the enemy, and return a Tile).
 		recalculate();
 		enemyTile = tileMap.placeEnemy();
+		console.log("enemyTile was initialized!");
 		};
 
 	// From here, internal logic will determine which
@@ -200,58 +240,69 @@ var EnemyWrapper = function(center, tileMap) {
 		//Determine which 2 set tile the enemey will move
 		var rand = Math.floor(Math.random() * 2);
 
-		if(enemyTile.link1 === null){
-			console.log("link 1 is null or undefined");
-		}
-		if(enemyTile.link2 === null){
-			console.log("link 2 is null or undefined");
-		}
-		if(enemyTile.link3 === null){
-			console.log("link 3 is null or undefined");
-		}
-		if(enemyTile.link4 === null){
-			console.log("link 4 is null or undefined");
-		}
-		if(enemyTile.link5 === null){
-			console.log("link 5 is null or undefined");
-		}
-		if(enemyTile.link6 ===  null){
-			console.log("link 6 is null or undefined");
-		}
+		// if(enemyTile.link1 === null){
+		// 	console.log("link 1 is null or undefined");
+		// }
+		// if(enemyTile.link2 === null){
+		// 	console.log("link 2 is null or undefined");
+		// }
+		// if(enemyTile.link3 === null){
+		// 	console.log("link 3 is null or undefined");
+		// }
+		// if(enemyTile.link4 === null){
+		// 	console.log("link 4 is null or undefined");
+		// }
+		// if(enemyTile.link5 === null){
+		// 	console.log("link 5 is null or undefined");
+		// }
+		// if(enemyTile.link6 ===  null){
+		// 	console.log("link 6 is null or undefined");
+		// }
 
 		//Movement logic Shell (SIMPLE) 
 		//Mode currently means direction (3 directions)
+
 		if(mode === 0){
-			if(rand === 0){
+			if(rand === 0 && enemyTile.link1 != null){
 				makeMove(1);
-			} else {
+			}else if(enemyTile.link2 != null) {
 				makeMove(2);
+			}
+			else if(enemyTile.link1 != null){
+				makeMove(1);
+			}
+			else
+			{
+				//No viable options, change direction
+				recalculate();
 			}
 		}
 		else if(mode === 1){
-			if(rand === 0){
+			if(rand === 0 && enemyTile.link3 !=null){
 				makeMove(3);
-			} else {
+			}else if(enemyTile.link4 != null) {
 				makeMove(4);
+			}
+			else if(enemyTile.link3 != null){
+				makeMove(3);
+			}
+			else{
+				recalculate();
 			}
 		}
 		else if(mode === 2){
-			if(rand === 0){
+			if(rand === 0 && enemyTile.link5 != null){
 				makeMove(5);
-			} else {
+			} else if(enemyTile.link6 != null) {
 				makeMove(6);
+			}else if(enemyTile.link5 != null){
+				makeMove(5);
 			}
-		}
-
-		//When decision is made...do this.
-		if(tileMap.moveEnemy(enemyTile, enemyTile.link3)) {
-			enemyTile = enemyTile.link3;
-		} else {
-			/** Something went wrong in choosing a next tile **/
+			else{
+				recalculate();
+			}
 		}
 	};
 
-	// window.setTimeout(Enemy.takeTurn(), 3000);
-	// Return public api object at very end.
 	return Enemy;
 };

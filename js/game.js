@@ -134,12 +134,12 @@ Game.prototype = {
 		// Begin the next frame.
 		requestAnimationFrame(this.tick.bind(this));
 
-		//LOOP to allow enemy to make a move
-		// this.counter++;
-		// if(this.counter > 300)
-		// {
-		// 	this.counter = 0;
-		// 	this.enemies[0].takeTurn();
-		// }
+		// LOOP to allow enemy to make a move
+		this.counter++;
+		if(this.counter > 150)
+		{
+			this.counter = 0;
+			this.enemies[0].takeTurn();
+		}
 	}
 };
