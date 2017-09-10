@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.8
-Last Updated: 2017-September-09
+Stay in the Light v0.0.9
+Last Updated: 2017-September-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -935,15 +935,17 @@ var MapWrapper = function(center) {
 		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
 	};
-	// Called to increase move enemy from param1 tile to param2 tile.
+	// Called to move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldtile, newTile) {
 		if(oldtile === newTile) {
 			// Enemy has decided not to move
 			console.log('Enemy stands still');
+			return false;
 		}
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
 			console.log('Enemy has found and killed player');
+			return true;
 		} else if(newTile.state.isDark || !newTile.state.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
 			// Can't go back to dark tile, can't move to impassable tile, can't share tile with other enemy.
@@ -956,6 +958,7 @@ var MapWrapper = function(center) {
 			oldTile.removeEnemy();
 			oldTile.goDark();
 			newTile.addEnemy();
+			return true;
 		}
 	};
 	// Called to increase level...and rebuild map.
