@@ -88,6 +88,17 @@ var StartScreenWrapper = function(center) {
 	var fogHelpText1;
 	var fogHelpText2;
 
+	var mouseImage = PIXI.Sprite.fromImage('./images/mouse.png');
+	mouseImage.anchor.set(0.5);
+	mouseImage.scale.x = 0.5;
+	mouseImage.scale.y = 0.5;
+	var mouseGraphic = new PIXI.Graphics();
+	var currentMouseImage;
+	var mouseTrackText1;
+	var mouseTrackText2;
+	var mouseTrackText3;
+	var mouseTrackText4;
+
 	var currentDifficulty1;
 	var currentDifficulty2;
 	var currentDifficulty3;
@@ -357,8 +368,8 @@ var StartScreenWrapper = function(center) {
 
 		if(isHighlighted) {
 			if(!buttonAnimation) {
-				drawHelpFogAnimation();
-				buttonAnimation = setInterval(drawHelpFogAnimation, 1000);
+				drawHelpAnimation();
+				buttonAnimation = setInterval(drawHelpAnimation, 1000);
 			}
 		} else {
 			clearInterval(buttonAnimation);
@@ -381,7 +392,22 @@ var StartScreenWrapper = function(center) {
 				StartScreen.container.removeChild(fogHelpText2);
 				fogHelpText2 = null;
 			}
+			if(currentMouseImage) {
+				StartScreen.container.removeChild(currentMouseImage);
+				currentMouseImage = null;
+			}
+			if(mouseTrackText1) {
+				StartScreen.container.removeChild(mouseTrackText1);
+				StartScreen.container.removeChild(mouseTrackText2);
+				StartScreen.container.removeChild(mouseTrackText3);
+				StartScreen.container.removeChild(mouseTrackText4);
+				mouseTrackText1 = null;
+				mouseTrackText2 = null;
+				mouseTrackText3 = null;
+				mouseTrackText4 = null;
+			}
 			unfoggedGraphic.clear();
+			mouseGraphic.clear();
 			buttonAniIteration = 0;
 		}
 	};
@@ -390,15 +416,15 @@ var StartScreenWrapper = function(center) {
 		var centerY = 500;
 		var size = 25;
 
-		drawHelpTile(centerX, centerY);
+		drawFogHelpTile(centerX, centerY);
 
 		for(var i = 0; i < layers; i++) {
-			drawHelpTile( centerX, (centerY - ((i + 1) * 46)) );
-			drawHelpTile( (centerX + ((i + 1) * 39)) , (centerY - ((i + 1) * 23)) );
-			drawHelpTile( (centerX + ((i + 1) * 39)) , (centerY + ((i + 1) * 23)) );
-			drawHelpTile( centerX, (centerY + ((i + 1) * 46)) );
-			drawHelpTile( (centerX - ((i + 1) * 39)) , (centerY + ((i + 1) * 23)) );
-			drawHelpTile( (centerX - ((i + 1) * 39)) , (centerY - ((i + 1) * 23)) );
+			drawFogHelpTile( centerX, (centerY - ((i + 1) * 46)) );
+			drawFogHelpTile( (centerX + ((i + 1) * 39)) , (centerY - ((i + 1) * 23)) );
+			drawFogHelpTile( (centerX + ((i + 1) * 39)) , (centerY + ((i + 1) * 23)) );
+			drawFogHelpTile( centerX, (centerY + ((i + 1) * 46)) );
+			drawFogHelpTile( (centerX - ((i + 1) * 39)) , (centerY + ((i + 1) * 23)) );
+			drawFogHelpTile( (centerX - ((i + 1) * 39)) , (centerY - ((i + 1) * 23)) );
 		}
 
 		currentHelpGoody = startScreenHelpGoody;
@@ -406,7 +432,7 @@ var StartScreenWrapper = function(center) {
 		currentHelpGoody.y = centerY;
 		StartScreen.container.addChild(currentHelpGoody);
 	}
-	var drawHelpTile = function(x, y) {
+	var drawFogHelpTile = function(x, y) {
 		var fillColor = 0xCFB53B;
 		unfoggedGraphic.lineStyle(3, 0xC0C0C0, 2);
 		unfoggedGraphic.moveTo(x + 25, y);
@@ -419,8 +445,28 @@ var StartScreenWrapper = function(center) {
 		}
 		unfoggedGraphic.endFill();
 	};
-	var drawHelpFogAnimation = function() {
+	var drawMouseTrackHelpTile = function(side) {
+		var fillColor = 0xCFB53B;
+		var cX = 450;
+		var cY = 400;
+		mouseGraphic.moveTo(cX + 25, cY);
+		mouseGraphic.beginFill(fillColor);
+		for (var i = 0; i <= 6; i++) {
+			if(i === side) {
+				mouseGraphic.lineStyle(3, 0x00FF00, 2);
+			} else {
+				mouseGraphic.lineStyle(3, 0xC0C0C0, 2);
+			}
+			var angle = 2 * Math.PI / 6 * i,
+			x_i = cX + 25 * Math.cos(angle),
+			y_i = cY + 25 * Math.sin(angle);
+			mouseGraphic.lineTo(x_i, y_i);
+		}
+		mouseGraphic.endFill();
+	};
+	var drawHelpAnimation = function() {
 		unfoggedGraphic.clear();
+		mouseGraphic.clear();
 		if(currentAButton) {
 			StartScreen.container.removeChild(currentAButton);
 			currentAButton = null;
@@ -440,6 +486,19 @@ var StartScreenWrapper = function(center) {
 		if(fogHelpText2) {
 			StartScreen.container.removeChild(fogHelpText2);
 			fogHelpText2 = null;
+		}if(currentMouseImage) {
+			StartScreen.container.removeChild(currentMouseImage);
+			currentMouseImage = null;
+		}
+		if(mouseTrackText1) {
+			StartScreen.container.removeChild(mouseTrackText1);
+			StartScreen.container.removeChild(mouseTrackText2);
+			StartScreen.container.removeChild(mouseTrackText3);
+			StartScreen.container.removeChild(mouseTrackText4);
+			mouseTrackText1 = null;
+			mouseTrackText2 = null;
+			mouseTrackText3 = null;
+			mouseTrackText4 = null;
 		}
 
 		if(buttonAniIteration === 0) {
@@ -454,6 +513,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 			
 			drawUnfoggedTiles(0);
+			drawMouseTrackHelpTile(2);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 450;
+			currentMouseImage.y = 450;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 1) {
 			// Draw basic map expanded once
 			currentAButton = aButtonGold;
@@ -466,6 +531,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
+			drawMouseTrackHelpTile(3);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 400;
+			currentMouseImage.y = 425;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 2) {
 			// Draw basic map expanded once
 			currentAButton = aButtonBlack;
@@ -478,6 +549,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
+			drawMouseTrackHelpTile(4);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 400;
+			currentMouseImage.y = 375;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 3) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonGold;
@@ -490,6 +567,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
+			drawMouseTrackHelpTile(5);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 450;
+			currentMouseImage.y = 350;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 4) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonBlack;
@@ -502,6 +585,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
+			drawMouseTrackHelpTile(6);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 500;
+			currentMouseImage.y = 375;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 5) {
 			// Draw basic map expanded thrice
 			currentAButton = aButtonGold;
@@ -514,6 +603,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(3);
+			drawMouseTrackHelpTile(1);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 500;
+			currentMouseImage.y = 425;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 6 || buttonAniIteration === 7) { // Pause before switch
 			// Draw basic map expanded thrice
 			currentAButton = aButtonBlack;
@@ -526,6 +621,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(3);
+			drawMouseTrackHelpTile(2);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 450;
+			currentMouseImage.y = 450;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 8) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonBlack;
@@ -538,6 +639,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
+			drawMouseTrackHelpTile(3);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 400;
+			currentMouseImage.y = 425;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 9) {
 			// Draw basic map expanded twice
 			currentAButton = aButtonBlack;
@@ -550,6 +657,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
+			drawMouseTrackHelpTile(4);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 400;
+			currentMouseImage.y = 375;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 10) {
 			// Draw basic map expanded Once
 			currentAButton = aButtonBlack;
@@ -562,6 +675,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
+			drawMouseTrackHelpTile(5);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 450;
+			currentMouseImage.y = 350;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 11) {
 			// Draw basic map expanded Once
 			currentAButton = aButtonBlack;
@@ -574,6 +693,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
+			drawMouseTrackHelpTile(6);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 500;
+			currentMouseImage.y = 375;
+			StartScreen.container.addChild(currentMouseImage);
 		} else if(buttonAniIteration === 12) {
 			// Draw basic map
 			currentAButton = aButtonBlack;
@@ -586,6 +711,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(0);
+			drawMouseTrackHelpTile(1);
+
+			currentMouseImage = mouseImage;
+			currentMouseImage.x = 500;
+			currentMouseImage.y = 425;
+			StartScreen.container.addChild(currentMouseImage);
 		}
 
 		if(buttonAniIteration >= 0 && buttonAniIteration <= 6) {
@@ -607,6 +738,23 @@ var StartScreenWrapper = function(center) {
 			fogHelpText2.y = 690;
 			StartScreen.container.addChild(fogHelpText2);
 		}
+
+		mouseTrackText1 = new PIXI.Text('Direction of possible player', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		mouseTrackText1.x = 350;
+		mouseTrackText1.y = 475;
+		StartScreen.container.addChild(mouseTrackText1);
+		mouseTrackText2 = new PIXI.Text('movement is tracked by mouse', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		mouseTrackText2.x = 350;
+		mouseTrackText2.y = 490;
+		StartScreen.container.addChild(mouseTrackText2);
+		mouseTrackText3 = new PIXI.Text('cursor. Red means an impassable', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		mouseTrackText3.x = 350;
+		mouseTrackText3.y = 505;
+		StartScreen.container.addChild(mouseTrackText3);
+		mouseTrackText4 = new PIXI.Text('tile. Green means a traversable tile.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		mouseTrackText4.x = 350;
+		mouseTrackText4.y = 520;
+		StartScreen.container.addChild(mouseTrackText4);
 
 		buttonAniIteration++;
 		if(buttonAniIteration > 12) {
@@ -932,6 +1080,7 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(difficultyLevel3);
 		StartScreen.container.addChild(topTileGraphic);		
 		StartScreen.container.addChild(unfoggedGraphic);
+		StartScreen.container.addChild(mouseGraphic);	
 		StartScreen.drawStartScreenWords();
 
 		drawDarkTileAnimation();
