@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.6
-Last Updated: 2017-September-03
+Stay in the Light v0.0.10
+Last Updated: 2017-September-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -12,6 +12,66 @@ var MapWrapper = function(center) {
 	var tileMap = {};
 
 	/*** Internal Variables ***/
+	// create a new Sprite from an image path
+	var enemy1 = PIXI.Sprite.fromImage('./images/enemy_N.png');
+	var enemy2 = PIXI.Sprite.fromImage('./images/enemy_NE.png');
+	var enemy3 = PIXI.Sprite.fromImage('./images/enemy_SE.png');
+	var enemy4 = PIXI.Sprite.fromImage('./images/enemy_S.png');
+	var enemy5 = PIXI.Sprite.fromImage('./images/enemy_SW.png');
+	var enemy6 = PIXI.Sprite.fromImage('./images/enemy_NW.png');
+	// center the sprite's anchor point
+	enemy1.anchor.set(0.5);
+	enemy1.scale.x = 0.4;
+	enemy1.scale.y = 0.4;
+	enemy2.anchor.set(0.5);
+	enemy2.scale.x = 0.4;
+	enemy2.scale.y = 0.4;
+	enemy3.anchor.set(0.5);
+	enemy3.scale.x = 0.4;
+	enemy3.scale.y = 0.4;
+	enemy4.anchor.set(0.5);
+	enemy4.scale.x = 0.4;
+	enemy4.scale.y = 0.4;
+	enemy5.anchor.set(0.5);
+	enemy5.scale.x = 0.4;
+	enemy5.scale.y = 0.4;
+	enemy6.anchor.set(0.5);
+	enemy6.scale.x = 0.4;
+	enemy6.scale.y = 0.4;
+
+	var enemies = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6];
+	var currentEnemyGraphic;
+
+	// create a new Sprite from an image path
+	var player1 = PIXI.Sprite.fromImage('./images/player_N.png');
+	var player2 = PIXI.Sprite.fromImage('./images/player_NE.png');
+	var player3 = PIXI.Sprite.fromImage('./images/player_SE.png');
+	var player4 = PIXI.Sprite.fromImage('./images/player_S.png');
+	var player5 = PIXI.Sprite.fromImage('./images/player_SW.png');
+	var player6 = PIXI.Sprite.fromImage('./images/player_NW.png');
+	// center the sprite's anchor point
+	player1.anchor.set(0.5);
+	player1.scale.x = 0.4;
+	player1.scale.y = 0.4;
+	player2.anchor.set(0.5);
+	player2.scale.x = 0.4;
+	player2.scale.y = 0.4;
+	player3.anchor.set(0.5);
+	player3.scale.x = 0.4;
+	player3.scale.y = 0.4;
+	player4.anchor.set(0.5);
+	player4.scale.x = 0.4;
+	player4.scale.y = 0.4;
+	player5.anchor.set(0.5);
+	player5.scale.x = 0.4;
+	player5.scale.y = 0.4;
+	player6.anchor.set(0.5);
+	player6.scale.x = 0.4;
+	player6.scale.y = 0.4;
+
+	var players = [player1, player2, player3, player4, player5, player6];
+	var currentPlayerGraphic;
+
 	var activeCenter = center;
 	// Player's current tile. Used to determine directionality of mouse placement.
 	var activeTile = null;
@@ -32,8 +92,6 @@ var MapWrapper = function(center) {
 	/*** Internal constructors ***/
 	// Tile creator
 	var Tile = function(cX, cY) {
-		// Additional opacity layer to show enemy's current tile.
-		var enemyLayer = new PIXI.Graphics();
 		// Base tile.
 		var hexagon = new PIXI.Graphics();
 		// Additional opacity layer to highlight player's current tile.
@@ -298,23 +356,15 @@ var MapWrapper = function(center) {
 			} else {
 				hoverLayer.clear();
 			}
-			/*** Below: This is temporary, only to track movement of enemy AI ***/
 			if(isEnemy) {
-				// Layer to illustrate a fog of war effect.
-				enemyLayer.clear();
-				enemyLayer.moveTo(cX + size, cY);
-				enemyLayer.beginFill(0x0000FF, 0.5);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					enemyLayer.lineTo(x_i, y_i);
+				if(currentEnemyGraphic) {
+					tileMap.enemyLayerContainer.removeChild(currentEnemyGraphic);
 				}
-				enemyLayer.endFill();
-			} else {
-				enemyLayer.clear();
+				currentEnemyGraphic = enemies[3];
+				currentEnemyGraphic.x = cX;
+				currentEnemyGraphic.y = cY - 5;
+				tileMap.enemyLayerContainer.addChild(currentEnemyGraphic);
 			}
-			/*** Above: This is temporary, only to track movement of enemy AI ***/
 		};
 
 		return {
@@ -336,15 +386,13 @@ var MapWrapper = function(center) {
 				}
 				if(this.state.isPlayer) {
 					activeTile = this;
-				}		
+				}
 				// Runs drawing functionality.
 				this.draw(9);
 				// Attach the tile to the stage.
 				tileMap.terrainContainer.addChild(hexagon);
 				// Attach hidden opacity layer.
 				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
-				// Attach enemy opacity layer.
-				tileMap.enemyLayerContainer.addChild(enemyLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -356,6 +404,9 @@ var MapWrapper = function(center) {
 				hexagon.clear();
 				hoverLine.clear();
 				hoverLayer.clear();
+				if(currentPlayerGraphic) {
+					tileMap.hoverContainer.removeChild(currentPlayerGraphic);
+				}
 				drawTerrain(this.type, this.state.isHidden, this.state.isDark, this.state.isPlayer, this.state.isEnemy);
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
@@ -375,7 +426,13 @@ var MapWrapper = function(center) {
 					}
 					// Attach the hoverLine and hoverLayer to the stage.
 					tileMap.hoverContainer.addChild(hoverLine);
-					tileMap.hoverContainer.addChild(hoverLayer);					
+					tileMap.hoverContainer.addChild(hoverLayer);
+					if(line) {
+						currentPlayerGraphic = players[line - 1];
+						currentPlayerGraphic.x = cX;
+						currentPlayerGraphic.y = cY - 5;
+						tileMap.hoverContainer.addChild(currentPlayerGraphic);
+					}
 				}
 			},
 			hide: function() {
@@ -403,6 +460,9 @@ var MapWrapper = function(center) {
 			},
 			removeEnemy: function() {
 				this.state.isEnemy = false;
+				if(currentEnemyGraphic) {
+					tileMap.enemyLayerContainer.removeChild(currentEnemyGraphic);
+				}
 				this.draw(9);
 			},
 			setActive: function() {
@@ -470,18 +530,20 @@ var MapWrapper = function(center) {
 	// can reach any other passable node.
 	var checkForIslands = function(startNode) {
 		var initialFreeNodesLenth = freeNodes.length;
-		for(var i = 0; i < freeNodes.length; i++) {
-			if(hasReachablePath(startNode, freeNodes[i], 0)) {
-				var percentComplete = Math.ceil((1 - (freeNodes.length/initialFreeNodesLenth)) * 100);
-				if(percentComplete % 10 === 0) {
-					console.log("Loading: ", percentComplete);
-				}
-				freeNodes.splice(0, 1);
-				i -= 1;
+		var tempFreeNodes = [];
+		for(var i = 0; i < initialFreeNodesLenth; i++) {
+			tempFreeNodes.push(freeNodes[i]);
+		}
+
+		while(tempFreeNodes.length) {
+			if(hasReachablePath(startNode, tempFreeNodes[0], 0)) {
+				var percentComplete = Math.ceil((1 - (tempFreeNodes.length/initialFreeNodesLenth)) * 100);
+				tempFreeNodes.splice(0, 1);
 			} else {
 				return false;
 			}
 		}
+			
 		return true;
 	};
 	// Recursive function that seeks out a path to find a single node in the freenode array.
@@ -541,7 +603,7 @@ var MapWrapper = function(center) {
 	};
 	// Checks if param tile passable or not,
 	var isPassable = function(tile) {
-		return tile.state.passable;
+		return tile.passable;
 	};
 	// Procedural generator of the tiles, which connects them through links.
 	var makeNeighborNodes = function(centerNode, count) {
@@ -838,6 +900,9 @@ var MapWrapper = function(center) {
 	tileMap.hiddenLayerContainer = new PIXI.Container();
 
 	/*** Publicly accessible functions ***/
+	tileMap.addPlayer = function() {
+		activeTile.draw(4, 0x00FF00);
+	}
 	tileMap.contract = function() {
 		revealDepth -= 1;
 		if(revealDepth < 1) {

@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.6
-Last Updated: 2017-August-13
+Stay in the Light v0.0.10
+Last Updated: 2017-September-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -10,6 +10,7 @@ Authors:
 var FogWrapper = function(container, center, hContainer, rEnder) {
 	// Publicly accessible functionality.
 	var Fog = {};
+	
 	//Aliases
 	var loader = new PIXI.loaders.Loader();
 
