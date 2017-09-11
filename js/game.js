@@ -290,7 +290,7 @@ var GameWrapper = function() {
 						this.startScreen.drawOptions(0);
 					} else if(mY >= 420 && mY <= 480) {
 						this.startScreen.drawOptions(1, this.difficulty, mX);
-					} else if(mY >= 480 && mY <= 500) {
+					} else if(mY >= 480 && mY <= 700) {
 						this.startScreen.drawOptions(2);
 					} else {
 						this.startScreen.drawOptions();
