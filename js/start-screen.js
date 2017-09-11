@@ -61,6 +61,10 @@ var StartScreenWrapper = function(center) {
 	mouseMoveImage.anchor.set(0.5);
 	mouseMoveImage.scale.x = 0.5;
 	mouseMoveImage.scale.y = 0.5;
+	var mouseMoveRightImage = PIXI.Sprite.fromImage('./images/mouseRight.png');
+	mouseMoveRightImage.anchor.set(0.5);
+	mouseMoveRightImage.scale.x = 0.5;
+	mouseMoveRightImage.scale.y = 0.5;
 	var currentMouseMoveImage;
 	var mouseMoveGraphic = new PIXI.Graphics();
 	var mouseMoveText1;
@@ -612,7 +616,7 @@ var StartScreenWrapper = function(center) {
 			currentMouseMoveGoody.x = 590;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
-			currentMouseMoveImage = mouseMoveImage;
+			currentMouseMoveImage = mouseMoveRightImage;
 			currentMouseMoveImage.x = 625;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);	
@@ -670,7 +674,7 @@ var StartScreenWrapper = function(center) {
 			currentMouseMoveGoody.x = 550;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
-			currentMouseMoveImage = mouseMoveImage;
+			currentMouseMoveImage = mouseMoveRightImage;
 			currentMouseMoveImage.x = 510;
 			currentMouseMoveImage.y = 575;
 			StartScreen.container.addChild(currentMouseMoveImage);
@@ -728,7 +732,7 @@ var StartScreenWrapper = function(center) {
 			currentMouseMoveGoody.x = 590;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
-			currentMouseMoveImage = mouseMoveImage;
+			currentMouseMoveImage = mouseMoveRightImage;
 			currentMouseMoveImage.x = 625;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
@@ -766,7 +770,7 @@ var StartScreenWrapper = function(center) {
 				currentMouseMoveGoody.x = 550;
 				currentMouseMoveGoody.y = 600;
 				StartScreen.container.addChild(currentMouseMoveGoody);
-				currentMouseMoveImage = mouseMoveImage;
+				currentMouseMoveImage = mouseMoveRightImage;
 				currentMouseMoveImage.x = 510;
 				currentMouseMoveImage.y = 575;
 				StartScreen.container.addChild(currentMouseMoveImage);
@@ -831,7 +835,7 @@ var StartScreenWrapper = function(center) {
 			currentMouseMoveGoody.x = 590;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
-			currentMouseMoveImage = mouseMoveImage;
+			currentMouseMoveImage = mouseMoveRightImage;
 			currentMouseMoveImage.x = 625;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
@@ -889,7 +893,7 @@ var StartScreenWrapper = function(center) {
 			currentMouseMoveGoody.x = 550;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
-			currentMouseMoveImage = mouseMoveImage;
+			currentMouseMoveImage = mouseMoveRightImage;
 			currentMouseMoveImage.x = 510;
 			currentMouseMoveImage.y = 575;
 			StartScreen.container.addChild(currentMouseMoveImage);
@@ -962,11 +966,11 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(mouseTrackText4);
 
 		mouseMoveText1 = new PIXI.Text('Left mouse click moves player one tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseMoveText1.x = 700;
+		mouseMoveText1.x = 650;
 		mouseMoveText1.y = 600;
 		StartScreen.container.addChild(mouseMoveText1);
 		mouseMoveText2 = new PIXI.Text('where green line indicates current direction.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseMoveText2.x = 700;
+		mouseMoveText2.x = 650;
 		mouseMoveText2.y = 615;
 		StartScreen.container.addChild(mouseMoveText2);
 
