@@ -445,15 +445,25 @@ var StartScreenWrapper = function(center) {
 		}
 		unfoggedGraphic.endFill();
 	};
-	var drawMouseTrackHelpTile = function(side) {
-		var fillColor = 0xCFB53B;
+	var drawMouseTrackHelpTile = function(side, col) {
 		var cX = 450;
 		var cY = 400;
+		var fillColor = 0xCFB53B;
+		mouseGraphic.lineStyle(3, 0xC0C0C0, 2);
 		mouseGraphic.moveTo(cX + 25, cY);
 		mouseGraphic.beginFill(fillColor);
+		for (var j = 0; j <= 6; j++) {
+			var angle = 2 * Math.PI / 6 * j,
+			x_j = cX + 25 * Math.cos(angle),
+			y_j = cY + 25 * Math.sin(angle);
+			mouseGraphic.lineTo(x_j, y_j);
+		}
+		mouseGraphic.endFill();
+
+		mouseGraphic.moveTo(cX + 25, cY);
 		for (var i = 0; i <= 6; i++) {
 			if(i === side) {
-				mouseGraphic.lineStyle(3, 0x00FF00, 2);
+				mouseGraphic.lineStyle(3, col, 2);
 			} else {
 				mouseGraphic.lineStyle(3, 0xC0C0C0, 2);
 			}
@@ -462,7 +472,6 @@ var StartScreenWrapper = function(center) {
 			y_i = cY + 25 * Math.sin(angle);
 			mouseGraphic.lineTo(x_i, y_i);
 		}
-		mouseGraphic.endFill();
 	};
 	var drawHelpAnimation = function() {
 		unfoggedGraphic.clear();
@@ -513,7 +522,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 			
 			drawUnfoggedTiles(0);
-			drawMouseTrackHelpTile(2);
+			drawMouseTrackHelpTile(2, 0xFF0000);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 450;
@@ -531,7 +540,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
-			drawMouseTrackHelpTile(3);
+			drawMouseTrackHelpTile(3, 0xFF0000);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 400;
@@ -549,7 +558,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
-			drawMouseTrackHelpTile(4);
+			drawMouseTrackHelpTile(4, 0xFF0000);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 400;
@@ -567,7 +576,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
-			drawMouseTrackHelpTile(5);
+			drawMouseTrackHelpTile(5, 0xFF0000);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 450;
@@ -585,7 +594,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
-			drawMouseTrackHelpTile(6);
+			drawMouseTrackHelpTile(6, 0xFF0000);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 500;
@@ -603,7 +612,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(3);
-			drawMouseTrackHelpTile(1);
+			drawMouseTrackHelpTile(1, 0xFF0000);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 500;
@@ -621,7 +630,12 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(3);
-			drawMouseTrackHelpTile(2);
+			if(buttonAniIteration === 6) {
+				drawMouseTrackHelpTile(2, 0xFF0000);
+			} else {
+				drawMouseTrackHelpTile(2, 0x00FF00);
+			}
+			
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 450;
@@ -639,7 +653,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
-			drawMouseTrackHelpTile(3);
+			drawMouseTrackHelpTile(3, 0x00FF00);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 400;
@@ -657,7 +671,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(2);
-			drawMouseTrackHelpTile(4);
+			drawMouseTrackHelpTile(4, 0x00FF00);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 400;
@@ -675,7 +689,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
-			drawMouseTrackHelpTile(5);
+			drawMouseTrackHelpTile(5, 0x00FF00);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 450;
@@ -693,7 +707,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(1);
-			drawMouseTrackHelpTile(6);
+			drawMouseTrackHelpTile(6, 0x00FF00);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 500;
@@ -711,7 +725,7 @@ var StartScreenWrapper = function(center) {
 			StartScreen.container.addChild(currentDButton);
 
 			drawUnfoggedTiles(0);
-			drawMouseTrackHelpTile(1);
+			drawMouseTrackHelpTile(1, 0x00FF00);
 
 			currentMouseImage = mouseImage;
 			currentMouseImage.x = 500;
