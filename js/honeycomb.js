@@ -425,7 +425,6 @@ var MapWrapper = function(center) {
 					tileMap.hoverContainer.addChild(hoverLayer);
 					if(line) {
 						if(currentPlayerGraphic) {
-							console.log('Here');
 							tileMap.hoverContainer.removeChild(currentPlayerGraphic);
 						}
 						currentPlayerGraphic = players[line - 1];
