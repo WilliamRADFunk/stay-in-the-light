@@ -357,6 +357,10 @@ var GameWrapper = function() {
 			if(this.isLoaded) {
 				this.fog.renderFog();
 			}
+
+			if((this.tickCounter % 200) === 0){
+				this.enemies[0].takeTurn();
+			}
 			// Begin the next frame.
 			requestAnimationFrame(this.tick.bind(this));
 		},
