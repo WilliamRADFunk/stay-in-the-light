@@ -345,7 +345,6 @@ var MapWrapper = function(center) {
 				hoverLayer.clear();
 				hoverLayer.moveTo(cX + size, cY);
 				hoverLayer.beginFill(0xFFFF00, 0.5);
-				// hoverLayer.strokeStyle = (0.25, 0x000000, );
 				for (var i = 0; i <= 6; i++) {
 					var angle = 2 * Math.PI / 6 * i,
 					x_i = cX + size * Math.cos(angle),
@@ -404,9 +403,6 @@ var MapWrapper = function(center) {
 				hexagon.clear();
 				hoverLine.clear();
 				hoverLayer.clear();
-				if(currentPlayerGraphic) {
-					tileMap.hoverContainer.removeChild(currentPlayerGraphic);
-				}
 				drawTerrain(this.type, this.state.isHidden, this.state.isDark, this.state.isPlayer, this.state.isEnemy);
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
@@ -428,6 +424,10 @@ var MapWrapper = function(center) {
 					tileMap.hoverContainer.addChild(hoverLine);
 					tileMap.hoverContainer.addChild(hoverLayer);
 					if(line) {
+						if(currentPlayerGraphic) {
+							console.log('Here');
+							tileMap.hoverContainer.removeChild(currentPlayerGraphic);
+						}
 						currentPlayerGraphic = players[line - 1];
 						currentPlayerGraphic.x = cX;
 						currentPlayerGraphic.y = cY - 5;
