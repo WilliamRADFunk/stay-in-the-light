@@ -1,5 +1,5 @@
 /*
-Stay in the Light v0.0.10
+Stay in the Light v0.0.11
 Last Updated: September-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -356,6 +356,10 @@ var GameWrapper = function() {
 			// Dev Mode: comment next line for fog off
 			if(this.isLoaded) {
 				this.fog.renderFog();
+			}
+
+			if((this.tickCounter % 200) === 0){
+				this.enemies[0].takeTurn();
 			}
 			// Begin the next frame.
 			requestAnimationFrame(this.tick.bind(this));
