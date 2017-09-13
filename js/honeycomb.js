@@ -100,12 +100,15 @@ var MapWrapper = function(center) {
 		var hoverLine = new PIXI.Graphics();
 		// Additional hidden layer with opacity to partially conceal time.
 		var hiddenLayer = new PIXI.Graphics();
+		// Additional dark layer
+		var darkLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
 		var drawTerrain = function(terrain, isHidden, isDark, isPlayer, isEnemy) {
+			var fillColor;
 			if(terrain === 'forest') {
 				// The base tile without hover borders.
-				var fillColor = 0x006400;
+				fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x006400, 2);
@@ -150,14 +153,14 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'desert') {
 				// The base tile without hover borders.
-				var fillColor = 0xEDC9AF;
+				fillColor = 0xEDC9AF;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0xEDC9AF, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_i = cX + size * Math.cos(angle);
+					var y_i = cY + size * Math.sin(angle);
 					hexagon.lineTo(x_i, y_i);
 				}
 				hexagon.endFill();
@@ -210,7 +213,7 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'mountains') {
 				// The base tile without hover borders.
-				var fillColor = 0x968D99;
+				fillColor = 0x968D99;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x968D99, 2);
@@ -288,7 +291,7 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'water') {
 				// The base tile without hover borders.
-				var fillColor = 0x40A4DF;
+				fillColor = 0x40A4DF;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x40A4DF, 2);
@@ -312,7 +315,7 @@ var MapWrapper = function(center) {
 			} else {
 				// Null space
 				// The base tile without hover borders.
-				var fillColor = 0x000000;
+				fillColor = 0x000000;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x333333, 2);
@@ -339,6 +342,22 @@ var MapWrapper = function(center) {
 				hiddenLayer.endFill();
 			} else {
 				hiddenLayer.clear();
+			}
+			if(isDark) {
+				// Layer to illustrate a fog of war effect.
+				darkLayer.clear();
+				darkLayer.moveTo(cX + size, cY);
+				darkLayer.beginFill(0x008080, 0.8);
+				darkLayer.strokeStyle = (3, 0x000000, 0.8);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					darkLayer.lineTo(x_i, y_i);
+				}
+				darkLayer.endFill();
+			} else {
+				darkLayer.clear();
 			}
 			if(isPlayer) {
 				// Layer to illustrate a fog of war effect.
@@ -392,6 +411,8 @@ var MapWrapper = function(center) {
 				tileMap.terrainContainer.addChild(hexagon);
 				// Attach hidden opacity layer.
 				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
+				// Attach dark-tile layer.
+				tileMap.darkLayerContainer.addChild(darkLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -441,6 +462,7 @@ var MapWrapper = function(center) {
 			id: '',
 			goDark: function() {
 				this.state.isDark = true;
+				this.draw(9);
 			},
 			goLight: function() {
 				this.state.isDark = false;
@@ -519,6 +541,7 @@ var MapWrapper = function(center) {
 				freeNodes = [];
 				tileMap.terrainContainer = new PIXI.Container();
 				tileMap.hiddenLayerContainer = new PIXI.Container();
+				tileMap.darkLayerContainer = new PIXI.Container();
 				tileMap.hoverContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
 			}
@@ -897,6 +920,8 @@ var MapWrapper = function(center) {
 	tileMap.terrainContainer = new PIXI.Container();
 	tileMap.hoverContainer = new PIXI.Container();
 	tileMap.hiddenLayerContainer = new PIXI.Container();
+	tileMap.darkLayerContainer = new PIXI.Container();
+
 
 	/*** Publicly accessible functions ***/
 	tileMap.addPlayer = function() {
@@ -931,6 +956,7 @@ var MapWrapper = function(center) {
 		tileMap.terrainContainer.cacheAsBitmap = true;
 		tileMap.container.addChild(tileMap.terrainContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
+		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
 	};
@@ -942,22 +968,27 @@ var MapWrapper = function(center) {
 			console.log('Enemy stands still');
 			return false;
 		}
+		else if(!newTile) {
+			return false;
+		}
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
 			console.log('Enemy has found and killed player');
+			newTile.goDark();
 			return true;
-		} else if(newTile.state.isDark || !newTile.state.passable || newTile.state.isEnemy) {
+		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
 			// Can't go back to dark tile, can't move to impassable tile, can't share tile with other enemy.
 			console.log(
 				'Already Dark: ' + newTile.state.isDark,
-				'Not passable: ' + !newTile.state.passable,
+				'Not passable: ' + !newTile.passable,
 				'Enemy already here: ' + newTile.state.isEnemy);
 			return false;
 		} else {
 			oldTile.removeEnemy();
 			oldTile.goDark();
 			newTile.addEnemy();
+			newTile.goDark();
 			return true;
 		}
 	};
