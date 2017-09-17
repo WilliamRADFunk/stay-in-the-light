@@ -112,11 +112,11 @@ var MapWrapper = function(center) {
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x006400, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					var x_i = cX + size * Math.cos(angle),
-					var y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -159,9 +159,9 @@ var MapWrapper = function(center) {
 				hexagon.lineStyle(3, 0xEDC9AF, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
-					var x_i = cX + size * Math.cos(angle);
-					var y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -217,11 +217,11 @@ var MapWrapper = function(center) {
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x968D99, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					var x_i = cX + size * Math.cos(angle),
-					var y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -259,9 +259,9 @@ var MapWrapper = function(center) {
 				hexagon.lineStyle(3, 0x654321, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
-					var x_i = cX + size * Math.cos(angle);
-					var y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -295,11 +295,11 @@ var MapWrapper = function(center) {
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x40A4DF, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i;
-					var x_i = cX + size * Math.cos(angle);
-					var y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				var waves = [
@@ -319,29 +319,13 @@ var MapWrapper = function(center) {
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x333333, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i;
-					var x_i = cX + size * Math.cos(angle);
-					var y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
-			}
-			if(isHidden) {
-				// Layer to illustrate a fog of war effect.
-				hiddenLayer.clear();
-				hiddenLayer.moveTo(cX + size, cY);
-				hiddenLayer.beginFill(0x999999, 0.7);
-				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i;
-					var x_i = cX + size * Math.cos(angle);
-					var y_i = cY + size * Math.sin(angle);
-					hiddenLayer.lineTo(x_i, y_i);
-				}
-				hiddenLayer.endFill();
-			} else {
-				hiddenLayer.clear();
 			}
 			if(isDark) {
 				// Layer to illustrate a fog of war effect.
@@ -349,26 +333,42 @@ var MapWrapper = function(center) {
 				darkLayer.moveTo(cX + size, cY);
 				darkLayer.beginFill(0x008080, 0.8);
 				darkLayer.strokeStyle = (3, 0x000000, 0.8);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					darkLayer.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					darkLayer.lineTo(x_k, y_k);
 				}
 				darkLayer.endFill();
 			} else {
 				darkLayer.clear();
+			}
+			if(isHidden) {
+				// Layer to illustrate a fog of war effect.
+				hiddenLayer.clear();
+				hiddenLayer.moveTo(cX + size, cY);
+				hiddenLayer.beginFill(0x999999, 0.7);
+				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hiddenLayer.lineTo(x_k, y_k);
+				}
+				hiddenLayer.endFill();
+			} else {
+				hiddenLayer.clear();
 			}
 			if(isPlayer) {
 				// Layer to illustrate a fog of war effect.
 				hoverLayer.clear();
 				hoverLayer.moveTo(cX + size, cY);
 				hoverLayer.beginFill(0xFFFF00, 0.5);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i;
-					var x_i = cX + size * Math.cos(angle);
-					var y_i = cY + size * Math.sin(angle);
-					hoverLayer.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hoverLayer.lineTo(x_k, y_k);
 				}
 				hoverLayer.endFill();
 			} else {
@@ -430,16 +430,16 @@ var MapWrapper = function(center) {
 				// If hoverline redraw thicker boundary, with one hextant as green.
 				if(lineConvert > 0 && lineConvert <= 6) {
 					hoverLine.moveTo(cX + size, cY);
-					for (var i = 0; i <= 6; i++) {
-						if(i === lineConvert) {
+					for (var k = 0; k <= 6; k++) {
+						if(k === lineConvert) {
 							hoverLine.lineStyle(4, col, 2);
 						} else {
 							hoverLine.lineStyle(4, 0x000000, 2);
 						}
-						var angle = 2 * Math.PI / 6 * i,
-						x_i = cX + size * Math.cos(angle),
-						y_i = cY + size * Math.sin(angle);
-						hoverLine.lineTo(x_i, y_i);
+						var angle = 2 * Math.PI / 6 * k;
+						var x_k = cX + size * Math.cos(angle);
+						var y_k = cY + size * Math.sin(angle);
+						hoverLine.lineTo(x_k, y_k);
 					}
 					// Attach the hoverLine and hoverLayer to the stage.
 					tileMap.hoverContainer.addChild(hoverLine);
@@ -986,8 +986,8 @@ var MapWrapper = function(center) {
 		} else {
 			oldTile.removeEnemy();
 			oldTile.goDark();
-			newTile.addEnemy();
 			newTile.goDark();
+			newTile.addEnemy();
 			return true;
 		}
 	};
