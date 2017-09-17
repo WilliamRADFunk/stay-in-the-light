@@ -468,7 +468,7 @@ var StartScreenWrapper = function(center) {
 		currentHelpGoody.x = centerX;
 		currentHelpGoody.y = centerY;
 		StartScreen.container.addChild(currentHelpGoody);
-	}
+	};
 	var drawFogHelpTile = function(x, y) {
 		var fillColor = 0xCFB53B;
 		unfoggedGraphic.lineStyle(3, 0xC0C0C0, 2);
