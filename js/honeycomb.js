@@ -330,9 +330,9 @@ var MapWrapper = function(center) {
 			if(isDark) {
 				// Layer to illustrate a fog of war effect.
 				darkLayer.clear();
+				fillColor = 0x008080;
 				darkLayer.moveTo(cX + size, cY);
-				darkLayer.beginFill(0x008080, 0.8);
-				darkLayer.strokeStyle = (3, 0x000000, 0.8);
+				darkLayer.beginFill(fillColor, 0.8);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = cX + size * Math.cos(angle);
@@ -346,8 +346,9 @@ var MapWrapper = function(center) {
 			if(isHidden) {
 				// Layer to illustrate a fog of war effect.
 				hiddenLayer.clear();
+				fillColor = 0x999999;
 				hiddenLayer.moveTo(cX + size, cY);
-				hiddenLayer.beginFill(0x999999, 0.7);
+				hiddenLayer.beginFill(fillColor, 0.7);
 				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -362,8 +363,9 @@ var MapWrapper = function(center) {
 			if(isPlayer) {
 				// Layer to illustrate a fog of war effect.
 				hoverLayer.clear();
+				fillColor = 0xFFFF00;
 				hoverLayer.moveTo(cX + size, cY);
-				hoverLayer.beginFill(0xFFFF00, 0.5);
+				hoverLayer.beginFill(fillColor, 0.5);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = cX + size * Math.cos(angle);
@@ -466,6 +468,7 @@ var MapWrapper = function(center) {
 			},
 			goLight: function() {
 				this.state.isDark = false;
+				this.draw(9);
 			},
 			graphique: null,
 			link1: null,
@@ -818,6 +821,15 @@ var MapWrapper = function(center) {
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
 				oldActive['link' + hextant].setActive();
+				// If it was dark, make it light.
+				if(oldActive['link' + hextant].state.isDark) {
+					oldActive['link' + hextant].goLight();
+				}
+				// If enemy present, game over
+				if(oldActive['link' + hextant].state.isEnemy) {
+					console.log('Collision with enemy. Player loses.');
+					oldActive['link' + hextant].goDark();
+				}
 				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
 					activeTile.draw(hextant, 0x00FF00);
 				} else {
