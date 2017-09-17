@@ -1002,7 +1002,10 @@ var MapWrapper = function(center) {
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
 			console.log('Enemy has found and killed player');
+			oldTile.removeEnemy();
+			oldTile.goDark();
 			newTile.goDark();
+			newTile.addEnemy();
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
@@ -1017,7 +1020,6 @@ var MapWrapper = function(center) {
 			oldTile.goDark();
 			newTile.goDark();
 			newTile.addEnemy();
-			newTile.goDark();
 			return true;
 		}
 	};
