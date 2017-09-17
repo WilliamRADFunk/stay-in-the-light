@@ -360,6 +360,22 @@ var MapWrapper = function(center) {
 			} else {
 				hiddenLayer.clear();
 			}
+			if(isDark) {
+				// Layer to illustrate a fog of war effect.
+				darkLayer.clear();
+				darkLayer.moveTo(cX + size, cY);
+				darkLayer.beginFill(0x008080, 0.8);
+				darkLayer.strokeStyle = (3, 0x000000, 0.8);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					darkLayer.lineTo(x_i, y_i);
+				}
+				darkLayer.endFill();
+			} else {
+				darkLayer.clear();
+			}
 			if(isPlayer) {
 				// Layer to illustrate a fog of war effect.
 				hoverLayer.clear();
@@ -967,6 +983,7 @@ var MapWrapper = function(center) {
 		tileMap.terrainContainer.cacheAsBitmap = true;
 		tileMap.container.addChild(tileMap.terrainContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
+		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
 		tileMap.container.addChild(tileMap.darkLayerContainer);
@@ -1000,6 +1017,7 @@ var MapWrapper = function(center) {
 			oldTile.goDark();
 			newTile.goDark();
 			newTile.addEnemy();
+			newTile.goDark();
 			return true;
 		}
 	};
