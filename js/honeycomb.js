@@ -975,6 +975,15 @@ var MapWrapper = function(center) {
 	tileMap.getActiveCenter = function() {
 		return activeCenter;
 	};
+	tileMap.getLightNodes = function() {
+		var lightNodes = [];
+		for(var i = 0; i < freeNodes.length; i++) {
+			if(!freeNodes[i].state.isDark) {
+				lightNodes.push(freeNodes[i]);
+			}
+		}
+		return lightNodes;
+	};
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
