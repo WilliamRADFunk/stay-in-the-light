@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.11
-Last Updated: 2017-September-11
+Stay in the Light v0.0.12
+Last Updated: 2017-September-17
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -10,14 +10,12 @@ Authors:
 var EnemyWrapper = function(center, tileMap) {
 	// Publicly accessible functionality.
 	var Enemy = {};
-	
 	var enemyTile = null;
 	
 	/**
 	 * variables accessible to everything internal to EnemyWrapper go here
 	 * aka starts with 'var'
 	**/
-
 	//Starting mode that prevents enemy operations and controls 'turn-by-turn' behavior
 	var mode = -1;
 	var tileToMove = -1;
@@ -28,6 +26,13 @@ var EnemyWrapper = function(center, tileMap) {
 	for (n = 0; n < options; ++n) {
 		modeOptions[n] = false;
 	}
+	//Tile values judged by A.I. for pathing
+	var nullSpace = 0;
+	var impassableSpace = 0;
+	var playerSpace = 1000;
+	var darkSpace = 0;
+	var lightSpace = 10;
+	var enemySpace = 0;
 
 	/**
 	 * internal constructors (like Tile in honeycomb.js) accessible to everything
@@ -39,6 +44,107 @@ var EnemyWrapper = function(center, tileMap) {
 	 * functions accessible to everything internal to EnemyWrapper go here
 	 * aka starts with 'var'
 	**/
+
+	//Recursive function that decides stength of any particular move
+	var superDecider = function(curTile, limiter){
+		//Define current starting values for accumulation and testing
+		var startDepth = 1;
+		var moveValue =[0,0,0,0,0,0];
+		var searchStrategy = [['6','1','2'], ['1','2','3'], ['2','3','4'], ['3','4','5'], ['4','5','6'], ['5','6','1']];
+
+		for(var j = 1; j <= 6; j++) {
+			if(!curTile['link' + j]){
+				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
+				console.log("null at " + j);
+			}
+			else if(curTile['link' + j].state.isEnemy) {
+				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
+				console.log("isEnemy at " + j);
+			}
+			else if(!curTile['link' + j].passable) {
+				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
+				console.log("impassable at " + j);
+			}
+			else if(curTile['link' + j].state.isPlayer){
+				moveValue[j - 1] = Number.POSITIVE_INFINITY;
+				console.log("isPlayer at " + j);
+			}
+			else if(!curTile['link' + j].state.isDark) {
+				moveValue[j - 1] = 50000;
+				moveValue[j - 1] += examineOut(curTile['link' + j], searchStrategy[j - 1], startDepth, limiter);
+				console.log("isLightSpace at " + j);
+			}
+			else {
+				moveValue[j - 1] += examineOut(curTile['link' + j], searchStrategy[j - 1], startDepth, limiter);
+				console.log("isdark at " + j)
+			}
+		}
+		//Determine winner of all returned path options
+		var winner = Math.max(moveValue[0], moveValue[1], moveValue[2], moveValue[3], moveValue[4], moveValue[5]);
+		console.log("Winning Number " + winner);
+		for(var i = 0; i < 6; i++) {
+			if(winner === moveValue[i]){
+				//return index of matching winning value returned from max
+				console.log("Tile Winner " + i + "   --> remember to add 1");
+				return i + 1;
+			}
+		}
+		// Dev Mode: Should not reach here, but just in case. ERROR
+		console.log("Enemy could not decide on a path. Unknown error in EXECUTION");
+		return 0;
+	};
+
+	var examineOut = function(nextTile, searchPattern, depth, limiter){
+		//Check to see if limiter has been reached (Cannot go further) 
+		if(depth > limiter) {
+			return 0;
+		}
+		//Ensure that tile being examined is not undefined
+		if(!nextTile){
+			return nullSpace;
+		}
+		else if(!nextTile.passable)
+		{
+			return impassableSpace;
+		}
+		else {
+			//Return current tile value and send examiner to next 3 tiles in search pattern
+			return examineOut(nextTile['link' + searchPattern[0]], searchPattern, depth+1, limiter) 
+				+ examineOut(nextTile['link' + searchPattern[1]], searchPattern, depth+1, limiter) 
+				+ examineOut(nextTile['link' + searchPattern[2]], searchPattern, depth+1, limiter)
+				+ tileValue(nextTile, depth);
+		}
+	};
+
+	//Returns the value of importance for tile porportional to enemy distance
+	var tileValue = function(curTile, adjustForDistance){
+		//Check to see if tile passed in is null
+		if(!curTile) {
+			return nullSpace;
+		}
+		//Check to see current tile space
+		else if(curTile.state.isPlayer) {
+			//MUST be player space
+			return playerSpace / adjustForDistance;
+		}
+		else if(curTile.state.isEnemy) {
+			//MUST be enemySpace
+			return enemySpace;
+		}
+		else if(!curTile.passable) {
+			//MUST be impassable space
+			return impassableSpace;
+		}
+		else if(curTile.state.isDark) {
+			//MUST be dark space
+			return darkSpace;
+		}
+		else {
+			//MUST be light space
+			return lightSpace / adjustForDistance;
+		}
+	};
+
 	var resetModeOptions = function(){
 		for(n = 0; n < options; ++n){
 			modeOptions[n] = true;
@@ -63,15 +169,13 @@ var EnemyWrapper = function(center, tileMap) {
 	var makeMove = function(tileNumber){
 
 		tileToMove = tileNumber;
-		//first check for FORCED DECISIONS (EX: player tile is next to enemy on move update)
-		//tileToMove = checkMove(tileNumber);
-		//Simple Movement Command when tile space to move to is SET
+
 		if(tileNumber === 1){
 			//console.log('my params', enemyTile, enemyTile.link1);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link1)){
 					enemyTile = enemyTile.link1;
 				} else {
-					// 	/** Something went wrong in choosing a next tile **/
+					/** Something went wrong in choosing a next tile **/
 				}
 		}
 		if(tileNumber === 2){
@@ -79,7 +183,7 @@ var EnemyWrapper = function(center, tileMap) {
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link2)){
 					enemyTile = enemyTile.link2;
 				} else {
-					// 	/** Something went wrong in choosing a next tile **/
+					/** Something went wrong in choosing a next tile **/
 				}
 		}
 		if(tileNumber === 3){
@@ -87,7 +191,7 @@ var EnemyWrapper = function(center, tileMap) {
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link3)){
 					enemyTile = enemyTile.link3;
 				} else {
-					// 	/** Something went wrong in choosing a next tile **/
+					/** Something went wrong in choosing a next tile **/
 				}
 		}
 		if(tileNumber === 4){
@@ -95,21 +199,21 @@ var EnemyWrapper = function(center, tileMap) {
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link4)){
 					enemyTile = enemyTile.link4;
 				} else {
-					// 	/** Something went wrong in choosing a next tile **/
+					/** Something went wrong in choosing a next tile **/
 				}
 		}if(tileNumber === 5){
 			//console.log('my params', enemyTile, enemyTile.link5);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link5)){
 					enemyTile = enemyTile.link5;
 				} else {
-					// 	/** Something went wrong in choosing a next tile **/
+					/** Something went wrong in choosing a next tile **/
 				}
 		}if(tileNumber === 6){
 			//console.log('my params', enemyTile, enemyTile.link6);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link6)){
 					enemyTile = enemyTile.link6;
 				} else {
-					// 	/** Something went wrong in choosing a next tile **/
+					/** Something went wrong in choosing a next tile **/
 				}
 		}
 	};
@@ -131,40 +235,23 @@ var EnemyWrapper = function(center, tileMap) {
 
 	var bumpMove = function(){
 		mode++;
-		if(mode > options){
+		if(mode > (options - 1)){
 			mode = 0;
 		}
 	};
 
-	var checkPlayer = function(originalMove){
+	var checkPlayer = function(){
+		//If -1 returned, player is not nearby else the player is on the return number
 		var decisiveMove = -1;
-
 		//Check to see if enemey is nearby to change enemy priority for a strike
-		if(enemyTile.link1.state.isPlayer){
-			decisiveMove = 1;
+		for(var i = 1; i <= 6; i++) {
+			if(enemyTile['link' + i]) {
+				if(enemyTile['link' + i].isPlayer) {
+					decisiveMove = i;
+				}
+			}
 		}
-		else if(enemyTile.link2.state.isPlayer){
-			decisiveMove = 2;
-		}
-		else if(enemyTile.link3.state.isPlayer){
-			decisiveMove = 3;
-		}
-		else if(enemyTile.link4.state.isPlayer){
-			decisiveMove = 4;
-		}
-		else if(enemyTile.link5.state.isPlayer){
-			decisiveMove = 5;
-		}
-		else if(enemyTile.link6.state.isPlayer){
-			decisiveMove = 6;
-		}
-
-		if(decisiveMove !== -1){
-			//Player is not nearby, therefore stay on current route
-			return decisiveMove;
-		} else {
-			return originalMove;
-		}
+		return decisiveMove;
 	};
 
 	var checkDark = function(tileNum){
@@ -238,71 +325,10 @@ var EnemyWrapper = function(center, tileMap) {
 		// the enemy's current tile. enemyTile.link1.state.isDark will tell you if that same tile
 		// has already been converted to darkness, etc.).
 
-		//Determine which 2 set tile the enemey will move
-		var rand = Math.floor(Math.random() * 2);
-
-		// if(enemyTile.link1 === null){
-		// 	console.log("link 1 is null or undefined");
-		// }
-		// if(enemyTile.link2 === null){
-		// 	console.log("link 2 is null or undefined");
-		// }
-		// if(enemyTile.link3 === null){
-		// 	console.log("link 3 is null or undefined");
-		// }
-		// if(enemyTile.link4 === null){
-		// 	console.log("link 4 is null or undefined");
-		// }
-		// if(enemyTile.link5 === null){
-		// 	console.log("link 5 is null or undefined");
-		// }
-		// if(enemyTile.link6 ===  null){
-		// 	console.log("link 6 is null or undefined");
-		// }
-
-		//Movement logic Shell (SIMPLE) 
-		//Mode currently means direction (3 directions)
-
-		if(mode === 0){
-			if(rand === 0 && enemyTile.link1 != null){
-				makeMove(1);
-			}else if(enemyTile.link2 != null) {
-				makeMove(2);
-			}
-			else if(enemyTile.link1 != null){
-				makeMove(1);
-			}
-			else
-			{
-				//No viable options, change direction
-				recalculate();
-			}
-		}
-		else if(mode === 1){
-			if(rand === 0 && enemyTile.link3 !=null){
-				makeMove(3);
-			}else if(enemyTile.link4 != null) {
-				makeMove(4);
-			}
-			else if(enemyTile.link3 != null){
-				makeMove(3);
-			}
-			else{
-				recalculate();
-			}
-		}
-		else if(mode === 2){
-			if(rand === 0 && enemyTile.link5 != null){
-				makeMove(5);
-			} else if(enemyTile.link6 != null) {
-				makeMove(6);
-			}else if(enemyTile.link5 != null){
-				makeMove(5);
-			}
-			else{
-				recalculate();
-			}
-		}
+		//Call upon superDecider to check next move (Only form of activity)
+		var decisive;
+		decisive = superDecider(enemyTile, 5);
+		makeMove(decisive);
 	};
 
 	return Enemy;

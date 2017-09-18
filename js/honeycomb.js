@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.11
-Last Updated: 2017-September-11
+Stay in the Light v0.0.12
+Last Updated: 2017-September-17
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -100,20 +100,23 @@ var MapWrapper = function(center) {
 		var hoverLine = new PIXI.Graphics();
 		// Additional hidden layer with opacity to partially conceal time.
 		var hiddenLayer = new PIXI.Graphics();
+		// Additional dark layer
+		var darkLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
 		var drawTerrain = function(terrain, isHidden, isDark, isPlayer, isEnemy) {
+			var fillColor;
 			if(terrain === 'forest') {
 				// The base tile without hover borders.
-				var fillColor = 0x006400;
+				fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x006400, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -150,15 +153,15 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'desert') {
 				// The base tile without hover borders.
-				var fillColor = 0xEDC9AF;
+				fillColor = 0xEDC9AF;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0xEDC9AF, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -210,15 +213,15 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'mountains') {
 				// The base tile without hover borders.
-				var fillColor = 0x968D99;
+				fillColor = 0x968D99;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x968D99, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -250,15 +253,15 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'pit') {
 				// The base tile without hover borders.
-				var fillColor = 0x654321;
+				fillColor = 0x654321;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x654321, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				// preset ones to ensure a decent look.
@@ -288,15 +291,15 @@ var MapWrapper = function(center) {
 				}
 			} else if(terrain === 'water') {
 				// The base tile without hover borders.
-				var fillColor = 0x40A4DF;
+				fillColor = 0x40A4DF;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x40A4DF, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
 				var waves = [
@@ -312,44 +315,78 @@ var MapWrapper = function(center) {
 			} else {
 				// Null space
 				// The base tile without hover borders.
-				var fillColor = 0x000000;
+				fillColor = 0x000000;
 				hexagon.moveTo(cX + size, cY);
 				hexagon.beginFill(fillColor);
 				hexagon.lineStyle(3, 0x333333, 2);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hexagon.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hexagon.lineTo(x_k, y_k);
 				}
 				hexagon.endFill();
+			}
+			if(isDark) {
+				// Layer to illustrate a fog of war effect.
+				darkLayer.clear();
+				fillColor = 0x008080;
+				darkLayer.moveTo(cX + size, cY);
+				darkLayer.beginFill(fillColor, 0.8);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					darkLayer.lineTo(x_k, y_k);
+				}
+				darkLayer.endFill();
+			} else {
+				darkLayer.clear();
 			}
 			if(isHidden) {
 				// Layer to illustrate a fog of war effect.
 				hiddenLayer.clear();
+				fillColor = 0x999999;
 				hiddenLayer.moveTo(cX + size, cY);
-				hiddenLayer.beginFill(0x999999, 0.7);
+				hiddenLayer.beginFill(fillColor, 0.7);
 				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					hiddenLayer.lineTo(x_i, y_i);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hiddenLayer.lineTo(x_k, y_k);
 				}
 				hiddenLayer.endFill();
 			} else {
 				hiddenLayer.clear();
 			}
-			if(isPlayer) {
+			if(isDark) {
 				// Layer to illustrate a fog of war effect.
-				hoverLayer.clear();
-				hoverLayer.moveTo(cX + size, cY);
-				hoverLayer.beginFill(0xFFFF00, 0.5);
+				darkLayer.clear();
+				darkLayer.moveTo(cX + size, cY);
+				darkLayer.beginFill(0x008080, 0.8);
+				darkLayer.strokeStyle = (3, 0x000000, 0.8);
 				for (var i = 0; i <= 6; i++) {
 					var angle = 2 * Math.PI / 6 * i,
 					x_i = cX + size * Math.cos(angle),
 					y_i = cY + size * Math.sin(angle);
-					hoverLayer.lineTo(x_i, y_i);
+					darkLayer.lineTo(x_i, y_i);
+				}
+				darkLayer.endFill();
+			} else {
+				darkLayer.clear();
+			}
+			if(isPlayer) {
+				// Layer to illustrate a fog of war effect.
+				hoverLayer.clear();
+				fillColor = 0xFFFF00;
+				hoverLayer.moveTo(cX + size, cY);
+				hoverLayer.beginFill(fillColor, 0.5);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = cX + size * Math.cos(angle);
+					var y_k = cY + size * Math.sin(angle);
+					hoverLayer.lineTo(x_k, y_k);
 				}
 				hoverLayer.endFill();
 			} else {
@@ -392,6 +429,8 @@ var MapWrapper = function(center) {
 				tileMap.terrainContainer.addChild(hexagon);
 				// Attach hidden opacity layer.
 				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
+				// Attach dark-tile layer.
+				tileMap.darkLayerContainer.addChild(darkLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -409,16 +448,16 @@ var MapWrapper = function(center) {
 				// If hoverline redraw thicker boundary, with one hextant as green.
 				if(lineConvert > 0 && lineConvert <= 6) {
 					hoverLine.moveTo(cX + size, cY);
-					for (var i = 0; i <= 6; i++) {
-						if(i === lineConvert) {
+					for (var k = 0; k <= 6; k++) {
+						if(k === lineConvert) {
 							hoverLine.lineStyle(4, col, 2);
 						} else {
 							hoverLine.lineStyle(4, 0x000000, 2);
 						}
-						var angle = 2 * Math.PI / 6 * i,
-						x_i = cX + size * Math.cos(angle),
-						y_i = cY + size * Math.sin(angle);
-						hoverLine.lineTo(x_i, y_i);
+						var angle = 2 * Math.PI / 6 * k;
+						var x_k = cX + size * Math.cos(angle);
+						var y_k = cY + size * Math.sin(angle);
+						hoverLine.lineTo(x_k, y_k);
 					}
 					// Attach the hoverLine and hoverLayer to the stage.
 					tileMap.hoverContainer.addChild(hoverLine);
@@ -441,9 +480,11 @@ var MapWrapper = function(center) {
 			id: '',
 			goDark: function() {
 				this.state.isDark = true;
+				this.draw(9);
 			},
 			goLight: function() {
 				this.state.isDark = false;
+				this.draw(9);
 			},
 			graphique: null,
 			link1: null,
@@ -519,6 +560,7 @@ var MapWrapper = function(center) {
 				freeNodes = [];
 				tileMap.terrainContainer = new PIXI.Container();
 				tileMap.hiddenLayerContainer = new PIXI.Container();
+				tileMap.darkLayerContainer = new PIXI.Container();
 				tileMap.hoverContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
 			}
@@ -795,6 +837,15 @@ var MapWrapper = function(center) {
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
 				oldActive['link' + hextant].setActive();
+				// If it was dark, make it light.
+				if(oldActive['link' + hextant].state.isDark) {
+					oldActive['link' + hextant].goLight();
+				}
+				// If enemy present, game over
+				if(oldActive['link' + hextant].state.isEnemy) {
+					console.log('Collision with enemy. Player loses.');
+					oldActive['link' + hextant].goDark();
+				}
 				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
 					activeTile.draw(hextant, 0x00FF00);
 				} else {
@@ -897,6 +948,7 @@ var MapWrapper = function(center) {
 	tileMap.terrainContainer = new PIXI.Container();
 	tileMap.hoverContainer = new PIXI.Container();
 	tileMap.hiddenLayerContainer = new PIXI.Container();
+	tileMap.darkLayerContainer = new PIXI.Container();
 
 	/*** Publicly accessible functions ***/
 	tileMap.addPlayer = function() {
@@ -931,8 +983,10 @@ var MapWrapper = function(center) {
 		tileMap.terrainContainer.cacheAsBitmap = true;
 		tileMap.container.addChild(tileMap.terrainContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
+		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
+		tileMap.container.addChild(tileMap.darkLayerContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile) {
@@ -942,21 +996,29 @@ var MapWrapper = function(center) {
 			console.log('Enemy stands still');
 			return false;
 		}
+		else if(!newTile) {
+			return false;
+		}
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
 			console.log('Enemy has found and killed player');
+			oldTile.removeEnemy();
+			oldTile.goDark();
+			newTile.goDark();
+			newTile.addEnemy();
 			return true;
-		} else if(newTile.state.isDark || !newTile.state.passable || newTile.state.isEnemy) {
+		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
 			// Can't go back to dark tile, can't move to impassable tile, can't share tile with other enemy.
 			console.log(
 				'Already Dark: ' + newTile.state.isDark,
-				'Not passable: ' + !newTile.state.passable,
+				'Not passable: ' + !newTile.passable,
 				'Enemy already here: ' + newTile.state.isEnemy);
 			return false;
 		} else {
 			oldTile.removeEnemy();
 			oldTile.goDark();
+			newTile.goDark();
 			newTile.addEnemy();
 			return true;
 		}
