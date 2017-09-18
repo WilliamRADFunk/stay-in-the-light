@@ -172,6 +172,12 @@ var StartScreenWrapper = function(center) {
 	var currentColorFillCharacter;
 	var fillGraphic = new PIXI.Graphics();
 	var isLightPhase = false;
+	var colorFillText1;
+	var colorFillText2;
+	var colorFillText3;
+	var colorFillText4;
+	var colorFillText5;
+	var colorFillText6;
 
 	var currentDifficulty1;
 	var currentDifficulty2;
@@ -480,6 +486,20 @@ var StartScreenWrapper = function(center) {
 				mouseTrackText3 = null;
 				mouseTrackText4 = null;
 			}
+			if(colorFillText1) {
+				StartScreen.container.removeChild(colorFillText1);
+				StartScreen.container.removeChild(colorFillText2);
+				StartScreen.container.removeChild(colorFillText3);
+				StartScreen.container.removeChild(colorFillText4);
+				StartScreen.container.removeChild(colorFillText5);
+				StartScreen.container.removeChild(colorFillText6);
+				colorFillText1 = null;
+				colorFillText2 = null;
+				colorFillText3 = null;
+				colorFillText4 = null;
+				colorFillText5 = null;
+				colorFillText6 = null;
+			}
 			if(currentMouseMoveGoody) {
 				StartScreen.container.removeChild(currentMouseMoveGoody);
 				currentMouseMoveGoody = null;
@@ -627,6 +647,20 @@ var StartScreenWrapper = function(center) {
 			mouseTrackText2 = null;
 			mouseTrackText3 = null;
 			mouseTrackText4 = null;
+		}
+		if(colorFillText1) {
+			StartScreen.container.removeChild(colorFillText1);
+			StartScreen.container.removeChild(colorFillText2);
+			StartScreen.container.removeChild(colorFillText3);
+			StartScreen.container.removeChild(colorFillText4);
+			StartScreen.container.removeChild(colorFillText5);
+			StartScreen.container.removeChild(colorFillText6);
+			colorFillText1 = null;
+			colorFillText2 = null;
+			colorFillText3 = null;
+			colorFillText4 = null;
+			colorFillText5 = null;
+			colorFillText6 = null;
 		}
 		if(currentMouseMoveGoody) {
 			StartScreen.container.removeChild(currentMouseMoveGoody);
@@ -1342,7 +1376,7 @@ var StartScreenWrapper = function(center) {
 				StartScreen.container.addChild(currentColorFillCharacter);
 			}
 			isLightPhase = !isLightPhase;
-			
+
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 550;
 			currentMouseMoveGoody.y = 600;
@@ -1392,12 +1426,37 @@ var StartScreenWrapper = function(center) {
 
 		mouseMoveText1 = new PIXI.Text('Left mouse click moves player one tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		mouseMoveText1.x = 650;
-		mouseMoveText1.y = 600;
+		mouseMoveText1.y = 650;
 		StartScreen.container.addChild(mouseMoveText1);
 		mouseMoveText2 = new PIXI.Text('where green line indicates current direction.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		mouseMoveText2.x = 650;
-		mouseMoveText2.y = 615;
+		mouseMoveText2.y = 665;
 		StartScreen.container.addChild(mouseMoveText2);
+
+		colorFillText1 = new PIXI.Text('Your goal is to illuminate darkness. Your enemy\'s is to', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText1.x = 750;
+		colorFillText1.y = 525;
+		StartScreen.container.addChild(colorFillText1);
+		colorFillText2 = new PIXI.Text('spread it. Enter a square to convert it.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText2.x = 750;
+		colorFillText2.y = 540;
+		StartScreen.container.addChild(colorFillText2);
+		colorFillText3 = new PIXI.Text('Encompass a dark tile(s) with light and auto-convert it.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText3.x = 750;
+		colorFillText3.y = 555;
+		StartScreen.container.addChild(colorFillText3);
+		colorFillText4 = new PIXI.Text('Beware: the opposite holds true. An enemy must always be', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText4.x = 750;
+		colorFillText4.y = 570;
+		StartScreen.container.addChild(colorFillText4);
+		colorFillText5 = new PIXI.Text('on or adjacent a dark tile, or it dies. Same goes for you,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText5.x = 750;
+		colorFillText5.y = 585;
+		StartScreen.container.addChild(colorFillText5);
+		colorFillText6 = new PIXI.Text('but with light tiles.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText6.x = 750;
+		colorFillText6.y = 600;
+		StartScreen.container.addChild(colorFillText6);
 
 		buttonAniIteration++;
 		if(buttonAniIteration > 12) {
