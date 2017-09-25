@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.12
-Last Updated: 2017-September-08
+Stay in the Light v0.0.13
+Last Updated: 2017-September-24
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -88,6 +88,11 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 			maskPrime.y = center.y;
 		}
 		maskPrime.drawCircle(0, 0, radius);
+	};
+
+	Fog.reset = function() {
+		fogContainer.removeChild(tilemapSnapshot);
+		loader.reset();
 	};
 
 	Fog.move = function(center) {

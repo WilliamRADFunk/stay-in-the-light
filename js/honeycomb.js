@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.12
-Last Updated: 2017-September-17
+Stay in the Light v0.0.13
+Last Updated: 2017-September-24
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -10,6 +10,7 @@ Authors:
 var MapWrapper = function(center) {
 	// Publicly accessible functionality.
 	var tileMap = {};
+	tileMap.playerIsAlive = true;
 
 	/*** Internal Variables ***/
 	// create a new Sprite from an image path
@@ -376,7 +377,7 @@ var MapWrapper = function(center) {
 			} else {
 				darkLayer.clear();
 			}
-			if(isPlayer) {
+			if(isPlayer && tileMap.playerIsAlive) {
 				// Layer to illustrate a fog of war effect.
 				hoverLayer.clear();
 				fillColor = 0xFFFF00;
@@ -462,7 +463,7 @@ var MapWrapper = function(center) {
 					// Attach the hoverLine and hoverLayer to the stage.
 					tileMap.hoverContainer.addChild(hoverLine);
 					tileMap.hoverContainer.addChild(hoverLayer);
-					if(line) {
+					if(line && tileMap.playerIsAlive) {
 						if(currentPlayerGraphic) {
 							tileMap.hoverContainer.removeChild(currentPlayerGraphic);
 						}
@@ -470,6 +471,8 @@ var MapWrapper = function(center) {
 						currentPlayerGraphic.x = cX;
 						currentPlayerGraphic.y = cY - 5;
 						tileMap.hoverContainer.addChild(currentPlayerGraphic);
+					} else if(!tileMap.playerIsAlive && currentPlayerGraphic) {
+						tileMap.hoverContainer.removeChild(currentPlayerGraphic);
 					}
 				}
 			},
@@ -504,6 +507,16 @@ var MapWrapper = function(center) {
 					tileMap.enemyLayerContainer.removeChild(currentEnemyGraphic);
 				}
 				this.draw(9);
+			},
+			removePlayer: function() {
+				this.state.isPlayer = false;
+				if(currentPlayerGraphic) {
+					tileMap.hoverContainer.removeChild(currentPlayerGraphic);
+				}
+				tileMap.playerIsAlive = false;
+				this.draw(9);
+				var event = new Event('playerDied');
+    			document.dispatchEvent(event);
 			},
 			setActive: function() {
 				this.state.isPlayer = true;
@@ -832,7 +845,7 @@ var MapWrapper = function(center) {
 	};
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
-		if(activeTile) {
+		if(activeTile && tileMap.playerIsAlive) {
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
@@ -845,6 +858,7 @@ var MapWrapper = function(center) {
 				if(oldActive['link' + hextant].state.isEnemy) {
 					console.log('Collision with enemy. Player loses.');
 					oldActive['link' + hextant].goDark();
+					oldActive.removePlayer();
 				}
 				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
 					activeTile.draw(hextant, 0x00FF00);
@@ -866,7 +880,7 @@ var MapWrapper = function(center) {
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		lastMouseMoveEvent = e;
-		if(activeTile) {
+		if(activeTile && tileMap.playerIsAlive) {
 			var xDiff = activeTile.position.x - e.pageX;
 			var yDiff = activeTile.position.y - e.pageY;
 			var angle = Math.atan2(yDiff, xDiff);
@@ -975,6 +989,15 @@ var MapWrapper = function(center) {
 	tileMap.getActiveCenter = function() {
 		return activeCenter;
 	};
+	tileMap.getLightNodes = function() {
+		var lightNodes = [];
+		for(var i = 0; i < freeNodes.length; i++) {
+			if(!freeNodes[i].state.isDark) {
+				lightNodes.push(freeNodes[i]);
+			}
+		}
+		return lightNodes;
+	};
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
@@ -1006,6 +1029,7 @@ var MapWrapper = function(center) {
 			oldTile.goDark();
 			newTile.goDark();
 			newTile.addEnemy();
+			newTile.removePlayer();
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.

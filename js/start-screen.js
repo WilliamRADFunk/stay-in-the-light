@@ -1,5 +1,5 @@
 /* 
-Stay in the Light v0.0.12
+Stay in the Light v0.0.13
 Last Updated: 2017-September-17
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -1437,11 +1437,11 @@ var StartScreenWrapper = function(center) {
 		colorFillText1.x = 750;
 		colorFillText1.y = 525;
 		StartScreen.container.addChild(colorFillText1);
-		colorFillText2 = new PIXI.Text('spread it. Enter a square to convert it.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText2 = new PIXI.Text('spread it. Enter a square to convert it. Encompass a dark', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText2.x = 750;
 		colorFillText2.y = 540;
 		StartScreen.container.addChild(colorFillText2);
-		colorFillText3 = new PIXI.Text('Encompass a dark tile(s) with light and auto-convert it.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText3 = new PIXI.Text('tile(s) with light or impassable tile and auto-convert it.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText3.x = 750;
 		colorFillText3.y = 555;
 		StartScreen.container.addChild(colorFillText3);
