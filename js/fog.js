@@ -90,6 +90,11 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		maskPrime.drawCircle(0, 0, radius);
 	};
 
+	Fog.reset = function() {
+		fogContainer.removeChild(tilemapSnapshot);
+		loader.reset();
+	};
+
 	Fog.move = function(center) {
 		Fog.redrawFogHole(center);
 	};
