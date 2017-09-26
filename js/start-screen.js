@@ -1392,7 +1392,7 @@ var StartScreenWrapper = function(center) {
 			fogHelpText1.x = 50;
 			fogHelpText1.y = 675;
 			StartScreen.container.addChild(fogHelpText1);
-			fogHelpText2 = new PIXI.Text('but decreases player movement speed', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+			fogHelpText2 = new PIXI.Text('but increases enemy movement speed', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 			fogHelpText2.x = 50;
 			fogHelpText2.y = 690;
 			StartScreen.container.addChild(fogHelpText2);
@@ -1401,7 +1401,7 @@ var StartScreenWrapper = function(center) {
 			fogHelpText1.x = 50;
 			fogHelpText1.y = 675;
 			StartScreen.container.addChild(fogHelpText1);
-			fogHelpText2 = new PIXI.Text('but increases player movement speed', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+			fogHelpText2 = new PIXI.Text('and decreases enemy movement speed', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 			fogHelpText2.x = 50;
 			fogHelpText2.y = 690;
 			StartScreen.container.addChild(fogHelpText2);
