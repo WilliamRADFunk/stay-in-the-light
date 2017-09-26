@@ -497,8 +497,8 @@ var GameWrapper = function() {
 			if(this.isLoaded) {
 				this.fog.renderFog();
 			}
-
-			if((this.tickCounter % (200 - this.difficulty * 25)) === 0) {
+			var enemySpeedModifier = 130 - ((this.difficulty + this.fog.getExpansionLevel() + 1) * 10);
+			if((this.tickCounter % enemySpeedModifier) === 0) {
 				for(var i = 0; i < this.enemies.length; i++) {
 					this.enemies[i].takeTurn();
 				}
