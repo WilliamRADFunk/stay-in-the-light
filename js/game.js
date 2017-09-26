@@ -127,7 +127,6 @@ var GameWrapper = function() {
 							setTimeout(function() {
 								// Create an enemy and place it on the map
 								this.createEnemies();
-
 								// Gives the loading progress from createEnemies to show on loading bar
 								setTimeout(function() {
 									// Draw the fog
@@ -170,13 +169,15 @@ var GameWrapper = function() {
 		 * Picks suitable place on tilemap to place enemies
 		 */
 		createEnemies: function() {
-			// Sets up variables and function definitions
-			var enemy = new EnemyWrapper(this._center, this.honeycomb);
-			// Move loading bar progress by a small degree.
-			this.loadingCallback(5);
-			// Places enemy unit on board and creates his attributes.
-			enemy.init();
-			this.enemies.push(enemy);
+			for(var i = 0; i < this.difficulty; i++) {
+				// Sets up variables and function definitions
+				var enemy = new EnemyWrapper(this._center, this.honeycomb);
+				// Move loading bar progress by a small degree.
+				this.loadingCallback(5);
+				// Places enemy unit on board and creates his attributes.
+				enemy.init();
+				this.enemies.push(enemy);
+			}
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 		},
@@ -186,7 +187,7 @@ var GameWrapper = function() {
 		 */
 		createTileMap: function() {
 			// Sets up variables and function definitions
-			this.honeycomb = new MapWrapper(this._center);
+			this.honeycomb = new MapWrapper(this._center, this.difficulty);
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 			// Runs through actual terrain build and recursive checks.
@@ -497,8 +498,10 @@ var GameWrapper = function() {
 				this.fog.renderFog();
 			}
 
-			if((this.tickCounter % 200) === 0){
-				this.enemies[0].takeTurn();
+			if((this.tickCounter % (200 - this.difficulty * 25)) === 0) {
+				for(var i = 0; i < this.enemies.length; i++) {
+					this.enemies[i].takeTurn();
+				}
 			}
 
 			if(!this.gameOver) {

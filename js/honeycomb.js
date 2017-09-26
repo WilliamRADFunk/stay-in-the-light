@@ -7,41 +7,47 @@ Authors:
 */
 
 // Wrapped tile map object
-var MapWrapper = function(center) {
+var MapWrapper = function(center, difficulty) {
 	// Publicly accessible functionality.
 	var tileMap = {};
 	tileMap.playerIsAlive = true;
 
 	/*** Internal Variables ***/
-	// create a new Sprite from an image path
-	var enemy1 = PIXI.Sprite.fromImage('./images/enemy_N.png');
-	var enemy2 = PIXI.Sprite.fromImage('./images/enemy_NE.png');
-	var enemy3 = PIXI.Sprite.fromImage('./images/enemy_SE.png');
-	var enemy4 = PIXI.Sprite.fromImage('./images/enemy_S.png');
-	var enemy5 = PIXI.Sprite.fromImage('./images/enemy_SW.png');
-	var enemy6 = PIXI.Sprite.fromImage('./images/enemy_NW.png');
-	// center the sprite's anchor point
-	enemy1.anchor.set(0.5);
-	enemy1.scale.x = 0.4;
-	enemy1.scale.y = 0.4;
-	enemy2.anchor.set(0.5);
-	enemy2.scale.x = 0.4;
-	enemy2.scale.y = 0.4;
-	enemy3.anchor.set(0.5);
-	enemy3.scale.x = 0.4;
-	enemy3.scale.y = 0.4;
-	enemy4.anchor.set(0.5);
-	enemy4.scale.x = 0.4;
-	enemy4.scale.y = 0.4;
-	enemy5.anchor.set(0.5);
-	enemy5.scale.x = 0.4;
-	enemy5.scale.y = 0.4;
-	enemy6.anchor.set(0.5);
-	enemy6.scale.x = 0.4;
-	enemy6.scale.y = 0.4;
+	var enemies = [];
 
-	var enemies = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6];
-	var currentEnemyGraphic;
+	for(var i = 0; i < difficulty; i++) {
+		// create a new Sprite from an image path
+		var enemy1 = PIXI.Sprite.fromImage('./images/enemy_N.png');
+		var enemy2 = PIXI.Sprite.fromImage('./images/enemy_NE.png');
+		var enemy3 = PIXI.Sprite.fromImage('./images/enemy_SE.png');
+		var enemy4 = PIXI.Sprite.fromImage('./images/enemy_S.png');
+		var enemy5 = PIXI.Sprite.fromImage('./images/enemy_SW.png');
+		var enemy6 = PIXI.Sprite.fromImage('./images/enemy_NW.png');
+
+		// center the sprite's anchor point
+		enemy1.anchor.set(0.5);
+		enemy1.scale.x = 0.4;
+		enemy1.scale.y = 0.4;
+		enemy2.anchor.set(0.5);
+		enemy2.scale.x = 0.4;
+		enemy2.scale.y = 0.4;
+		enemy3.anchor.set(0.5);
+		enemy3.scale.x = 0.4;
+		enemy3.scale.y = 0.4;
+		enemy4.anchor.set(0.5);
+		enemy4.scale.x = 0.4;
+		enemy4.scale.y = 0.4;
+		enemy5.anchor.set(0.5);
+		enemy5.scale.x = 0.4;
+		enemy5.scale.y = 0.4;
+		enemy6.anchor.set(0.5);
+		enemy6.scale.x = 0.4;
+		enemy6.scale.y = 0.4;
+
+		var enemyFaces = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6];
+
+		enemies.push(enemyFaces);
+	}
 
 	// create a new Sprite from an image path
 	var player1 = PIXI.Sprite.fromImage('./images/player_N.png');
@@ -393,20 +399,12 @@ var MapWrapper = function(center) {
 			} else {
 				hoverLayer.clear();
 			}
-			if(isEnemy) {
-				if(currentEnemyGraphic) {
-					tileMap.enemyLayerContainer.removeChild(currentEnemyGraphic);
-				}
-				currentEnemyGraphic = enemies[3];
-				currentEnemyGraphic.x = cX;
-				currentEnemyGraphic.y = cY - 5;
-				tileMap.enemyLayerContainer.addChild(currentEnemyGraphic);
-			}
 		};
 
 		return {
-			addEnemy: function() {
+			addEnemy: function(graphicPackage) {
 				this.state.isEnemy = true;
+				this.currentEnemyGraphic = graphicPackage;
 				this.draw(9);
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
@@ -435,6 +433,8 @@ var MapWrapper = function(center) {
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
+			// Holds the current graphic of the enemy.
+			currentEnemyGraphic: null,
 			// Draws the tile and its outline boundary.
 			draw: function(line, col) {
 				if(col === undefined) {
@@ -444,6 +444,13 @@ var MapWrapper = function(center) {
 				hoverLine.clear();
 				hoverLayer.clear();
 				drawTerrain(this.type, this.state.isHidden, this.state.isDark, this.state.isPlayer, this.state.isEnemy);
+				// Removes the enemy graphic if there was one, and places the enemy anew.
+				if(this.state.isEnemy && this.currentEnemyGraphic) {
+					flushEnemyGraphics(this.currentEnemyGraphic);
+					this.currentEnemyGraphic[this.enemyDirection].x = cX;
+					this.currentEnemyGraphic[this.enemyDirection].y = cY - 5;
+					tileMap.enemyLayerContainer.addChild(this.currentEnemyGraphic[this.enemyDirection]);
+				}
 				var lineConvert = line - 2;
 				if(lineConvert <= 0) lineConvert += 6;
 				// If hoverline redraw thicker boundary, with one hextant as green.
@@ -476,6 +483,7 @@ var MapWrapper = function(center) {
 					}
 				}
 			},
+			enemyDirection: 3,
 			hide: function() {
 				this.state.isHidden = true;
 				this.draw(9);
@@ -503,8 +511,8 @@ var MapWrapper = function(center) {
 			},
 			removeEnemy: function() {
 				this.state.isEnemy = false;
-				if(currentEnemyGraphic) {
-					tileMap.enemyLayerContainer.removeChild(currentEnemyGraphic);
+				if(this.currentEnemyGraphic) {
+					tileMap.enemyLayerContainer.removeChild(this.currentEnemyGraphic);
 				}
 				this.draw(9);
 			},
@@ -522,6 +530,9 @@ var MapWrapper = function(center) {
 				this.state.isPlayer = true;
 				activeTile = this;
 				this.draw(9);
+			},
+			setEnemyDirection: function(dir) {
+				this.enemyDirection = dir;
 			},
 			setInactive: function() {
 				this.state.isPlayer = false;
@@ -600,6 +611,29 @@ var MapWrapper = function(center) {
 			
 		return true;
 	};
+	// Picks, at random, a tile in the tileTable where an enemy might start.
+	// This spot makes sure it isn't on the player, isn't adjacent to the player,
+	// and isn't on an impassable tile.
+	var findEnemyTile = function(enemyIndex) {
+		var tileTableArray = Object.keys(tileTable);
+		var isTileFound = false;
+		var tile = null;
+		do {
+			var tileKey = tileTableArray[Math.floor(Math.random() * tileTableArray.length)];
+			tile = tileTable[tileKey];
+			isTileFound = isPassable(tile) && isNotNearPlayer(tile);
+		} while(!isTileFound);
+		tile.addEnemy(enemies[enemyIndex]);
+		return tile;
+	};
+	// Flushes enemy graphics from the container before new graphics can be placed.
+	var flushEnemyGraphics = function(graphicPackage) {
+		if(graphicPackage) {
+			for(var i = 0; i < graphicPackage.length; i++) {
+				tileMap.enemyLayerContainer.removeChild(graphicPackage[i]);
+			}
+		}
+	};
 	// Recursive function that seeks out a path to find a single node in the freenode array.
 	var hasReachablePath = function(startNode, endNode, depth) {
 		// If the link passed in was empty, an impassable node, or too far down the recursive path, then fail it.
@@ -618,21 +652,6 @@ var MapWrapper = function(center) {
 		}
 		// If this point was reached, there was no path this way.
 		return false;
-	};
-	// Picks, at random, a tile in the tileTable where an enemy might start.
-	// This spot makes sure it isn't on the player, isn't adjacent to the player,
-	// and isn't on an impassable tile.
-	var findEnemyTile = function() {
-		var tileTableArray = Object.keys(tileTable);
-		var isTileFound = false;
-		var tile = null;
-		do {
-			var tileKey = tileTableArray[Math.floor(Math.random() * tileTableArray.length)];
-			tile = tileTable[tileKey];
-			isTileFound = isPassable(tile) && isNotNearPlayer(tile);
-		} while(!isTileFound);
-		tile.addEnemy();
-		return tile;
 	};
 	// Sweeps through and hides all tiles; a sort of refresh.
 	var hideTiles = function() {
@@ -964,6 +983,8 @@ var MapWrapper = function(center) {
 	tileMap.hiddenLayerContainer = new PIXI.Container();
 	tileMap.darkLayerContainer = new PIXI.Container();
 
+	tileMap.enemiesPlaced = 0;
+
 	/*** Publicly accessible functions ***/
 	tileMap.addPlayer = function() {
 		activeTile.draw(4, 0x00FF00);
@@ -1025,10 +1046,17 @@ var MapWrapper = function(center) {
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
 			console.log('Enemy has found and killed player');
+			var graphicPackage = oldTile.currentEnemyGraphic;
+			for(var i = 1; i <= 6; i++) {
+				if(oldTile['link' + i] && oldTile['link' + i].id === newTile.id) {
+					newTile.setEnemyDirection(i - 1);
+					break;
+				}
+			}
 			oldTile.removeEnemy();
 			oldTile.goDark();
 			newTile.goDark();
-			newTile.addEnemy();
+			newTile.addEnemy(graphicPackage);
 			newTile.removePlayer();
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
@@ -1040,10 +1068,17 @@ var MapWrapper = function(center) {
 				'Enemy already here: ' + newTile.state.isEnemy);
 			return false;
 		} else {
+			var graphicPackage = oldTile.currentEnemyGraphic;
+			for(var i = 1; i <= 6; i++) {
+				if(oldTile['link' + i] && oldTile['link' + i].id === newTile.id) {
+					newTile.setEnemyDirection(i - 1);
+					break;
+				}
+			}
 			oldTile.removeEnemy();
 			oldTile.goDark();
 			newTile.goDark();
-			newTile.addEnemy();
+			newTile.addEnemy(graphicPackage);
 			return true;
 		}
 	};
@@ -1055,7 +1090,9 @@ var MapWrapper = function(center) {
 	};
 	// Called by enemy instantiator to place an enemy. A tile will be returned, where the enemy exists
 	tileMap.placeEnemy = function() {
-		return findEnemyTile();
+		var enemyTile = findEnemyTile(tileMap.enemiesPlaced);
+		tileMap.enemiesPlaced++;
+		return enemyTile;
 	};
 
 	/*** Document level event listeners ***/
