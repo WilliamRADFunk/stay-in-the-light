@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.12
-Last Updated: 2017-September-08
+Stay in the Light v0.0.14
+Last Updated: 2017-September-26
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -18,6 +18,7 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 
 	// Fog parameters and internal values
 	var radius;
+	var expansionLevel = 0;
 
 	//Fog internal objects / graphics
 	var circle;
@@ -34,6 +35,11 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 	var renderTexture = PIXI.RenderTexture.create(rEnder.width, rEnder.height);
 
 	var fogSprite;
+
+	// Getter for the expansion level. Needed for player speed.
+	Fog.getExpansionLevel = function() {
+		return expansionLevel;
+	};
 
 	Fog.init = function() {
 
@@ -90,27 +96,36 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		maskPrime.drawCircle(0, 0, radius);
 	};
 
+	Fog.reset = function() {
+		fogContainer.removeChild(tilemapSnapshot);
+		loader.reset();
+	};
+	// Needed to move center of fog hole to be where player is positioned.
 	Fog.move = function(center) {
 		Fog.redrawFogHole(center);
 	};
-
+	// Expands the fog by one level (45 pixels), and caps out at 205 pixels (level 3 --> 0-3).
 	Fog.expand = function(center) {
 		// Eye of fog gets one increment bigger
 		radius += 45;
 		//MAX CIELING for radius
-		if(radius > 206){
-			radius = 205;
+		if(radius > 225){
+			radius = 225;
+		} else {
+			expansionLevel++;
 		}
 		//Redraw Fog at radius
 		Fog.redrawFogHole(center);
 	};
-
+	// Contracts the fog by one level (45 pixels), and caps out at 90 pixels (0 level --> 0-3).
 	Fog.contract = function(center) {
 		radius -= 45;
 
 		//MIN FLOOR for radius
-		if(radius < 91){
+		if(radius < 90){
 			radius = 90;
+		} else {
+			expansionLevel--;
 		}
 		//Redraw Fog at radius
 		Fog.redrawFogHole(center);

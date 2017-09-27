@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.12
-Last Updated: September-10
+Stay in the Light v0.0.14
+Last Updated: September-26
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -19,16 +19,27 @@ var GameWrapper = function() {
 		this.containerForLoadingBar = new PIXI.Container();
 		// Create the loading bar stage to draw on.
 		this.containerForStartScreen = new PIXI.Container();
+		// Create the game over stage to draw on.
+		this.containerForGameOverScreen = new PIXI.Container();
 		// Difficulty value. 1 => Easy. 2 => Normal. 3 => Extreme
 		this.difficulty = 1;
 		// Enemies array
 		this.enemies = [];
+		// First time loading assets, prevents things like loading fog assets
+		// to cache twice (causing collision).
+		this.firstLoad = true;
 		// Fog of war object
 		this.fog = {};
+		// Don't render certain things if game is over.
+		this.gameOver = false;
+		// Game over screen object.
+		this.gameOverScreen = {};
 		// Tile map object
 		this.honeycomb = {};
 		// Flag to see if loading is done.
 		this.isLoaded = false;
+		// Did the player win.
+		this.isWin = false;
 		// Loading Bar object
 		this.loadingBar = {};
 		// Used when an incremental stage of loading is completed.
@@ -58,10 +69,21 @@ var GameWrapper = function() {
 		this.rendererForLoadingBar = new PIXI.CanvasRenderer(this._width, this._height);
 		this.rendererForLoadingBar.transparent = true;
 		document.getElementById('loading-stage').appendChild(this.rendererForLoadingBar.view);
-		// Setup the rendering surface for loading bar scene
+		// Setup the rendering surface for start menu scene
 		this.rendererForStartScreen = new PIXI.CanvasRenderer(this._width, this._height);
 		this.rendererForStartScreen.transparent = true;
 		document.getElementById('start-stage').appendChild(this.rendererForStartScreen.view);
+		// Setup the rendering surface for game over scene
+		this.rendererGameOverScreen = new PIXI.CanvasRenderer(this._width, this._height);
+		this.rendererGameOverScreen.transparent = true;
+		document.getElementById('game-over-stage').appendChild(this.rendererGameOverScreen.view);
+
+		this.requestAnimationFrame = (window.requestAnimationFrame
+			|| window.mozRequestAnimationFrame
+			|| window.webkitRequestAnimationFrame
+			|| window.msRequestAnimationFrame).bind(window);
+
+		this.cancelAnimationFrame = (window.cancelAnimationFrame || window.mozCancelAnimationFrame).bind(window);
 
 		/*
 		 * Function call that sets everything in motion, launching the start screen.
@@ -76,6 +98,15 @@ var GameWrapper = function() {
 		build: function() {
 			// Create loading bar
 			this.setupLoadingBar();
+
+			if(this.firstLoad) {
+				document.addEventListener('playerDied', function(e) {
+					this.endGame(false);
+				}.bind(this));
+			}
+
+			// Create game over screen to be ready
+			this.setupGameOver();
 
 			// Waits until everything on the DOM has been properly loaded.
 			var ensureDOMisLoaded = setInterval(function() {
@@ -96,11 +127,13 @@ var GameWrapper = function() {
 							setTimeout(function() {
 								// Create an enemy and place it on the map
 								this.createEnemies();
-
 								// Gives the loading progress from createEnemies to show on loading bar
 								setTimeout(function() {
 									// Draw the fog
 									// Dev Mode: comment next line for fog off
+									if(!this.firstLoad) {
+										this.fog.reset();
+									}
 									this.drawFog();
 									// Dev Mode: for fog off
 									// this.honeycomb.expand();
@@ -121,7 +154,7 @@ var GameWrapper = function() {
 										gameStage.style.display = 'block';
 
 										// Begin the first frame.
-										requestAnimationFrame(this.tick.bind(this));
+										this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
 									}.bind(this), 2000);
 
 								}.bind(this), 2000);
@@ -136,13 +169,15 @@ var GameWrapper = function() {
 		 * Picks suitable place on tilemap to place enemies
 		 */
 		createEnemies: function() {
-			// Sets up variables and function definitions
-			var enemy = new EnemyWrapper(this._center, this.honeycomb);
-			// Move loading bar progress by a small degree.
-			this.loadingCallback(5);
-			// Places enemy unit on board and creates his attributes.
-			enemy.init();
-			this.enemies.push(enemy);
+			for(var i = 0; i < this.difficulty; i++) {
+				// Sets up variables and function definitions
+				var enemy = new EnemyWrapper(this._center, this.honeycomb);
+				// Move loading bar progress by a small degree.
+				this.loadingCallback(5);
+				// Places enemy unit on board and creates his attributes.
+				enemy.init();
+				this.enemies.push(enemy);
+			}
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 		},
@@ -152,7 +187,7 @@ var GameWrapper = function() {
 		 */
 		createTileMap: function() {
 			// Sets up variables and function definitions
-			this.honeycomb = new MapWrapper(this._center);
+			this.honeycomb = new MapWrapper(this._center, this.difficulty);
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 			// Runs through actual terrain build and recursive checks.
@@ -200,6 +235,82 @@ var GameWrapper = function() {
 		},
 
 		/**
+		 * Draws the game over screen and animates until player clicks mouse.
+		 */
+		end: function() {
+			this.setupBoundaries(3, 0xCFB53B);
+
+			var interval = 2000;
+			var flickeringInterval = function() {
+	        	clearInterval(flickeringLightsInterval);
+
+				this.gameOverScreen.drawGameOverScreenWords();
+
+				if(interval === 2000) {
+					interval = 150;
+				} else if(interval === 150) {
+					interval = 100;
+				} else if(interval === 100) {
+					interval = 105;
+				} else {
+					interval = 2000;
+				}
+
+				flickeringLightsInterval = setInterval(flickeringInterval, interval);
+			}.bind(this);
+
+
+			var flickeringLightsInterval = setInterval(flickeringInterval, interval);
+
+			var mouseClickHandler = function(e) {
+				if(this.gameOverAniLoop) {
+					var id = this.cancelAnimationFrame(this.gameOverAniLoop);
+					this.gameOverAniLoop = undefined;
+				}
+				clearInterval(flickeringLightsInterval);
+				// Removes click of mouse handler to make way for new one.
+				document.removeEventListener('click', mouseClickHandler);
+				if(typeof this.gameOverScreen.killProcesses === 'function') {
+					this.gameOverScreen.killProcesses();
+				}
+				var gameOverStage = document.getElementById('game-over-stage');
+				var startStage = document.getElementById('start-stage');
+				gameOverStage.style.display = 'none';
+				startStage.style.display = 'block';
+				// Destroy old game over content.
+				this.gameOverScreen = {};
+				this.containerForGameOverScreen = new PIXI.Container();
+				this.gameOver = false;
+				this.firstLoad = false;
+				// Return to start screen.
+				this.start();
+			}.bind(this);
+
+			// Captures click of mouse and passes on to handler.
+			setTimeout(function() {
+				document.addEventListener('click', mouseClickHandler, false);
+			}, 1000);
+
+			// Begin the first frame.
+			this.gameOverAniLoop = this.requestAnimationFrame(this.tickGameOverScreen.bind(this));
+		},
+
+		/**
+		 * Goes through end game sequence
+		 */
+		endGame: function(isWin) {
+			this.isWin = isWin;
+			this.gameOver = true;
+			document.getElementById('game-stage').style.display = 'none';
+			document.getElementById('game-over-stage').style.display = 'block';
+			if(this.mainGameAniLoop) {
+				var id = this.cancelAnimationFrame(this.mainGameAniLoop);
+				this.mainGameAniLoop = undefined;
+			}
+			this.end();
+		},
+
+		/**
 		 * Draw the boundaries of the tile mapped world.
 		 */
 		setupBoundaries: function(stage=0, color=0xFFFFFF) {
@@ -215,11 +326,25 @@ var GameWrapper = function() {
 				this.containerForLoadingBar.addChild(walls);
 			} else if(stage === 2) {
 				this.containerForStartScreen.addChild(walls);
+			} else if(stage === 3) {
+				this.containerForGameOverScreen.addChild(walls);
 			} else {
 				this.container.addChild(walls);
 				// Move loading bar progress by a small degree.
 				this.loadingCallback(20);
 			}
+		},
+
+		/**
+		 * Prepares the game over screen for immediate use when game ends
+		 */
+		setupGameOver: function() {
+			this.gameOverScreen = new GameOverScreenWrapper(this._center);
+			this.gameOverScreen.init();
+			this.containerForGameOverScreen.addChild(this.gameOverScreen.container);
+
+			// Move loading bar progress by a small degree.
+			this.loadingCallback(10);
 		},
 
 		/**
@@ -254,8 +379,6 @@ var GameWrapper = function() {
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
-
-			var loopId;
 
 			var interval = 2000;
 			var flickeringInterval = function() {
@@ -305,18 +428,34 @@ var GameWrapper = function() {
 				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 400 && mY <= 420) {
 						if(this.startScreenAniLoop) {
-							var id = window.cancelAnimationFrame(this.startScreenAniLoop);
+							var id = this.cancelAnimationFrame(this.startScreenAniLoop);
 							this.startScreenAniLoop = undefined;
 						}
-						this.startScreen.killProcesses();
-						var loadingStage = document.getElementById('loading-stage');
-						var startStage = document.getElementById('start-stage');
-						startStage.style.display = 'none';
-						loadingStage.style.display = 'block';
+						clearInterval(flickeringLightsInterval);
 						// Removes click of mouse handler to make way for new one.
 						document.removeEventListener('click', mouseClickHandler);
 						// Removes move of mouse handler to make way for new one.
 						document.removeEventListener('mousemove', mouseMoveHandler);
+						if(typeof this.startScreen.killProcesses === 'function') {
+							this.startScreen.killProcesses();
+						}
+						var loadingStage = document.getElementById('loading-stage');
+						var startStage = document.getElementById('start-stage');
+						startStage.style.display = 'none';
+						loadingStage.style.display = 'block';
+						// Destroy the old start screen before moving on.
+						this.startScreen = {};
+						this.containerForStartScreen = new PIXI.Container();
+						// Destroy the old loading bar screen before moving on.
+						this.loadingBar = {};
+						this.containerForLoadingBar = new PIXI.Container();
+						// Destroy the old everything else before moving on.
+						this.enemies = [];
+						this.honeycomb = {};
+						this.isLoaded = false;
+						this.isWin = false;
+						this.loadingCallback = null;;
+						this.container = new PIXI.Container();
 						// Start the actual game.
 						this.build();
 					} else if(mY > 420 && mY <= 480) {
@@ -330,18 +469,19 @@ var GameWrapper = function() {
 							this.difficulty = 3;
 							mouseMoveHandler({pageX: mX, pageY: mY});
 						}
-					} else if(mY >= 480 && mY <= 500) {
-						// this.startScreen.drawOptions(2);
 					}
 				}
 			}.bind(this);
-			// Captures click of mouse and passes on to handler.
-			document.addEventListener('click', mouseClickHandler);
-			// Captures movement of mouse and passes on to handler.
-			document.addEventListener('mousemove', mouseMoveHandler);
+
+			setTimeout(function() {
+				// Captures click of mouse and passes on to handler.
+				document.addEventListener('click', mouseClickHandler, false);
+				// Captures movement of mouse and passes on to handler.
+				document.addEventListener('mousemove', mouseMoveHandler, false);
+			}, 500);
 
 			// Begin the first frame.
-			this.startScreenAniLoop = requestAnimationFrame(this.tickStartScreen.bind(this));
+			this.startScreenAniLoop = this.requestAnimationFrame(this.tickStartScreen.bind(this));
 		},
 
 		/**
@@ -357,12 +497,29 @@ var GameWrapper = function() {
 			if(this.isLoaded) {
 				this.fog.renderFog();
 			}
-
-			if((this.tickCounter % 200) === 0){
-				this.enemies[0].takeTurn();
+			var enemySpeedModifier = 130 - ((this.difficulty + this.fog.getExpansionLevel() + 1) * 10);
+			if((this.tickCounter % enemySpeedModifier) === 0) {
+				for(var i = 0; i < this.enemies.length; i++) {
+					this.enemies[i].takeTurn();
+				}
 			}
-			// Begin the next frame.
-			requestAnimationFrame(this.tick.bind(this));
+
+			if(!this.gameOver) {
+				// Begin the next frame.
+				this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
+			}
+		},
+
+		/**
+		 * Fires at the end of the gameloop to reset and redraw the canvas.
+		 */
+		tickGameOverScreen: function() {
+			if(this.gameOver) {
+				// Render the stage for the current frame.
+				this.rendererGameOverScreen.render(this.containerForGameOverScreen);
+				// Begin the next frame.
+				this.gameOverAniLoop = this.requestAnimationFrame(this.tickGameOverScreen.bind(this));
+			}
 		},
 
 		/**
@@ -372,7 +529,7 @@ var GameWrapper = function() {
 			// Render the stage for the current frame.
 			this.rendererForStartScreen.render(this.containerForStartScreen);
 			// Begin the next frame.
-			this.startScreenAniLoop = requestAnimationFrame(this.tickStartScreen.bind(this));
+			this.startScreenAniLoop = this.requestAnimationFrame(this.tickStartScreen.bind(this));
 		}
 	};
 	// Sets the game in motion.
