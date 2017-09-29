@@ -373,8 +373,8 @@ var MapWrapper = function(center, difficulty) {
 				hiddenLayer.clear();
 				fillColor = 0x999999;
 				hiddenLayer.moveTo(cX + size, cY);
-				hiddenLayer.beginFill(fillColor, 0.7);
-				hiddenLayer.strokeStyle = (3, 0x000000, 0.8);
+				hiddenLayer.beginFill(fillColor, 0.95);
+				hiddenLayer.strokeStyle = (3, 0x000000, 0.95);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = cX + size * Math.cos(angle);
