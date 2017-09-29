@@ -386,7 +386,7 @@ var MapWrapper = function(center, difficulty) {
 				hiddenLayer.clear();
 			}
 			if(isPlayer && tileMap.playerIsAlive) {
-				// Layer to illustrate a fog of war effect.
+				// Layer to illustrate player occupied tile.
 				hoverLayer.clear();
 				fillColor = 0xFFFF00;
 				hoverLayer.moveTo(cX + size, cY);
@@ -590,11 +590,11 @@ var MapWrapper = function(center, difficulty) {
 				tileTable = [];
 				freeNodes = [];
 				tileMap.terrainContainer = new PIXI.Container();
-				tileMap.hiddenLayerContainer = new PIXI.Container();
 				tileMap.darkLayerContainer = new PIXI.Container();
 				tileMap.lightLayerContainer = new PIXI.Container();
-				tileMap.hoverContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
+				tileMap.hiddenLayerContainer = new PIXI.Container();
+				tileMap.hoverContainer = new PIXI.Container();
 			}
 		};
 	};
@@ -1033,11 +1033,11 @@ var MapWrapper = function(center, difficulty) {
 		buildLevel(level);
 		tileMap.terrainContainer.cacheAsBitmap = true;
 		tileMap.container.addChild(tileMap.terrainContainer);
-		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.lightLayerContainer);
-		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
+		tileMap.container.addChild(tileMap.hiddenLayerContainer);
+		tileMap.container.addChild(tileMap.hoverContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile) {
