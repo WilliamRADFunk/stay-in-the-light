@@ -109,9 +109,11 @@ var MapWrapper = function(center, difficulty) {
 		var hiddenLayer = new PIXI.Graphics();
 		// Additional dark layer
 		var darkLayer = new PIXI.Graphics();
+		// Additional light layer
+		var lightLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
-		var drawTerrain = function(terrain, isHidden, isDark, isPlayer, isEnemy) {
+		var drawTerrain = function(terrain, isHidden, isDark, isPlayer, isLight) {
 			var fillColor;
 			if(terrain === 'forest') {
 				// The base tile without hover borders.
@@ -350,6 +352,22 @@ var MapWrapper = function(center, difficulty) {
 			} else {
 				darkLayer.clear();
 			}
+			if(isLight) {
+				// Layer to illustrate a fog of war effect.
+				lightLayer.clear();
+				lightLayer.moveTo(cX + size, cY);
+				lightLayer.beginFill(0xCFB53B, 0.6);
+				lightLayer.strokeStyle = (3, 0xC0C0C0, 0.6);
+				for (var i = 0; i <= 6; i++) {
+					var angle = 2 * Math.PI / 6 * i,
+					x_i = cX + size * Math.cos(angle),
+					y_i = cY + size * Math.sin(angle);
+					lightLayer.lineTo(x_i, y_i);
+				}
+				lightLayer.endFill();
+			} else {
+				lightLayer.clear();
+			}
 			if(isHidden) {
 				// Layer to illustrate a fog of war effect.
 				hiddenLayer.clear();
@@ -366,22 +384,6 @@ var MapWrapper = function(center, difficulty) {
 				hiddenLayer.endFill();
 			} else {
 				hiddenLayer.clear();
-			}
-			if(isDark) {
-				// Layer to illustrate a fog of war effect.
-				darkLayer.clear();
-				darkLayer.moveTo(cX + size, cY);
-				darkLayer.beginFill(0x008080, 0.8);
-				darkLayer.strokeStyle = (3, 0x000000, 0.8);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					darkLayer.lineTo(x_i, y_i);
-				}
-				darkLayer.endFill();
-			} else {
-				darkLayer.clear();
 			}
 			if(isPlayer && tileMap.playerIsAlive) {
 				// Layer to illustrate a fog of war effect.
@@ -430,6 +432,8 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
 				// Attach dark-tile layer.
 				tileMap.darkLayerContainer.addChild(darkLayer);
+				// Attach dark-tile layer.
+				tileMap.lightLayerContainer.addChild(lightLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 			},
@@ -443,7 +447,7 @@ var MapWrapper = function(center, difficulty) {
 				hexagon.clear();
 				hoverLine.clear();
 				hoverLayer.clear();
-				drawTerrain(this.type, this.state.isHidden, this.state.isDark, this.state.isPlayer, this.state.isEnemy);
+				drawTerrain(this.type, this.state.isHidden, this.state.isDark, this.state.isPlayer, this.state.isLight);
 				// Removes the enemy graphic if there was one, and places the enemy anew.
 				if(this.state.isEnemy && this.currentEnemyGraphic) {
 					flushEnemyGraphics(this.currentEnemyGraphic);
@@ -491,10 +495,12 @@ var MapWrapper = function(center, difficulty) {
 			id: '',
 			goDark: function() {
 				this.state.isDark = true;
+				this.state.isLight = false;
 				this.draw(9);
 			},
 			goLight: function() {
 				this.state.isDark = false;
+				this.state.isLight = true;
 				this.draw(9);
 			},
 			graphique: null,
@@ -546,8 +552,9 @@ var MapWrapper = function(center, difficulty) {
 			},
 			state: {
 				isDark: false,
-				isHidden: false,
 				isEnemy: false,
+				isHidden: false,
+				isLight: false,
 				isPlayer: false,
 			},
 			type: null
@@ -585,6 +592,7 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.terrainContainer = new PIXI.Container();
 				tileMap.hiddenLayerContainer = new PIXI.Container();
 				tileMap.darkLayerContainer = new PIXI.Container();
+				tileMap.lightLayerContainer = new PIXI.Container();
 				tileMap.hoverContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
 			}
@@ -869,10 +877,8 @@ var MapWrapper = function(center, difficulty) {
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
 				oldActive['link' + hextant].setActive();
-				// If it was dark, make it light.
-				if(oldActive['link' + hextant].state.isDark) {
-					oldActive['link' + hextant].goLight();
-				}
+				// Make it light.
+				oldActive['link' + hextant].goLight();
 				// If enemy present, game over
 				if(oldActive['link' + hextant].state.isEnemy) {
 					console.log('Collision with enemy. Player loses.');
@@ -982,6 +988,7 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.hoverContainer = new PIXI.Container();
 	tileMap.hiddenLayerContainer = new PIXI.Container();
 	tileMap.darkLayerContainer = new PIXI.Container();
+	tileMap.lightLayerContainer = new PIXI.Container();
 
 	tileMap.enemiesPlaced = 0;
 
@@ -1028,9 +1035,9 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.terrainContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 		tileMap.container.addChild(tileMap.darkLayerContainer);
+		tileMap.container.addChild(tileMap.lightLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
-		tileMap.container.addChild(tileMap.darkLayerContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile) {
@@ -1061,7 +1068,7 @@ var MapWrapper = function(center, difficulty) {
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
-			// Can't go back to dark tile, can't move to impassable tile, can't share tile with other enemy.
+			// Can't move to impassable tile, can't share tile with other enemy.
 			console.log(
 				'Already Dark: ' + newTile.state.isDark,
 				'Not passable: ' + !newTile.passable,
