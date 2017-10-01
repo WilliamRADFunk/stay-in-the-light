@@ -899,8 +899,36 @@ var MapWrapper = function(center, difficulty) {
 				var event = new Event('playerMove');
     			document.dispatchEvent(event);
     			mouseMoveHandler(lastMouseMoveEvent);
+    			checkAutoFill(activeTile);
 			}
 		}
+	};
+	var checkAutoFill = function(curTile) {
+		for(var i = 1; i < 7; i++) {
+			if(!curTile['link' + i] || !curTile['link' + i].passable) {
+				continue;
+			} else if(checkPotentialEnclosed(curTile, curTile['link' + i], 0)) {
+				console.log('Tile ' + curTile['link' + i] + ' has been autofilled with LIGHT!');
+				curTile['link' + i].goLight();
+				// TODO: kill enemy if in this tile.
+			}
+		}
+	};
+	var checkPotentialEnclosed = function(prevTile, curTile, depth) {
+		var isEncompassed = true;
+		if(depth > 3 || curTile.state.isLight) {
+			return false;
+		}
+		for(var i = 1; i < 7; i++) {
+			if(!curTile['link' + i] || prevTile.id === curTile['link' + i].id) {
+				continue;
+			} else if(curTile['link' + i] && curTile['link' + i].state.isLight) {
+				continue;
+			} else if(!checkPotentialEnclosed(curTile, curTile['link' + i], depth + 1)) {
+				isEncompassed = false;
+			}
+		}
+		return isEncompassed;
 	};
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
