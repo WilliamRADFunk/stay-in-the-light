@@ -39,7 +39,7 @@ var EnemyWrapper = function(center, tileMap) {
 	//Tile values judged by A.I. for pathing
 	var nullSpace = 0;
 	var impassableSpace = 0;
-	var playerSpace = 0;
+	var playerSpace = 15;
 	var darkSpace = 0;
 	var lightSpace = 10;
 	var enemySpace = 0;
@@ -79,7 +79,7 @@ var EnemyWrapper = function(center, tileMap) {
 				//console.log("impassable at " + j);
 			}
 			else if(curTile['link' + j].state.isPlayer){
-				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
+				moveValue[j - 1] = Number.POSITIVE_INFINITY;
 				//console.log("isPlayer at " + j);
 			}
 			else if(!curTile['link' + j].state.isDark) {
@@ -331,33 +331,35 @@ var EnemyWrapper = function(center, tileMap) {
 	var updateLightCounter = function(){
 		var tempTiles = tileMap.getLightNodes();
 		currentLightCount = tempTiles.length;
+		//console.log(currentLightCount);
 		return tempTiles;
 	};
 
-	//This function will check the results retrospectivley of clarivoyance. This will decide if its valid and if not
-	var checkClarivoyance = function(commandFinal, enemyStartTile,enemyEndTile){
-		if(!commandFinal){
-			//Something broke. ERROR.
-		}
-		var tempCommandPath = commandFinal[1];
-		if(tempCommandPath.contains(-2)){
-			//We had hit a repeated path with the clarivoyance algorithm...
+	var checkClarivoyance = function(cmdFinal){
+		if(!cmdFinal || !cmdFinal[0] || !cmdFinal[1]){
+			//Return error
 			return false;
 		}
-		else{
-			//We have found a working path
+
+		var tmpCmd = cmdFinal[1];
+		if(tmpCmd == [] || tmpCmd.includes(-2)){
+			//We have hit a familiar path or no path selected
+			return false;
+		}
+		else if(tmpCmd.includes(-1)){
 			return true;
+		}
+		else{
+			return false;
 		}
 	};
 
 	//Possible V3 A.I function that determines directions to take to get from a start tile to end tile
 	var clarivoyance = function(enemyStartTile, enemyEndTile, visitedNodes){
 		//Initial Command list that is used when desired direction is met
-		var commandFinal = [[],[]];
 		var tempVisited = visitedNodes;
-		var commandList = [];
 		//Check before anything that we have not visited this node before.
-		if(tempVisited.includes(enemyStartTile.id)){
+		if(visitedNodes.includes(enemyStartTile.id)){
 			//We have already visited this node. Kill this route...
 			//Make it infinite work to achieve so it is unfavoarable
 			return [[25000], [-2]];
@@ -384,56 +386,36 @@ var EnemyWrapper = function(center, tileMap) {
 			//-------commandList[ARRAY OF TOTALEFFORT][ARRAY OF DIRECTION TO TAKE]
 			return [[-1],[-1]];
 		}
+		tempVisited.unshift(enemyStartTile.id);
+		var startDirection = setDirection;
+		var commandFinal = [[],[]];
 		//THis is the direction we need to go (1 - 6) 
 		//However we need to recursion around any structures and find the shortest distance.
-		if(!enemyStartTile || !enemyStartTile['link' + setDirection].passable){
-			var commandLeft;
-			var commandRight;
-			//Deterime left direction from decided direction
-			var leftDir = turn(setDirection, enemyStartTile, true);
-			//console.log("LEFT: Direction to go down AFTER turn is: " + leftDir + " WAS " + setDirection);
-			if(leftDir > 0 && leftDir < 7){
-				tempVisited.unshift(enemyStartTile.id);
-				commandLeft = (clarivoyance(enemyStartTile['link' + leftDir], enemyEndTile, tempVisited));
-			}
-			//Deterime right direction from decided direction
-			var rightDir = turn(setDirection, enemyStartTile, false);
-			//console.log("RIGHT: Direction to go down AFTER turn is: " + leftDir + " WAS " + setDirection);
-			if(rightDir > 0 && rightDir < 7){
-				tempVisited.unshift(enemyStartTile.id);
-				commandRight = (clarivoyance(enemyStartTile['link' + rightDir], enemyEndTile, tempVisited));
-			}
-			//We need to check which path to return (left or right) as shortest
-			//Determine summation of left values versus right values to determine side to take
-			var leftSum = sumOfArray(commandLeft[0]);
-			var rightSum = sumOfArray(commandRight[0]);
-			if(leftSum === rightSum){
-				//Pick left or right
-				commandLeft[0].unshift(totalEffort);
-				commandLeft[1].unshift(leftDir);
-				return commandLeft;
-			}
-			else if(leftSum > rightSum){
-				//Pick Left
-				commandLeft[0].unshift(totalEffort);
-				commandLeft[1].unshift(leftDir);
-				return commandLeft;
+		do{
+			var commandList = [[],[]];
+
+			if(!enemyStartTile || !enemyStartTile['link' + setDirection] || !enemyStartTile['link' + setDirection].passable){
+				//Extra area for A.I. pathing
 			}
 			else{
-				//pick Right
-				commandRight[0].unshift(totalEffort);
-				commandRight[1].unshift(rightDir);
-				return commandRight;
+				//The direction is not blocked, therefore simply move forward
+				commandList = (clarivoyance(enemyStartTile['link' + setDirection], enemyEndTile, tempVisited));
+				commandList[0].unshift(totalEffort);
+				commandList[1].unshift(setDirection);
+				commandFinal = commandList;
 			}
-		}
-		else{
-			//The direction is not blocked, therefore simply move forward
-			tempVisited.unshift(enemyStartTile.id);
-			commandList = (clarivoyance(enemyStartTile['link' + setDirection], enemyEndTile, tempVisited));
-			commandList[0].unshift(totalEffort);
-			commandList[1].unshift(setDirection);
-			return commandList;
-		}
+
+			setDirection++;
+			if(setDirection >= 7){
+				setDirection = 1;
+			}
+
+			if(setDirection === startDirection){
+				//we have looped completley
+				return [[25000],[-2]];
+			}
+		}while(!checkClarivoyance(commandFinal));
+		return commandFinal;
 	};
 
 	//Determine shortest turn of given tile when path is blocked on decided direction
@@ -465,7 +447,7 @@ var EnemyWrapper = function(center, tileMap) {
 			}
 			if(!passable){
 				//Something went wrong, we are stuck in an island with this piece
-				console.log("WE SHOULDNT EVER LAND HERE!!!!");
+				//console.log("WE SHOULDNT EVER LAND HERE!!!!");
 				return -1;
 			}
 			else{
@@ -497,7 +479,7 @@ var EnemyWrapper = function(center, tileMap) {
 			}
 			if(!passable){
 				//Something went wrong, we are stuck in an island with this piece
-				console.log("WE SHOULDNT EVER LAND HERE!!!!");
+				//console.log("WE SHOULDNT EVER LAND HERE!!!!");
 				return -1;
 			}
 			else{
@@ -520,7 +502,7 @@ var EnemyWrapper = function(center, tileMap) {
 	};
 
 	var commandReturn = function(com){
-		console.log("THE COMMAND PROVIDED WAS: " + com);
+		//console.log("THE COMMAND PROVIDED WAS: " + com);
 		if(!com){
 			//ERROR
 		}
@@ -729,26 +711,13 @@ var EnemyWrapper = function(center, tileMap) {
 		// has already been converted to darkness, etc.).
 		// Update state of light tiles and map layout.
 
-		//----Testing Grounds for V3 Pathing----
-
-		// if(test){
-		// 	currentTileSet = updateLightCounter();
-		// 	test = false;
-		// 	console.log("TILE: " + currentTileSet)
-		// 	var finalCommand = clarivoyance(enemyTile, currentTileSet[0], []);
-		// 	console.log(finalCommand);
-		// }
-
-		//----End of Testing Grounds for V3 Pathing----
-
 		//------FINAL RIG------
-		//-----V2 Movement Module-------
 			currentTileSet = updateLightCounter();
 			var decisive = -1;
 			var finalized = false;
 			decisive = superDecider(enemyTile, 5);
-			console.log("STARTING LOCATION: " + enemyTile.id);
-			console.log("ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
+			//console.log("STARTING LOCATION: " + enemyTile.id);
+			//console.log("ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
 
 			if(!prePathActive){
 				if(currentLightCount < (initialLightCount * behaviorThreshold)){
@@ -771,10 +740,10 @@ var EnemyWrapper = function(center, tileMap) {
 					//We have hit end of prepathing, do a normal decision
 					prePathActive = false;
 					prePathCommand = [[],[]];
-					console.log("END OF PREPATHED ROUTE");
+					//console.log("END OF PREPATHED ROUTE");
 				}
 				else{
-					console.log("-------------------------- " + prePathCommand);
+					//console.log("-------------------------- " + prePathCommand);
 					decisive = prePathCommand[1].shift();
 				}
 				
@@ -783,26 +752,6 @@ var EnemyWrapper = function(center, tileMap) {
 			//Call upon superDecider to check next move (Only form of activity)
 			makeMove(decisive);
 		//------FINAL END------
-
-		//-----V2 Movement Module-------
-	// 	currentTileSet = updateLightCounter();
-	// 	var decisive = -1;
-	// 	var finalized = false;
-	// 	decisive = superDecider(enemyTile, 5);
-	// 	//Check to see if we have cleared enough light tiles to commence new directive
-	// 	if(currentLightCount < (initialLightCount * behaviorThreshold)){
-	// 		//Ensure that we are not interupting a valid move.
-	// 		if(nextMove === 0){
-	// 			decisive = newDirective();
-	// 			finalized = true;
-	// 		}
-	// 	}
-	// 	//Check for loop 
-	// 	if((finalized === false) && checkForLoop()){
-	// 		decisive = newDirective();
-	// 	}
-	// 	//Call upon superDecider to check next move (Only form of activity)
-	// 	makeMove(decisive);
 
 	 };
 	return Enemy;
