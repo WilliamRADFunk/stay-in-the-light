@@ -113,21 +113,21 @@ var GameWrapper = function() {
 				if (/loaded|complete/.test(document.readyState)) {
 					clearInterval(ensureDOMisLoaded);
 
-					// Gives the loading progress from setupBoundaries to show on loading bar
+					// Gives the loading progress from setupBoundaries time to show on loading bar
 					setTimeout(function() {
 						// Setup the boundaries of the game's arena.
 						this.setupBoundaries();
 
-						// Gives the loading progress from setupBoundaries to show on loading bar
+						// Gives the loading progress from setupBoundaries time to show on loading bar
 						setTimeout(function() {
 							// Create the tilemap, terrain, and linking.
 							this.createTileMap();
 
-							// Gives the loading progress from createTileMap to show on loading bar
+							// Gives the loading progress from createTileMap time to show on loading bar
 							setTimeout(function() {
 								// Create an enemy and place it on the map
 								this.createEnemies();
-								// Gives the loading progress from createEnemies to show on loading bar
+								// Gives the loading progress from createEnemies time to show on loading bar
 								setTimeout(function() {
 									// Draw the fog
 									// Dev Mode: comment next line for fog off
@@ -148,7 +148,7 @@ var GameWrapper = function() {
 									this.loadingBar.drawLoadingBarProgress(0, true);
 									this.rendererForLoadingBar.render(this.containerForLoadingBar);
 
-									// Gives the loading progress from drawFog and drawTileMap to show on loading bar
+									// Gives the loading progress from drawFog and drawTileMap time to show on loading bar
 									setTimeout(function() {
 										loadingStage.style.display = 'none';
 										gameStage.style.display = 'block';
@@ -171,13 +171,22 @@ var GameWrapper = function() {
 		createEnemies: function() {
 			for(var i = 0; i < this.difficulty; i++) {
 				// Sets up variables and function definitions
-				var enemy = new EnemyWrapper(this._center, this.honeycomb);
+				var enemy = new EnemyWrapper(this._center, this.honeycomb, i);
 				// Move loading bar progress by a small degree.
 				this.loadingCallback(5);
 				// Places enemy unit on board and creates his attributes.
 				enemy.init();
 				this.enemies.push(enemy);
 			}
+			document.addEventListener('enemyDied', function(e) {
+				for(var i = 0; i < this.enemies.length; i++) {
+					if(this.enemies[i].id === e.enemyId) {
+						this.enemies.splice(i, 1);
+						break;
+					}
+				}
+				e.stopPropagation();
+			}.bind(this));
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 		},

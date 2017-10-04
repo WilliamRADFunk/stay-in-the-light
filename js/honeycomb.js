@@ -404,9 +404,10 @@ var MapWrapper = function(center, difficulty) {
 		};
 
 		return {
-			addEnemy: function(graphicPackage) {
+			addEnemy: function(graphicPackage, enemyId) {
 				this.state.isEnemy = true;
 				this.currentEnemyGraphic = graphicPackage;
+				this.enemyId = enemyId;
 				this.draw(9);
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
@@ -488,6 +489,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 			},
 			enemyDirection: 3,
+			enemyId: null,
 			hide: function() {
 				this.state.isHidden = true;
 				this.draw(9);
@@ -515,11 +517,13 @@ var MapWrapper = function(center, difficulty) {
 				x: cX,
 				y: cY
 			},
-			removeEnemy: function() {
+			removeEnemy: function(enemyId) {
 				this.state.isEnemy = false;
 				if(this.currentEnemyGraphic) {
-					tileMap.enemyLayerContainer.removeChild(this.currentEnemyGraphic);
+					tileMap.enemyLayerContainer.removeChild(this.currentEnemyGraphic[this.enemyDirection]);
+					this.currentEnemyGraphic = null;
 				}
+				this.enemyId = null;
 				this.draw(9);
 			},
 			removePlayer: function() {
@@ -597,6 +601,7 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.hoverContainer = new PIXI.Container();
 			}
 		};
+		activeTile.goLight();
 	};
 	// Starts from the center node and verifies that all passable nodes are reachable
 	// from the center. If the center can reach them all, then any other passable node
@@ -905,30 +910,56 @@ var MapWrapper = function(center, difficulty) {
 	};
 	var checkAutoFill = function(curTile) {
 		for(var i = 1; i < 7; i++) {
-			if(!curTile['link' + i] || !curTile['link' + i].passable) {
-				continue;
-			} else if(checkPotentialEnclosed(curTile, curTile['link' + i], 0)) {
-				console.log('Tile ' + curTile['link' + i] + ' has been autofilled with LIGHT!');
-				curTile['link' + i].goLight();
-				// TODO: kill enemy if in this tile.
+			if(!curTile['link' + i] || !curTile['link' + i].passable || curTile['link' + i].state.isLight) {
+				continue; // Tile is either nonexistent, impassable, or already light.
 			}
+			checkPotentialEnclosed(curTile, curTile['link' + i], 0);
 		}
 	};
 	var checkPotentialEnclosed = function(prevTile, curTile, depth) {
-		var isEncompassed = true;
-		if(depth > 3 || curTile.state.isLight) {
+		if(!curTile || !curTile.passable || depth > 3) {
 			return false;
 		}
 		for(var i = 1; i < 7; i++) {
-			if(!curTile['link' + i] || prevTile.id === curTile['link' + i].id) {
-				continue;
-			} else if(curTile['link' + i] && curTile['link' + i].state.isLight) {
-				continue;
+			if(!curTile['link' + i]) {
+				// No node exists here, breaking the encompassed.
+				return false;
+			} else if(prevTile.id === curTile['link' + i].id) {
+				continue; // Already been there. No need to check it again.
+			} else if(curTile['link' + i].state.isLight) {
+				continue; // Already light, leaning toward encompassed.
 			} else if(!checkPotentialEnclosed(curTile, curTile['link' + i], depth + 1)) {
-				isEncompassed = false;
+				return false;
+			} else {
+				console.log(curTile['link' + i].id, ' is good');
 			}
 		}
-		return isEncompassed;
+		// To have made it this means the node must be enclosed.
+		if(!curTile.state.isLight) {
+			console.log(
+				curTile['link1'].state.isLight,
+				curTile['link2'].state.isLight,
+				curTile['link3'].state.isLight,
+				curTile['link4'].state.isLight,
+				curTile['link5'].state.isLight,
+				curTile['link6'].state.isLight
+			);
+			encompassTile(curTile);
+		}
+		// If this node is encclosed, let the calling node know.
+		return true;
+	};
+	var encompassTile = function(curTile) {
+		console.log('Tile ' + curTile.id + ' has been autofilled with LIGHT!');
+		curTile.goLight();
+
+		if(curTile.state.isEnemy) {
+			var event = new Event('enemyDied');
+			event.enemyId = curTile.enemyId;
+			document.dispatchEvent(event);
+
+			curTile.removeEnemy(curTile.enemyId);
+		}
 	};
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
@@ -1068,7 +1099,7 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.hoverContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
-	tileMap.moveEnemy = function(oldTile, newTile) {
+	tileMap.moveEnemy = function(oldTile, newTile, enemyId) {
 		//console.log('my params INSIDE', oldTile, newTile);
 		if(oldTile === newTile) {
 			// Enemy has decided not to move
@@ -1088,10 +1119,10 @@ var MapWrapper = function(center, difficulty) {
 					break;
 				}
 			}
-			oldTile.removeEnemy();
+			oldTile.removeEnemy(enemyId);
 			oldTile.goDark();
 			newTile.goDark();
-			newTile.addEnemy(graphicPackage);
+			newTile.addEnemy(graphicPackage, enemyId);
 			newTile.removePlayer();
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
@@ -1110,10 +1141,10 @@ var MapWrapper = function(center, difficulty) {
 					break;
 				}
 			}
-			oldTile.removeEnemy();
+			oldTile.removeEnemy(enemyId);
 			oldTile.goDark();
 			newTile.goDark();
-			newTile.addEnemy(graphicPackage);
+			newTile.addEnemy(graphicPackage, enemyId);
 			return true;
 		}
 	};
