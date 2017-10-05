@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.16
-Last Updated: 2017-September-17
+Stay in the Light v0.0.17
+Last Updated: 2017-October-04
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -1434,27 +1434,27 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(mouseMoveText2);
 
 		colorFillText1 = new PIXI.Text('Your goal is to illuminate darkness. Your enemy\'s is to', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		colorFillText1.x = 750;
+		colorFillText1.x = 720;
 		colorFillText1.y = 525;
 		StartScreen.container.addChild(colorFillText1);
-		colorFillText2 = new PIXI.Text('spread it. Enter a square to convert it. Encompass a dark', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		colorFillText2.x = 750;
+		colorFillText2 = new PIXI.Text('spread it. Enter a square to convert it. Encompass a dark tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText2.x = 720;
 		colorFillText2.y = 540;
 		StartScreen.container.addChild(colorFillText2);
-		colorFillText3 = new PIXI.Text('tile(s) with light or impassable tile and auto-convert it.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		colorFillText3.x = 750;
+		colorFillText3 = new PIXI.Text('(or linear chain of tiles) with light and auto-convert it (them).', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		colorFillText3.x = 720;
 		colorFillText3.y = 555;
 		StartScreen.container.addChild(colorFillText3);
 		colorFillText4 = new PIXI.Text('Beware: the opposite holds true. An enemy must always be', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		colorFillText4.x = 750;
+		colorFillText4.x = 720;
 		colorFillText4.y = 570;
 		StartScreen.container.addChild(colorFillText4);
 		colorFillText5 = new PIXI.Text('on or adjacent a dark tile, or it dies. Same goes for you,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		colorFillText5.x = 750;
+		colorFillText5.x = 720;
 		colorFillText5.y = 585;
 		StartScreen.container.addChild(colorFillText5);
 		colorFillText6 = new PIXI.Text('but with light tiles.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		colorFillText6.x = 750;
+		colorFillText6.x = 720;
 		colorFillText6.y = 600;
 		StartScreen.container.addChild(colorFillText6);
 
