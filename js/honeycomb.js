@@ -95,6 +95,8 @@ var MapWrapper = function(center, difficulty) {
 	var tileTable = {};
 	// Array of passable nodes. Used for quick check of game over, no islands, and win scenario.
 	var freeNodes = [];
+	// Used to keep track of the nodes eligible for autofill during recursion.
+	var nodesToBeFilled = [];
 
 	/*** Internal constructors ***/
 	// Tile creator
@@ -404,9 +406,10 @@ var MapWrapper = function(center, difficulty) {
 		};
 
 		return {
-			addEnemy: function(graphicPackage) {
+			addEnemy: function(graphicPackage, enemyId) {
 				this.state.isEnemy = true;
 				this.currentEnemyGraphic = graphicPackage;
+				this.enemyId = enemyId;
 				this.draw(9);
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
@@ -488,6 +491,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 			},
 			enemyDirection: 3,
+			enemyId: null,
 			hide: function() {
 				this.state.isHidden = true;
 				this.draw(9);
@@ -515,11 +519,13 @@ var MapWrapper = function(center, difficulty) {
 				x: cX,
 				y: cY
 			},
-			removeEnemy: function() {
+			removeEnemy: function(enemyId) {
 				this.state.isEnemy = false;
 				if(this.currentEnemyGraphic) {
-					tileMap.enemyLayerContainer.removeChild(this.currentEnemyGraphic);
+					tileMap.enemyLayerContainer.removeChild(this.currentEnemyGraphic[this.enemyDirection]);
+					this.currentEnemyGraphic = null;
 				}
+				this.enemyId = null;
 				this.draw(9);
 			},
 			removePlayer: function() {
@@ -597,6 +603,7 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.hoverContainer = new PIXI.Container();
 			}
 		};
+		activeTile.goLight();
 	};
 	// Starts from the center node and verifies that all passable nodes are reachable
 	// from the center. If the center can reach them all, then any other passable node
@@ -899,8 +906,59 @@ var MapWrapper = function(center, difficulty) {
 				var event = new Event('playerMove');
     			document.dispatchEvent(event);
     			mouseMoveHandler(lastMouseMoveEvent);
+    			checkAutoFill(activeTile);
 			}
 		}
+	};
+	var checkAutoFill = function(curTile) {
+		for(var i = 1; i < 7; i++) {
+			if(!curTile['link' + i] || !curTile['link' + i].passable || curTile['link' + i].state.isLight) {
+				continue; // Tile is either nonexistent, impassable, or already light.
+			}
+			if(checkPotentialEnclosed(curTile, curTile['link' + i], 0)) {
+				encompassTiles();
+			}
+		}
+	};
+	var checkPotentialEnclosed = function(prevTile, curTile, depth) {
+		if(!curTile || !curTile.passable || depth > 3) {
+			return false;
+		}
+		for(var i = 1; i < 7; i++) {
+			if(!curTile['link' + i]) {
+				// No node exists here, breaking the encompassed.
+				return false;
+			} else if(prevTile.id === curTile['link' + i].id) {
+				continue; // Already been there. No need to check it again.
+			} else if(curTile['link' + i].state.isLight) {
+				continue; // Already light, leaning toward encompassed.
+			}
+			var isEnclosed = checkPotentialEnclosed(curTile, curTile['link' + i], depth + 1);
+			if(!isEnclosed) {
+				return false;
+			}
+		}
+		// To have made it this means the node must be enclosed.
+		if(!curTile.state.isLight) {
+			nodesToBeFilled.push(curTile);
+		}
+		// If this node is encclosed, let the calling node know.
+		return true;
+	};
+	var encompassTiles = function() {
+		for(var i = 0; i < nodesToBeFilled.length; i++) {
+			console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with LIGHT!');
+			nodesToBeFilled[i].goLight();
+
+			if(nodesToBeFilled[i].state.isEnemy) {
+				var event = new Event('enemyDied');
+				event.enemyId = nodesToBeFilled[i].enemyId;
+				document.dispatchEvent(event);
+
+				nodesToBeFilled[i].removeEnemy(nodesToBeFilled[i].enemyId);
+			}
+		}
+		nodesToBeFilled = [];
 	};
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
@@ -1040,7 +1098,7 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.hoverContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
-	tileMap.moveEnemy = function(oldTile, newTile) {
+	tileMap.moveEnemy = function(oldTile, newTile, enemyId) {
 		//console.log('my params INSIDE', oldTile, newTile);
 		if(oldTile === newTile) {
 			// Enemy has decided not to move
@@ -1060,10 +1118,10 @@ var MapWrapper = function(center, difficulty) {
 					break;
 				}
 			}
-			oldTile.removeEnemy();
+			oldTile.removeEnemy(enemyId);
 			oldTile.goDark();
 			newTile.goDark();
-			newTile.addEnemy(graphicPackage);
+			newTile.addEnemy(graphicPackage, enemyId);
 			newTile.removePlayer();
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
@@ -1082,10 +1140,10 @@ var MapWrapper = function(center, difficulty) {
 					break;
 				}
 			}
-			oldTile.removeEnemy();
+			oldTile.removeEnemy(enemyId);
 			oldTile.goDark();
 			newTile.goDark();
-			newTile.addEnemy(graphicPackage);
+			newTile.addEnemy(graphicPackage, enemyId);
 			return true;
 		}
 	};

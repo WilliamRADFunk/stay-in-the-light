@@ -7,9 +7,10 @@ Authors:
 */
 
 // Wrapped enemy object
-var EnemyWrapper = function(center, tileMap) {
+var EnemyWrapper = function(center, tileMap, id) {
 	// Publicly accessible functionality.
 	var Enemy = {};
+	Enemy.id = id;
 	var enemyTile = null;
 	
 	/**
@@ -188,7 +189,7 @@ var EnemyWrapper = function(center, tileMap) {
 
 		if(tileNumber === 1){
 			//console.log('my params', enemyTile, enemyTile.link1);
-			if(tileMap.moveEnemy(enemyTile, enemyTile.link1)){
+			if(tileMap.moveEnemy(enemyTile, enemyTile.link1, Enemy.id)){
 					enemyTile = enemyTile.link1;
 				} else {
 					/** Something went wrong in choosing a next tile **/
@@ -197,7 +198,7 @@ var EnemyWrapper = function(center, tileMap) {
 		}
 		if(tileNumber === 2){
 			//console.log('my params', enemyTile, enemyTile.link2);
-			if(tileMap.moveEnemy(enemyTile, enemyTile.link2)){
+			if(tileMap.moveEnemy(enemyTile, enemyTile.link2, Enemy.id)){
 					enemyTile = enemyTile.link2;
 				} else {
 					/** Something went wrong in choosing a next tile **/
@@ -206,7 +207,7 @@ var EnemyWrapper = function(center, tileMap) {
 		}
 		if(tileNumber === 3){
 			//console.log('my params', enemyTile, enemyTile.link3);
-			if(tileMap.moveEnemy(enemyTile, enemyTile.link3)){
+			if(tileMap.moveEnemy(enemyTile, enemyTile.link3, Enemy.id)){
 					enemyTile = enemyTile.link3;
 				} else {
 					/** Something went wrong in choosing a next tile **/
@@ -215,7 +216,7 @@ var EnemyWrapper = function(center, tileMap) {
 		}
 		if(tileNumber === 4){
 			//console.log('my params', enemyTile, enemyTile.link4);
-			if(tileMap.moveEnemy(enemyTile, enemyTile.link4)){
+			if(tileMap.moveEnemy(enemyTile, enemyTile.link4, Enemy.id)){
 					enemyTile = enemyTile.link4;
 				} else {
 					/** Something went wrong in choosing a next tile **/
@@ -223,7 +224,7 @@ var EnemyWrapper = function(center, tileMap) {
 				}
 		}if(tileNumber === 5){
 			//console.log('my params', enemyTile, enemyTile.link5);
-			if(tileMap.moveEnemy(enemyTile, enemyTile.link5)){
+			if(tileMap.moveEnemy(enemyTile, enemyTile.link5, Enemy.id)){
 					enemyTile = enemyTile.link5;
 				} else {
 					/** Something went wrong in choosing a next tile **/
@@ -231,7 +232,7 @@ var EnemyWrapper = function(center, tileMap) {
 				}
 		}if(tileNumber === 6){
 			//console.log('my params', enemyTile, enemyTile.link6);
-			if(tileMap.moveEnemy(enemyTile, enemyTile.link6)){
+			if(tileMap.moveEnemy(enemyTile, enemyTile.link6, Enemy.id)){
 					enemyTile = enemyTile.link6;
 				} else {
 					/** Something went wrong in choosing a next tile **/
