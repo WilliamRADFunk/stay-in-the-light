@@ -1,6 +1,6 @@
 {
   "name": "stay-in-the-light",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "An HTML5/Pixi game",
   "main": "index.js",
   "scripts": {
