@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.16
-Last Updated: 2017-September-28
+Last Updated: 2017-October-04
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -906,21 +906,68 @@ var MapWrapper = function(center, difficulty) {
 				var event = new Event('playerMove');
     			document.dispatchEvent(event);
     			mouseMoveHandler(lastMouseMoveEvent);
-    			checkAutoFill(activeTile);
+    			checkAutoFillLight(activeTile);
 			}
 		}
 	};
-	var checkAutoFill = function(curTile) {
+	/*
+	 * Checks tiles around enemy's new tile for possible autofill scenarios. Instigates recursive check.
+	*/
+	var checkAutoFillDark = function(curTile) {
+		for(var i = 1; i < 7; i++) {
+			if(!curTile['link' + i] || !curTile['link' + i].passable || curTile['link' + i].state.isDark) {
+				continue; // Tile is either nonexistent, impassable, or already light.
+			}
+			if(checkPotentialEnclosedDark(curTile, curTile['link' + i], 0)) {
+				encompassTilesDark();
+			}
+		}
+	};
+	/*
+	 * Checks tiles around player's new tile for possible autofill scenarios. Instigates recursive check.
+	*/
+	var checkAutoFillLight = function(curTile) {
 		for(var i = 1; i < 7; i++) {
 			if(!curTile['link' + i] || !curTile['link' + i].passable || curTile['link' + i].state.isLight) {
 				continue; // Tile is either nonexistent, impassable, or already light.
 			}
-			if(checkPotentialEnclosed(curTile, curTile['link' + i], 0)) {
-				encompassTiles();
+			if(checkPotentialEnclosedLight(curTile, curTile['link' + i], 0)) {
+				encompassTilesLight();
 			}
 		}
 	};
-	var checkPotentialEnclosed = function(prevTile, curTile, depth) {
+	/*
+	 * Recursive check to find all the dark encompassed tiles adjacent to enemiy's last move.
+	*/
+	var checkPotentialEnclosedDark = function(prevTile, curTile, depth) {
+		if(!curTile || !curTile.passable || depth > 3) {
+			return false;
+		}
+		for(var i = 1; i < 7; i++) {
+			if(!curTile['link' + i]) {
+				// No node exists here, breaking the encompassed.
+				return false;
+			} else if(prevTile.id === curTile['link' + i].id) {
+				continue; // Already been there. No need to check it again.
+			} else if(curTile['link' + i].state.isDark) {
+				continue; // Already light, leaning toward encompassed.
+			}
+			var isEnclosed = checkPotentialEnclosedDark(curTile, curTile['link' + i], depth + 1);
+			if(!isEnclosed) {
+				return false;
+			}
+		}
+		// To have made it this means the node must be enclosed.
+		if(!curTile.state.isDark) {
+			nodesToBeFilled.push(curTile);
+		}
+		// If this node is encclosed, let the calling node know.
+		return true;
+	};
+	/*
+	 * Recursive check to find all the light encompassed tiles adjacent to player's last move.
+	*/
+	var checkPotentialEnclosedLight = function(prevTile, curTile, depth) {
 		if(!curTile || !curTile.passable || depth > 3) {
 			return false;
 		}
@@ -933,7 +980,7 @@ var MapWrapper = function(center, difficulty) {
 			} else if(curTile['link' + i].state.isLight) {
 				continue; // Already light, leaning toward encompassed.
 			}
-			var isEnclosed = checkPotentialEnclosed(curTile, curTile['link' + i], depth + 1);
+			var isEnclosed = checkPotentialEnclosedLight(curTile, curTile['link' + i], depth + 1);
 			if(!isEnclosed) {
 				return false;
 			}
@@ -945,7 +992,28 @@ var MapWrapper = function(center, difficulty) {
 		// If this node is encclosed, let the calling node know.
 		return true;
 	};
-	var encompassTiles = function() {
+	/*
+	 * Fills encompassed tiles with dark and kills player on an enclosed tile.
+	*/
+	var encompassTilesDark = function() {
+		for(var i = 0; i < nodesToBeFilled.length; i++) {
+			console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with DARK!');
+			nodesToBeFilled[i].goDark();
+
+			if(nodesToBeFilled[i].state.isPlayer) {
+				console.log('Player dies by being surrounded by darkness.')
+				var event = new Event('playerDied');
+				document.dispatchEvent(event);
+
+				nodesToBeFilled[i].removePlayer();
+			}
+		}
+		nodesToBeFilled = [];
+	};
+	/*
+	 * Fills encompassed tiles with light and kills any enemy on an enclosed tile.
+	*/
+	var encompassTilesLight = function() {
 		for(var i = 0; i < nodesToBeFilled.length; i++) {
 			console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with LIGHT!');
 			nodesToBeFilled[i].goLight();
@@ -1119,7 +1187,6 @@ var MapWrapper = function(center, difficulty) {
 				}
 			}
 			oldTile.removeEnemy(enemyId);
-			oldTile.goDark();
 			newTile.goDark();
 			newTile.addEnemy(graphicPackage, enemyId);
 			newTile.removePlayer();
@@ -1141,9 +1208,9 @@ var MapWrapper = function(center, difficulty) {
 				}
 			}
 			oldTile.removeEnemy(enemyId);
-			oldTile.goDark();
 			newTile.goDark();
 			newTile.addEnemy(graphicPackage, enemyId);
+			checkAutoFillDark(newTile);
 			return true;
 		}
 	};
@@ -1157,6 +1224,7 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.placeEnemy = function() {
 		var enemyTile = findEnemyTile(tileMap.enemiesPlaced);
 		tileMap.enemiesPlaced++;
+		enemyTile.goDark();
 		return enemyTile;
 	};
 
