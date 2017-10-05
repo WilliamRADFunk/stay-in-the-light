@@ -95,6 +95,8 @@ var MapWrapper = function(center, difficulty) {
 	var tileTable = {};
 	// Array of passable nodes. Used for quick check of game over, no islands, and win scenario.
 	var freeNodes = [];
+	// Used to keep track of the nodes eligible for autofill during recursion.
+	var nodesToBeFilled = [];
 
 	/*** Internal constructors ***/
 	// Tile creator
@@ -913,7 +915,9 @@ var MapWrapper = function(center, difficulty) {
 			if(!curTile['link' + i] || !curTile['link' + i].passable || curTile['link' + i].state.isLight) {
 				continue; // Tile is either nonexistent, impassable, or already light.
 			}
-			checkPotentialEnclosed(curTile, curTile['link' + i], 0);
+			if(checkPotentialEnclosed(curTile, curTile['link' + i], 0)) {
+				encompassTiles();
+			}
 		}
 	};
 	var checkPotentialEnclosed = function(prevTile, curTile, depth) {
@@ -928,38 +932,33 @@ var MapWrapper = function(center, difficulty) {
 				continue; // Already been there. No need to check it again.
 			} else if(curTile['link' + i].state.isLight) {
 				continue; // Already light, leaning toward encompassed.
-			} else if(!checkPotentialEnclosed(curTile, curTile['link' + i], depth + 1)) {
+			}
+			var isEnclosed = checkPotentialEnclosed(curTile, curTile['link' + i], depth + 1);
+			if(!isEnclosed) {
 				return false;
-			} else {
-				console.log(curTile['link' + i].id, ' is good');
 			}
 		}
 		// To have made it this means the node must be enclosed.
 		if(!curTile.state.isLight) {
-			console.log(
-				curTile['link1'].state.isLight,
-				curTile['link2'].state.isLight,
-				curTile['link3'].state.isLight,
-				curTile['link4'].state.isLight,
-				curTile['link5'].state.isLight,
-				curTile['link6'].state.isLight
-			);
-			encompassTile(curTile);
+			nodesToBeFilled.push(curTile);
 		}
 		// If this node is encclosed, let the calling node know.
 		return true;
 	};
-	var encompassTile = function(curTile) {
-		console.log('Tile ' + curTile.id + ' has been autofilled with LIGHT!');
-		curTile.goLight();
+	var encompassTiles = function() {
+		for(var i = 0; i < nodesToBeFilled.length; i++) {
+			console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with LIGHT!');
+			nodesToBeFilled[i].goLight();
 
-		if(curTile.state.isEnemy) {
-			var event = new Event('enemyDied');
-			event.enemyId = curTile.enemyId;
-			document.dispatchEvent(event);
+			if(nodesToBeFilled[i].state.isEnemy) {
+				var event = new Event('enemyDied');
+				event.enemyId = nodesToBeFilled[i].enemyId;
+				document.dispatchEvent(event);
 
-			curTile.removeEnemy(curTile.enemyId);
+				nodesToBeFilled[i].removeEnemy(nodesToBeFilled[i].enemyId);
+			}
 		}
+		nodesToBeFilled = [];
 	};
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
