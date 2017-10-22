@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.17
-Last Updated: October-04
+Stay in the Light v0.0.18
+Last Updated: October-21
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -152,6 +152,7 @@ var GameWrapper = function() {
 									setTimeout(function() {
 										loadingStage.style.display = 'none';
 										gameStage.style.display = 'block';
+										this.honeycomb.activateBoard();
 
 										// Begin the first frame.
 										this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
@@ -217,13 +218,17 @@ var GameWrapper = function() {
 			this.fog.init();
 
 			Mousetrap.bind('a', function(){
-				this.fog.expand(this.honeycomb.getActiveCenter());
-				this.honeycomb.expand();
+				if(this.honeycomb.getBoardActivityStatus()) {
+					this.fog.expand(this.honeycomb.getActiveCenter());
+					this.honeycomb.expand();
+				}
 			}.bind(this));
 
 			Mousetrap.bind('d', function(){
-				this.fog.contract(this.honeycomb.getActiveCenter());
-				this.honeycomb.contract();
+				if(this.honeycomb.getBoardActivityStatus()) {
+					this.fog.contract(this.honeycomb.getActiveCenter());
+					this.honeycomb.contract();
+				}
 			}.bind(this));
 
 			document.addEventListener('playerMove', function(e) {
@@ -498,6 +503,8 @@ var GameWrapper = function() {
 		 */
 		tick: function() {
 			this.tickCounter++;
+			// Move all animations forward one tick.
+			this.honeycomb.runAnimations();
 			// Render the stage for the current frame.
 			this.renderer.render(this.container);
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
