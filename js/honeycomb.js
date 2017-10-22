@@ -117,9 +117,9 @@ var MapWrapper = function(center, difficulty) {
 		var lightLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
-		var drawTerrain = function(terrain, isHidden, isDark, isPlayer, isLight) {
+		var drawTerrain = function(tileInstance) {
 			var fillColor;
-			if(terrain === 'forest') {
+			if(tileInstance.type === 'forest') {
 				// The base tile without hover borders.
 				fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
@@ -164,7 +164,7 @@ var MapWrapper = function(center, difficulty) {
 					hexagon.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
 					hexagon.lineTo(cX + treeRoot[i][0] + 3, cY + treeRoot[i][1] - 2);
 				}
-			} else if(terrain === 'desert') {
+			} else if(tileInstance.type === 'desert') {
 				// The base tile without hover borders.
 				fillColor = 0xEDC9AF;
 				hexagon.moveTo(cX + size, cY);
@@ -224,7 +224,7 @@ var MapWrapper = function(center, difficulty) {
 					hexagon.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 9);
 					hexagon.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 9);
 				}
-			} else if(terrain === 'mountains') {
+			} else if(tileInstance.type === 'mountains') {
 				// The base tile without hover borders.
 				fillColor = 0x968D99;
 				hexagon.moveTo(cX + size, cY);
@@ -264,7 +264,7 @@ var MapWrapper = function(center, difficulty) {
 					hexagon.lineTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
 					hexagon.endFill();
 				}
-			} else if(terrain === 'pit') {
+			} else if(tileInstance.type === 'pit') {
 				// The base tile without hover borders.
 				fillColor = 0x654321;
 				hexagon.moveTo(cX + size, cY);
@@ -302,7 +302,7 @@ var MapWrapper = function(center, difficulty) {
 						hexagon.lineTo(cX + pits[i][0] + j, cY + pits[i][1] - Math.sqrt(25 - (j * j)));
 					}
 				}
-			} else if(terrain === 'water') {
+			} else if(tileInstance.type === 'water') {
 				// The base tile without hover borders.
 				fillColor = 0x40A4DF;
 				hexagon.moveTo(cX + size, cY);
@@ -340,39 +340,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 				hexagon.endFill();
 			}
-			if(isDark) {
-				// Layer to illustrate a fog of war effect.
-				darkLayer.clear();
-				fillColor = 0x008080;
-				darkLayer.moveTo(cX + size, cY);
-				darkLayer.beginFill(fillColor, 0.8);
-				for (var k = 0; k <= 6; k++) {
-					var angle = 2 * Math.PI / 6 * k;
-					var x_k = cX + size * Math.cos(angle);
-					var y_k = cY + size * Math.sin(angle);
-					darkLayer.lineTo(x_k, y_k);
-				}
-				darkLayer.endFill();
-			} else {
-				darkLayer.clear();
-			}
-			if(isLight) {
-				// Layer to illustrate a fog of war effect.
-				lightLayer.clear();
-				lightLayer.moveTo(cX + size, cY);
-				lightLayer.beginFill(0xCFB53B, 0.6);
-				lightLayer.strokeStyle = (3, 0xC0C0C0, 0.6);
-				for (var i = 0; i <= 6; i++) {
-					var angle = 2 * Math.PI / 6 * i,
-					x_i = cX + size * Math.cos(angle),
-					y_i = cY + size * Math.sin(angle);
-					lightLayer.lineTo(x_i, y_i);
-				}
-				lightLayer.endFill();
-			} else {
-				lightLayer.clear();
-			}
-			if(isHidden) {
+			if(tileInstance.state.isHidden) {
 				// Layer to illustrate a fog of war effect.
 				hiddenLayer.clear();
 				fillColor = 0x999999;
@@ -389,7 +357,7 @@ var MapWrapper = function(center, difficulty) {
 			} else {
 				hiddenLayer.clear();
 			}
-			if(isPlayer && tileMap.playerIsAlive) {
+			if(tileInstance.state.isPlayer && tileMap.playerIsAlive) {
 				// Layer to illustrate player occupied tile.
 				hoverLayer.clear();
 				fillColor = 0xFFFF00;
@@ -413,6 +381,22 @@ var MapWrapper = function(center, difficulty) {
 				this.currentEnemyGraphic = graphicPackage;
 				this.enemyId = enemyId;
 				this.draw(9);
+			},
+			animate: function() {
+				if(this.state.isDark) {
+					if(this.lightAnimationCounter) {
+						lightLayer.clear();
+						this.lightAnimation(false);
+					}
+					this.darkAnimation(true);
+				}
+				if(this.state.isLight) {
+					if(this.darkAnimationCounter) {
+						darkLayer.clear();
+						this.darkAnimation(false);
+					}
+					this.lightAnimation(true);
+				}
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
 			build: function(id, terrain, isPlayer=false, isDark=false, isHidden=true, isEnemy=false, isPassable=true) {
@@ -441,9 +425,39 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.lightLayerContainer.addChild(lightLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
+
+				if(this.state.isPlayer) {
+					this.goLight();
+				}
 			},
 			// Holds the current graphic of the enemy.
 			currentEnemyGraphic: null,
+			// A counter to keep track of where in the darkness animation sequence the tile is
+			darkAnimationCounter: 0,
+			// An darkness spreading animation to run run every tick when tile is infected.
+			darkAnimation: function(isGrowing) {
+				var tempSize = Math.floor(this.darkAnimationCounter / 5);
+				if(tempSize > size) {
+					tempSize = size;
+				}
+				// Layer to illustrate a fog of war effect.
+				darkLayer.clear();
+				darkLayer.moveTo(this.position.x + tempSize, this.position.y);
+				darkLayer.beginFill(0x008080, 0.8);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = this.position.x + tempSize * Math.cos(angle);
+					var y_k = this.position.y + tempSize * Math.sin(angle);
+					darkLayer.lineTo(x_k, y_k);
+				}
+				darkLayer.endFill();
+
+				if(isGrowing && tempSize < size) {
+					this.darkAnimationCounter++;
+				} else if(!isGrowing && this.darkAnimationCounter > 0) {
+					this.darkAnimationCounter--;
+				}
+			},
 			// Draws the tile and its outline boundary.
 			draw: function(line, col) {
 				if(col === undefined) {
@@ -452,7 +466,7 @@ var MapWrapper = function(center, difficulty) {
 				hexagon.clear();
 				hoverLine.clear();
 				hoverLayer.clear();
-				drawTerrain(this.type, this.state.isHidden, this.state.isDark, this.state.isPlayer, this.state.isLight);
+				drawTerrain(this);
 				// Removes the enemy graphic if there was one, and places the enemy anew.
 				if(this.state.isEnemy && this.currentEnemyGraphic) {
 					flushEnemyGraphics(this.currentEnemyGraphic);
@@ -510,6 +524,33 @@ var MapWrapper = function(center, difficulty) {
 				this.draw(9);
 			},
 			graphique: null,
+			// A counter to keep track of where in the lightness animation sequence the tile is
+			lightAnimationCounter: 0,
+			// An light spreading animation to run run every tick when tile isLight.
+			lightAnimation: function(isGrowing) {
+				var tempSize = Math.floor(this.lightAnimationCounter / 5);
+				if(tempSize > size) {
+					tempSize = size;
+				}
+
+				lightLayer.clear();
+				lightLayer.moveTo(this.position.x + tempSize, this.position.y);
+				lightLayer.beginFill(0xCFB53B, 0.6);
+				lightLayer.strokeStyle = (3, 0xC0C0C0, 0.6);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = this.position.x + tempSize * Math.cos(angle);
+					var y_k = this.position.y + tempSize * Math.sin(angle);
+					lightLayer.lineTo(x_k, y_k);
+				}
+				lightLayer.endFill();
+
+				if(isGrowing && tempSize < size) {
+					this.lightAnimationCounter++;
+				} else if(!isGrowing && this.lightAnimationCounter > 0) {
+					this.lightAnimationCounter--;
+				}
+			},
 			link1: null,
 			link2: null,
 			link3: null,
@@ -587,6 +628,8 @@ var MapWrapper = function(center, difficulty) {
 			);
 			tileTable[center.x + '-' + center.y] = startNode;
 
+			freeNodes.push(startNode);
+
 			makeNeighborNodes(startNode, 0);
 
 			showTiles(activeTile, 0);
@@ -611,15 +654,15 @@ var MapWrapper = function(center, difficulty) {
 	// from the center. If the center can reach them all, then any other passable node
 	// can reach any other passable node.
 	var checkForIslands = function(startNode) {
-		var initialFreeNodesLenth = freeNodes.length;
+		var initialFreeNodesLength = freeNodes.length;
 		var tempFreeNodes = [];
-		for(var i = 0; i < initialFreeNodesLenth; i++) {
+		for(var i = 0; i < initialFreeNodesLength; i++) {
 			tempFreeNodes.push(freeNodes[i]);
 		}
 
 		while(tempFreeNodes.length) {
 			if(hasReachablePath(startNode, tempFreeNodes[0], 0)) {
-				var percentComplete = Math.ceil((1 - (tempFreeNodes.length/initialFreeNodesLenth)) * 100);
+				var percentComplete = Math.ceil((1 - (tempFreeNodes.length/initialFreeNodesLength)) * 100);
 				tempFreeNodes.splice(0, 1);
 			} else {
 				return false;
@@ -1123,10 +1166,15 @@ var MapWrapper = function(center, difficulty) {
 	/*** Publicly accessible functions ***/
 	tileMap.activateBoard = function() {
 		isBoardActive = true;
-	}
+	};
 	tileMap.addPlayer = function() {
 		activeTile.draw(4, 0x00FF00);
-	}
+	};
+	tileMap.runAnimations = function() {
+		for(var i = 0; i < freeNodes.length; i++) {
+			freeNodes[i].animate();
+		}
+	};
 	tileMap.contract = function() {
 		revealDepth -= 1;
 		if(revealDepth < 1) {

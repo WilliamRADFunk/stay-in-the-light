@@ -503,6 +503,8 @@ var GameWrapper = function() {
 		 */
 		tick: function() {
 			this.tickCounter++;
+			// Move all animations forward one tick.
+			this.honeycomb.runAnimations();
 			// Render the stage for the current frame.
 			this.renderer.render(this.container);
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
