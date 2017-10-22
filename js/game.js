@@ -152,6 +152,7 @@ var GameWrapper = function() {
 									setTimeout(function() {
 										loadingStage.style.display = 'none';
 										gameStage.style.display = 'block';
+										this.honeycomb.activateBoard();
 
 										// Begin the first frame.
 										this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
@@ -217,13 +218,17 @@ var GameWrapper = function() {
 			this.fog.init();
 
 			Mousetrap.bind('a', function(){
-				this.fog.expand(this.honeycomb.getActiveCenter());
-				this.honeycomb.expand();
+				if(this.honeycomb.getBoardActivityStatus()) {
+					this.fog.expand(this.honeycomb.getActiveCenter());
+					this.honeycomb.expand();
+				}
 			}.bind(this));
 
 			Mousetrap.bind('d', function(){
-				this.fog.contract(this.honeycomb.getActiveCenter());
-				this.honeycomb.contract();
+				if(this.honeycomb.getBoardActivityStatus()) {
+					this.fog.contract(this.honeycomb.getActiveCenter());
+					this.honeycomb.contract();
+				}
 			}.bind(this));
 
 			document.addEventListener('playerMove', function(e) {

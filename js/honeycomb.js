@@ -97,6 +97,8 @@ var MapWrapper = function(center, difficulty) {
 	var freeNodes = [];
 	// Used to keep track of the nodes eligible for autofill during recursion.
 	var nodesToBeFilled = [];
+	// Keeps track if board is active and able to receive mouse input.
+	var isBoardActive = false;
 
 	/*** Internal constructors ***/
 	// Tile creator
@@ -879,7 +881,7 @@ var MapWrapper = function(center, difficulty) {
 	};
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
-		if(activeTile && tileMap.playerIsAlive) {
+		if(isBoardActive && activeTile && tileMap.playerIsAlive) {
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
@@ -1119,6 +1121,9 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.enemiesPlaced = 0;
 
 	/*** Publicly accessible functions ***/
+	tileMap.activateBoard = function() {
+		isBoardActive = true;
+	}
 	tileMap.addPlayer = function() {
 		activeTile.draw(4, 0x00FF00);
 	}
@@ -1143,6 +1148,9 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.getActiveCenter = function() {
 		return activeCenter;
 	};
+	tileMap.getBoardActivityStatus = function() {
+		return isBoardActive;
+	}
 	tileMap.getLightNodes = function() {
 		var lightNodes = [];
 		for(var i = 0; i < freeNodes.length; i++) {
