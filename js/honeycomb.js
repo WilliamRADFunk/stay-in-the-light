@@ -480,7 +480,7 @@ var MapWrapper = function(center, difficulty) {
 			deathAnimationGrowing: true,
 			// A death spreading animation to run run every tick when tile is infected.
 			deathAnimation: function() {
-				var tempSize = Math.floor(this.deathAnimationCounter / 10);
+				var tempSize = Math.floor(this.deathAnimationCounter / 7);
 				if(tempSize > size) {
 					tempSize = size;
 				}
@@ -630,6 +630,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 				tileMap.playerIsAlive = false;
 				this.draw(9);
+				this.setDeath(true);
 				var event = new Event('playerDied');
     			document.dispatchEvent(event);
 			},
@@ -1104,6 +1105,7 @@ var MapWrapper = function(center, difficulty) {
 
 			if(nodesToBeFilled[i].state.isPlayer) {
 				console.log('Player dies by being surrounded by darkness.')
+				nodesToBeFilled[i].setDeath(true);
 				var event = new Event('playerDied');
 				document.dispatchEvent(event);
 
@@ -1276,8 +1278,8 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.terrainContainer);
 		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.lightLayerContainer);
-		tileMap.container.addChild(tileMap.enemyLayerContainer);
 		tileMap.container.addChild(tileMap.deathLayerContainer);
+		tileMap.container.addChild(tileMap.enemyLayerContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
 	};
@@ -1304,8 +1306,8 @@ var MapWrapper = function(center, difficulty) {
 			}
 			oldTile.removeEnemy(enemyId);
 			newTile.goDark();
-			newTile.addEnemy(graphicPackage, enemyId);
 			newTile.removePlayer();
+			newTile.addEnemy(graphicPackage, enemyId);
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
