@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.18
-Last Updated: 2017-October-21
+Stay in the Light v0.0.19
+Last Updated: 2017-October-24
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -14,6 +14,9 @@ var MapWrapper = function(center, difficulty) {
 
 	/*** Internal Variables ***/
 	var enemies = [];
+
+	// Dev Mode: uncomment next line for forced enemy death
+	// var tempCounter = 0;
 
 	for(var i = 0; i < difficulty; i++) {
 		// create a new Sprite from an image path
@@ -113,6 +116,8 @@ var MapWrapper = function(center, difficulty) {
 		var hiddenLayer = new PIXI.Graphics();
 		// Additional dark layer
 		var darkLayer = new PIXI.Graphics();
+		// Additional death layer
+		var deathLayer = new PIXI.Graphics();
 		// Additional light layer
 		var lightLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
@@ -383,6 +388,7 @@ var MapWrapper = function(center, difficulty) {
 				this.draw(9);
 			},
 			animate: function() {
+				// Darkness spreading and light receding.
 				if(this.state.isDark) {
 					if(this.lightAnimationCounter) {
 						lightLayer.clear();
@@ -390,12 +396,20 @@ var MapWrapper = function(center, difficulty) {
 					}
 					this.darkAnimation(true);
 				}
+				// Lightness spreading and dark receding.
 				if(this.state.isLight) {
 					if(this.darkAnimationCounter) {
 						darkLayer.clear();
 						this.darkAnimation(false);
 					}
 					this.lightAnimation(true);
+				}
+				// Death spreading and then receding.
+				if(this.state.isDeath && this.deathAnimationCounter >= 0) {
+					deathLayer.clear();
+					this.deathAnimation();
+				} else if(this.state.isDeath && this.deathAnimationCounter < 0) {
+					deathLayer.clear();
 				}
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
@@ -421,7 +435,9 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.hiddenLayerContainer.addChild(hiddenLayer);
 				// Attach dark-tile layer.
 				tileMap.darkLayerContainer.addChild(darkLayer);
-				// Attach dark-tile layer.
+				// Attach death-tile layer.
+				tileMap.deathLayerContainer.addChild(deathLayer);
+				// Attach light-tile layer.
 				tileMap.lightLayerContainer.addChild(lightLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
@@ -440,7 +456,7 @@ var MapWrapper = function(center, difficulty) {
 				if(tempSize > size) {
 					tempSize = size;
 				}
-				// Layer to illustrate a fog of war effect.
+				// Layer to illustrate a spreading darkness effect.
 				darkLayer.clear();
 				darkLayer.moveTo(this.position.x + tempSize, this.position.y);
 				darkLayer.beginFill(0x008080, 0.8);
@@ -456,6 +472,42 @@ var MapWrapper = function(center, difficulty) {
 					this.darkAnimationCounter++;
 				} else if(!isGrowing && this.darkAnimationCounter > 0) {
 					this.darkAnimationCounter--;
+				}
+			},
+			// A counter to keep track of where in the death animation sequence the tile is
+			deathAnimationCounter: 0,
+			// A direction boolean to keep track of which way the death splash is animating.
+			deathAnimationGrowing: true,
+			// A death spreading animation to run run every tick when tile is infected.
+			deathAnimation: function() {
+				var tempSize = Math.floor(this.deathAnimationCounter / 7);
+				if(tempSize > size) {
+					tempSize = size;
+				}
+				// Layer to illustrate a death effect.
+				deathLayer.clear();
+				deathLayer.moveTo(this.position.x + tempSize, this.position.y);
+				deathLayer.beginFill(0x990000, 0.8);
+				for (var k = 0; k <= 6; k++) {
+					var angle = 2 * Math.PI / 6 * k;
+					var x_k = this.position.x + tempSize * Math.cos(angle);
+					var y_k = this.position.y + tempSize * Math.sin(angle);
+					deathLayer.lineTo(x_k, y_k);
+				}
+				deathLayer.endFill();
+
+				if(this.deathAnimationGrowing) {
+					this.deathAnimationCounter++;
+				} else if(!this.deathAnimationGrowing) {
+					this.deathAnimationCounter--;
+				}
+				// Swap directions if the end is reached.
+				if(tempSize >= size) {
+					this.deathAnimationGrowing = false;
+				// If fully receded, reset variables and kill animation.
+				} else if(tempSize < 0) {
+					this.deathAnimationGrowing = true;
+					this.setDeath(false);
 				}
 			},
 			// Draws the tile and its outline boundary.
@@ -578,6 +630,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 				tileMap.playerIsAlive = false;
 				this.draw(9);
+				this.setDeath(true);
 				var event = new Event('playerDied');
     			document.dispatchEvent(event);
 			},
@@ -585,6 +638,9 @@ var MapWrapper = function(center, difficulty) {
 				this.state.isPlayer = true;
 				activeTile = this;
 				this.draw(9);
+			},
+			setDeath: function(isDying) {
+				this.state.isDeath = isDying;
 			},
 			setEnemyDirection: function(dir) {
 				this.enemyDirection = dir;
@@ -601,6 +657,7 @@ var MapWrapper = function(center, difficulty) {
 			},
 			state: {
 				isDark: false,
+				isDeath: false,
 				isEnemy: false,
 				isHidden: false,
 				isLight: false,
@@ -643,6 +700,7 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.terrainContainer = new PIXI.Container();
 				tileMap.darkLayerContainer = new PIXI.Container();
 				tileMap.lightLayerContainer = new PIXI.Container();
+				tileMap.deathLayerContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
 				tileMap.hiddenLayerContainer = new PIXI.Container();
 				tileMap.hoverContainer = new PIXI.Container();
@@ -1047,6 +1105,7 @@ var MapWrapper = function(center, difficulty) {
 
 			if(nodesToBeFilled[i].state.isPlayer) {
 				console.log('Player dies by being surrounded by darkness.')
+				nodesToBeFilled[i].setDeath(true);
 				var event = new Event('playerDied');
 				document.dispatchEvent(event);
 
@@ -1065,6 +1124,7 @@ var MapWrapper = function(center, difficulty) {
 
 			if(nodesToBeFilled[i].state.isEnemy) {
 				var event = new Event('enemyDied');
+				nodesToBeFilled[i].setDeath(true);
 				event.enemyId = nodesToBeFilled[i].enemyId;
 				document.dispatchEvent(event);
 
@@ -1159,6 +1219,7 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.hoverContainer = new PIXI.Container();
 	tileMap.hiddenLayerContainer = new PIXI.Container();
 	tileMap.darkLayerContainer = new PIXI.Container();
+	tileMap.deathLayerContainer = new PIXI.Container();
 	tileMap.lightLayerContainer = new PIXI.Container();
 
 	tileMap.enemiesPlaced = 0;
@@ -1217,6 +1278,7 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.terrainContainer);
 		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.lightLayerContainer);
+		tileMap.container.addChild(tileMap.deathLayerContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
@@ -1244,8 +1306,8 @@ var MapWrapper = function(center, difficulty) {
 			}
 			oldTile.removeEnemy(enemyId);
 			newTile.goDark();
-			newTile.addEnemy(graphicPackage, enemyId);
 			newTile.removePlayer();
+			newTile.addEnemy(graphicPackage, enemyId);
 			return true;
 		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
@@ -1267,6 +1329,17 @@ var MapWrapper = function(center, difficulty) {
 			newTile.goDark();
 			newTile.addEnemy(graphicPackage, enemyId);
 			checkAutoFillDark(newTile);
+			// Dev Mode: uncomment next 10 lines for forced enemy death
+			// if(tempCounter >= 3) {
+			// 	var event = new Event('enemyDied');
+			// 	newTile.setDeath(true);
+			// 	event.enemyId = newTile.enemyId;
+			// 	document.dispatchEvent(event);
+
+			// 	newTile.removeEnemy(newTile.enemyId);
+			// } else {
+			// 	tempCounter++;
+			// }
 			return true;
 		}
 	};
