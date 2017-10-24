@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.18
-Last Updated: October-21
+Stay in the Light v0.0.19
+Last Updated: October-24
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -101,7 +101,9 @@ var GameWrapper = function() {
 
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
-					this.endGame(false);
+					setTimeout(function() {
+						this.endGame(false);
+					}.bind(this), 6000);
 				}.bind(this));
 			}
 
