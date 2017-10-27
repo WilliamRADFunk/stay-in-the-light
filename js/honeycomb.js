@@ -388,6 +388,12 @@ var MapWrapper = function(center, difficulty) {
 				this.draw(9);
 			},
 			animate: function() {
+				// Animation counter. Modding against it is used to control speed of animation.
+				if(!this.animationCounter || this.animationCounter === 300) {
+					this.animationCounter = 1;
+				} else {
+					this.animationCounter++;
+				}
 				// Darkness spreading and light receding.
 				if(this.state.isDark) {
 					if(this.lightAnimationCounter) {
@@ -410,6 +416,27 @@ var MapWrapper = function(center, difficulty) {
 					this.deathAnimation();
 				} else if(this.state.isDeath && this.deathAnimationCounter < 0) {
 					deathLayer.clear();
+				}
+				// Enemy units jump up and down when player is dead
+				if(this.state.isEnemy && !tileMap.playerIsAlive) {
+					// Set enemy graphic to face down
+					if(this.enemyDirection !== 3) {
+						this.setEnemyDirection(3);
+						this.draw(9);
+					}
+					// Progress the animation every other tick
+					if(this.animationCounter % 2) {
+						if(!this.state.jumpSequencePosition) {
+							this.state.jumpSequencePosition = 1;
+						} else {
+							this.state.jumpSequencePosition++;
+						}
+						if(Math.floor(this.state.jumpSequencePosition/5) % 2 === 0) {
+							this.currentEnemyGraphic[this.enemyDirection].y = cY - 5 + (this.state.jumpSequencePosition % 10);
+						} else {
+							this.currentEnemyGraphic[this.enemyDirection].y = cY - 5 - (this.state.jumpSequencePosition % 10);
+						}
+					}
 				}
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
@@ -1285,7 +1312,10 @@ var MapWrapper = function(center, difficulty) {
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile, enemyId) {
-		//console.log('my params INSIDE', oldTile, newTile);
+		//if player died, stop moving around
+		if(!tileMap.playerIsAlive) {
+			return false;
+		}
 		if(oldTile === newTile) {
 			// Enemy has decided not to move
 			console.log('Enemy stands still');
