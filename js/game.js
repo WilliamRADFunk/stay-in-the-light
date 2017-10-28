@@ -38,6 +38,8 @@ var GameWrapper = function() {
 		this.gameOverScreen = {};
 		// Tile map object
 		this.honeycomb = {};
+		// Flag to determine if timer should continue to count down.
+		this.isCounting = true;
 		// Flag to see if loading is done.
 		this.isLoaded = false;
 		// Did the player win.
@@ -46,6 +48,8 @@ var GameWrapper = function() {
 		this.loadingBar = {};
 		// Used when an incremental stage of loading is completed.
 		this.loadingCallback;
+		// Score holder to be used for sending to db after a round.
+		this.score = 0;
 		// Start Screen object
 		this.startScreen = {};
 		// Keep track of ticks passed to mod for timing.
@@ -109,6 +113,7 @@ var GameWrapper = function() {
 
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
+					this.isCounting = false;
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);
@@ -182,6 +187,12 @@ var GameWrapper = function() {
 			}.bind(this), 20);
 		},
 
+		/**
+		 * Returns final game score.
+		 */
+		calculateScore: function() {
+			return timer.getTime();
+		},
 		/**
 		 * Picks suitable place on tilemap to place enemies
 		 */
@@ -343,6 +354,9 @@ var GameWrapper = function() {
 		endGame: function(isWin) {
 			this.isWin = isWin;
 			this.gameOver = true;
+			if(this.isWin) {
+				this.score = this.calculateScore();
+			}
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -492,12 +506,16 @@ var GameWrapper = function() {
 						this.loadingBar = {};
 						this.containerForLoadingBar = new PIXI.Container();
 						// Destroy the old everything else before moving on.
+						this.container = new PIXI.Container();
+						this.containerForTimer = new PIXI.Container();
 						this.enemies = [];
 						this.honeycomb = {};
+						this.isCounting = true;
 						this.isLoaded = false;
 						this.isWin = false;
-						this.loadingCallback = null;;
-						this.container = new PIXI.Container();
+						this.loadingCallback = null;
+						this.score = 0;
+						this.timer = {};
 						// Start the actual game.
 						this.build();
 					} else if(mY > 420 && mY <= 480) {
@@ -550,7 +568,7 @@ var GameWrapper = function() {
 				}
 			}
 			// Updates the HUD game timer used both for scoring and ending game when it runs out.
-			if(this.tickCounter % 60 === 0) {
+			if(this.tickCounter % 60 === 0 && this.isCounting) {
 				this.timer.tickTimer();
 			}
 
