@@ -1,6 +1,6 @@
 /*
 Stay in the Light v0.0.20
-Last Updated: October-24
+Last Updated: October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -15,9 +15,11 @@ var GameWrapper = function() {
 
 		// Create the main stage to draw on.
 		this.container = new PIXI.Container();
+		// Create the timer stage to draw on.
+		this.containerForTimer = new PIXI.Container();
 		// Create the loading bar stage to draw on.
 		this.containerForLoadingBar = new PIXI.Container();
-		// Create the loading bar stage to draw on.
+		// Create the start screen stage to draw on.
 		this.containerForStartScreen = new PIXI.Container();
 		// Create the game over stage to draw on.
 		this.containerForGameOverScreen = new PIXI.Container();
@@ -48,6 +50,8 @@ var GameWrapper = function() {
 		this.startScreen = {};
 		// Keep track of ticks passed to mod for timing.
 		this.tickCounter = 0;
+		// Timer to show remaining game time.
+		this.timer = {};
 		// Set the width and height of the scene.
 		this._width = 1280;
 		this._height = 720;
@@ -65,6 +69,10 @@ var GameWrapper = function() {
 		this.renderer = new PIXI.CanvasRenderer(this._width, this._height);
 		this.renderer.transparent = true;
 		document.getElementById('game-stage').appendChild(this.renderer.view);
+		// Setup the rendering surface for timer scene.
+		this.rendererForTimer = new PIXI.CanvasRenderer(100, 50);
+		this.rendererForTimer.transparent = false;
+		document.getElementById('timer-stage').appendChild(this.rendererForTimer.view);
 		// Setup the rendering surface for loading bar scene
 		this.rendererForLoadingBar = new PIXI.CanvasRenderer(this._width, this._height);
 		this.rendererForLoadingBar.transparent = true;
@@ -143,9 +151,13 @@ var GameWrapper = function() {
 									// Attaches the tilemap to container
 									this.drawTileMap();
 
+									// Gets the timer going.
+									this.createTimer();
+
 									// Calls out to turn off loading screen
 									var loadingStage = document.getElementById('loading-stage');
 									var gameStage = document.getElementById('game-stage');
+									var timerStage = document.getElementById('timer-stage');
 
 									this.loadingBar.drawLoadingBarProgress(0, true);
 									this.rendererForLoadingBar.render(this.containerForLoadingBar);
@@ -154,7 +166,9 @@ var GameWrapper = function() {
 									setTimeout(function() {
 										loadingStage.style.display = 'none';
 										gameStage.style.display = 'block';
+										timerStage.style.display = 'block';
 										this.honeycomb.activateBoard();
+										this.timer.startTimer();
 
 										// Begin the first frame.
 										this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
@@ -206,6 +220,18 @@ var GameWrapper = function() {
 			this.honeycomb.init();
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(40);
+		},
+
+		/**
+		 * Creates the timer.
+		 */
+		createTimer: function() {
+			// Sets up variables and function definitions
+			this.timer = new TimerWrapper(this._center);
+			// Runs through actual terrain build and recursive checks.
+			this.timer.init();
+			// Adds timerWrapped object to the timer specific container.
+			this.containerForTimer.addChild(this.timer.container);
 		},
 
 		/**
@@ -510,8 +536,10 @@ var GameWrapper = function() {
 			// Render the stage for the current frame.
 			this.renderer.render(this.container);
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
+			// Render the timer stage on top of the game stage.
+			this.rendererForTimer.render(this.containerForTimer);
 			//Update Fog Sprite creation for overlay
-			// Dev Mode: comment next line for fog off
+			// Dev Mode: comment next 3 lines for fog off
 			if(this.isLoaded) {
 				this.fog.renderFog();
 			}
@@ -520,6 +548,10 @@ var GameWrapper = function() {
 				for(var i = 0; i < this.enemies.length; i++) {
 					this.enemies[i].takeTurn();
 				}
+			}
+			// Updates the HUD game timer used both for scoring and ending game when it runs out.
+			if(this.tickCounter % 60 === 0) {
+				this.timer.tickTimer();
 			}
 
 			if(!this.gameOver) {

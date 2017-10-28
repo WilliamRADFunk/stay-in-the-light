@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.20
-Last Updated: 2017-October-26
+Last Updated: 2017-October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -351,7 +351,7 @@ var MapWrapper = function(center, difficulty) {
 				fillColor = 0x999999;
 				hiddenLayer.moveTo(cX + size, cY);
 				hiddenLayer.beginFill(fillColor, 0.95);
-				hiddenLayer.strokeStyle = (3, 0x000000, 0.95);
+				hiddenLayer.lineStyle(3, 0x999999, 0.95);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = cX + size * Math.cos(angle);
@@ -487,6 +487,7 @@ var MapWrapper = function(center, difficulty) {
 				darkLayer.clear();
 				darkLayer.moveTo(this.position.x + tempSize, this.position.y);
 				darkLayer.beginFill(0x008080, 0.8);
+				darkLayer.lineStyle(3, 0x00A0A0, 0.6);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = this.position.x + tempSize * Math.cos(angle);
@@ -615,7 +616,7 @@ var MapWrapper = function(center, difficulty) {
 				lightLayer.clear();
 				lightLayer.moveTo(this.position.x + tempSize, this.position.y);
 				lightLayer.beginFill(0xCFB53B, 0.6);
-				lightLayer.strokeStyle = (3, 0xC0C0C0, 0.6);
+				lightLayer.lineStyle(3, 0xC0C0C0, 0.6);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = this.position.x + tempSize * Math.cos(angle);
