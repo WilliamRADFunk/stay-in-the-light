@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.20
-Last Updated: 2017-October-26
+Last Updated: 2017-October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -88,7 +88,7 @@ var MapWrapper = function(center, difficulty) {
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
 	// Tracks current hextant player is hovering near
-	var hextant = null;
+	var hextant = 4;
 	// Keeps track of last mouse move event for the reuse of mouseMoveHandler.
 	var lastMouseMoveEvent = null;
 	var level = 1;
@@ -123,12 +123,10 @@ var MapWrapper = function(center, difficulty) {
 		// Constant size of the hex tile.
 		var size = 25;
 		var drawTerrain = function(tileInstance) {
-			var fillColor;
 			if(tileInstance.type === 'forest') {
 				// The base tile without hover borders.
-				fillColor = 0x006400;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(fillColor);
+				hexagon.beginFill(0x006400);
 				hexagon.lineStyle(3, 0x006400, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -171,9 +169,8 @@ var MapWrapper = function(center, difficulty) {
 				}
 			} else if(tileInstance.type === 'desert') {
 				// The base tile without hover borders.
-				fillColor = 0xEDC9AF;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(fillColor);
+				hexagon.beginFill(0xEDC9AF);
 				hexagon.lineStyle(3, 0xEDC9AF, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -231,9 +228,8 @@ var MapWrapper = function(center, difficulty) {
 				}
 			} else if(tileInstance.type === 'mountains') {
 				// The base tile without hover borders.
-				fillColor = 0x968D99;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(fillColor);
+				hexagon.beginFill(0x968D99);
 				hexagon.lineStyle(3, 0x968D99, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -271,9 +267,8 @@ var MapWrapper = function(center, difficulty) {
 				}
 			} else if(tileInstance.type === 'pit') {
 				// The base tile without hover borders.
-				fillColor = 0x654321;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(fillColor);
+				hexagon.beginFill(0x654321);
 				hexagon.lineStyle(3, 0x654321, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -309,9 +304,8 @@ var MapWrapper = function(center, difficulty) {
 				}
 			} else if(tileInstance.type === 'water') {
 				// The base tile without hover borders.
-				fillColor = 0x40A4DF;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(fillColor);
+				hexagon.beginFill(0x40A4DF);
 				hexagon.lineStyle(3, 0x40A4DF, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -333,9 +327,8 @@ var MapWrapper = function(center, difficulty) {
 			} else {
 				// Null space
 				// The base tile without hover borders.
-				fillColor = 0x000000;
 				hexagon.moveTo(cX + size, cY);
-				hexagon.beginFill(fillColor);
+				hexagon.beginFill(0x000000);
 				hexagon.lineStyle(3, 0x333333, 2);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
@@ -348,10 +341,9 @@ var MapWrapper = function(center, difficulty) {
 			if(tileInstance.state.isHidden) {
 				// Layer to illustrate a fog of war effect.
 				hiddenLayer.clear();
-				fillColor = 0x999999;
 				hiddenLayer.moveTo(cX + size, cY);
-				hiddenLayer.beginFill(fillColor, 0.95);
-				hiddenLayer.strokeStyle = (3, 0x000000, 0.95);
+				hiddenLayer.beginFill(0x999999, 0.95);
+				hiddenLayer.lineStyle(3, 0xA9A9A9, 0.95);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = cX + size * Math.cos(angle);
@@ -365,9 +357,8 @@ var MapWrapper = function(center, difficulty) {
 			if(tileInstance.state.isPlayer && tileMap.playerIsAlive) {
 				// Layer to illustrate player occupied tile.
 				hoverLayer.clear();
-				fillColor = 0xFFFF00;
 				hoverLayer.moveTo(cX + size, cY);
-				hoverLayer.beginFill(fillColor, 0.5);
+				hoverLayer.beginFill(0xFFFF00, 0.5);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = cX + size * Math.cos(angle);
@@ -487,6 +478,7 @@ var MapWrapper = function(center, difficulty) {
 				darkLayer.clear();
 				darkLayer.moveTo(this.position.x + tempSize, this.position.y);
 				darkLayer.beginFill(0x008080, 0.8);
+				darkLayer.lineStyle(3, 0x00A0A0, 0.6);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = this.position.x + tempSize * Math.cos(angle);
@@ -554,7 +546,9 @@ var MapWrapper = function(center, difficulty) {
 					tileMap.enemyLayerContainer.addChild(this.currentEnemyGraphic[this.enemyDirection]);
 				}
 				var lineConvert = line - 2;
-				if(lineConvert <= 0) lineConvert += 6;
+				if(lineConvert <= 0) {
+					lineConvert += 6;
+				}
 				// If hoverline redraw thicker boundary, with one hextant as green.
 				if(lineConvert > 0 && lineConvert <= 6) {
 					hoverLine.moveTo(cX + size, cY);
@@ -615,7 +609,7 @@ var MapWrapper = function(center, difficulty) {
 				lightLayer.clear();
 				lightLayer.moveTo(this.position.x + tempSize, this.position.y);
 				lightLayer.beginFill(0xCFB53B, 0.6);
-				lightLayer.strokeStyle = (3, 0xC0C0C0, 0.6);
+				lightLayer.lineStyle(3, 0xC0C0C0, 0.6);
 				for (var k = 0; k <= 6; k++) {
 					var angle = 2 * Math.PI / 6 * k;
 					var x_k = this.position.x + tempSize * Math.cos(angle);
@@ -1218,13 +1212,13 @@ var MapWrapper = function(center, difficulty) {
 	var pickTileTerrain = function(isStarter) {
 		var rando = Math.random() * 100;
 
-		if(isStarter || rando < 75) {
+		if(isStarter || rando < 80) {
 			if(rando >= 0 && rando < 45) return 'forest';
 			else if(rando >= 45 && rando < 70) return 'desert';
 			else return 'mountains';
 		} else {
-			if(rando >= 75 && rando < 80) return 'pit';
-			else if(rando >= 80 && rando < 85) return 'water';
+			if(rando >= 80 && rando < 85) return 'pit';
+			else if(rando >= 85 && rando < 90) return 'water';
 			else return null;
 		}
 	};
