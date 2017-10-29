@@ -90,7 +90,10 @@ var MapWrapper = function(center, difficulty) {
 	// Tracks current hextant player is hovering near
 	var hextant = 4;
 	// Keeps track of last mouse move event for the reuse of mouseMoveHandler.
-	var lastMouseMoveEvent = null;
+	var lastMouseMoveEvent = {
+		pageX: 600,
+		pageY: 500
+	};
 	var level = 1;
 	// Prevents the procedural unhide recursion from going too far.
 	var revealDepth = 1;
@@ -1281,10 +1284,13 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.getBoardActivityStatus = function() {
 		return isBoardActive;
 	}
+	tileMap.getFreeNodes = function() {
+		return freeNodes;
+	};
 	tileMap.getLightNodes = function() {
 		var lightNodes = [];
 		for(var i = 0; i < freeNodes.length; i++) {
-			if(!freeNodes[i].state.isDark) {
+			if(freeNodes[i].state.isLight) {
 				lightNodes.push(freeNodes[i]);
 			}
 		}
