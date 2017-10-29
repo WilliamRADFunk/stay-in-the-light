@@ -1,5 +1,5 @@
 /*
-Stay in the Light v0.0.21
+Stay in the Light v0.0.22
 Last Updated: October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -191,7 +191,7 @@ var GameWrapper = function() {
 		 * Returns final game score.
 		 */
 		calculateScore: function() {
-			return timer.getTime();
+			this.score += this.timer.getTime() * this.difficulty * 10;
 		},
 		/**
 		 * Picks suitable place on tilemap to place enemies
@@ -353,10 +353,11 @@ var GameWrapper = function() {
 		 */
 		endGame: function(isWin) {
 			this.isWin = isWin;
-			this.gameOver = true;
 			if(this.isWin) {
-				this.score = this.calculateScore();
+				this.calculateScore();
+				this.gameOverScreen.setScore(this.score);
 			}
+			this.gameOver = true;
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -570,6 +571,18 @@ var GameWrapper = function() {
 			// Updates the HUD game timer used both for scoring and ending game when it runs out.
 			if(this.tickCounter % 60 === 0 && this.isCounting) {
 				this.timer.tickTimer();
+			}
+
+			// Checks to see if all the free nodes on the board have been converted to light nodes.
+			if(this.honeycomb.getFreeNodes().length <= this.honeycomb.getLightNodes().length) {
+				console.log('Player Wins');
+				this.endGame(true);
+			}
+
+			// Checks timer to see if it has reached zero. If so, player loses.
+			if(this.timer.getTime() <= 0) {
+				console.log('Time has run out');
+				this.endGame(false);
 			}
 
 			if(!this.gameOver) {

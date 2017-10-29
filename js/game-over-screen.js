@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.21
-Last Updated: 2017-September-24
+Stay in the Light v0.0.22
+Last Updated: 2017-October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -57,6 +57,7 @@ var GameOverScreenWrapper = function(center) {
 
 	var gameOverText;
 	var clickText;
+	var scoreText;
 
 	var light = new PIXI.Graphics();
 
@@ -65,6 +66,8 @@ var GameOverScreenWrapper = function(center) {
 	var lightTileAnimation;
 	var numOfTopLightTiles = 0;
 	var topTileGraphic = new PIXI.Graphics();
+
+	var roundScore = 0;
 
 	/**
 	 * internal constructors (like Tile in honeycomb.js) accessible to everything
@@ -165,18 +168,18 @@ var GameOverScreenWrapper = function(center) {
 			GameOverScreen.container.addChild(lightText);
 		}
 	};
-	var drawGameOver = function() {
+	var drawGameOver = function(statusText) {
 		if(gameOverText && isLit) {
 			GameOverScreen.container.removeChild(gameOverText);
-			gameOverText = new PIXI.Text('Game Over', {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
-			gameOverText.x = 400;
+			gameOverText = new PIXI.Text('Game Over: You ' + statusText, {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+			gameOverText.x = 75;
 			gameOverText.y = 350;
 			GameOverScreen.container.addChild(gameOverText);
 		} else if(gameOverText) {
 			GameOverScreen.container.removeChild(gameOverText);
 		} else if(isLit) {
-			gameOverText = new PIXI.Text('Game Over', {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
-			gameOverText.x = 400;
+			gameOverText = new PIXI.Text('Game Over: You ' + statusText, {fontFamily: 'Courier', fontSize: 96, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+			gameOverText.x = 75;
 			gameOverText.y = 350;
 			GameOverScreen.container.addChild(gameOverText);
 		}
@@ -203,8 +206,31 @@ var GameOverScreenWrapper = function(center) {
 			GameOverScreen.container.addChild(mouseImageRight);
 		}
 	};
-	var drawGameOverAnimation = function() {
-		
+	var drawScore = function() {
+		var offsetX = 550;
+		if(roundScore >= 1000 && roundScore < 10000) {
+			offsetX = 540;
+		} else if(roundScore >= 10000 && roundScore < 100000) {
+			offsetX = 530;
+		} else if(roundScore >= 100000 && roundScore < 1000000) {
+			offsetX = 520;
+		} else if(roundScore >= 1000000) {
+			offsetX = 500;
+		}
+		if(scoreText && isLit) {
+			GameOverScreen.container.removeChild(scoreText);
+			scoreText = new PIXI.Text('Score: ' + roundScore.toLocaleString(), {fontFamily: 'Courier', fontSize: 36, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+			scoreText.x = offsetX;
+			scoreText.y = 500;
+			GameOverScreen.container.addChild(scoreText);
+		} else if(scoreText) {
+			GameOverScreen.container.removeChild(scoreText);
+		} else if(isLit) {
+			scoreText = new PIXI.Text('Score: ' + roundScore.toLocaleString(), {fontFamily: 'Courier', fontSize: 36, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+			scoreText.x = offsetX;
+			scoreText.y = 500;
+			GameOverScreen.container.addChild(scoreText);
+		}
 	};
 	var drawDarkTileAnimation = function() {
 		// Clear out what the last enemy graphic was.
@@ -474,57 +500,32 @@ var GameOverScreenWrapper = function(center) {
 		drawWordIn();
 		drawWordThe();
 		drawWordLight();
-		drawGameOver();
+		if(roundScore > 0) {
+			drawGameOver('Win!');
+			drawScore();
+		} else {
+			drawGameOver('Lose!');
+		}
 		drawClick();
 	};
-
-	/**
-		 * The in and out of the game over and scores.
-		 */
-	// GameOverScreen.handleEndGameBanner = function() {
-	// 	if(this.gameOverBanner) {
-	// 		this.containerForGameOverScreen.removeChild(this.gameOverBanner);
-	// 		this.gameOverBanner = null;
-	// 	}
-	// 	if(this.isWin) {
-	// 		this.gameOverBanner = new PIXI.Text(
-	// 			'Game Over: Player Wins',
-	// 			{
-	// 				fontFamily: 'Courier',
-	// 				fontSize: 28,
-	// 				fontWeight: 800,
-	// 				fill: 0xCFB53B,
-	// 				align: 'left'
-	// 			}
-	// 		);
-	// 	} else {
-	// 		this.gameOverBanner = new PIXI.Text(
-	// 			'Game Over: Player Loses',
-	// 			{
-	// 				fontFamily: 'Courier',
-	// 				fontSize: 28,
-	// 				fontWeight: 800,
-	// 				fill: 0xCFB53B,
-	// 				align: 'left'
-	// 			}
-	// 		);
-	// 	}
-		
-	// 	this.gameOverBanner.x = 50;
-	// 	this.gameOverBanner.y = 75;
-	// 	this.containerForGameOverScreen.addChild(this.gameOverBanner);
-
-	// };
 
 	GameOverScreen.killProcesses = function() {
 		clearInterval(lightTileAnimation);
 		clearInterval(darkTileAnimation);
 	};
 
-	/**
-	 * functions accessible publicly from GameOverScreenWrapper go here
-	 * aka starts with 'GameOverScreen'
-	**/
+	GameOverScreen.setScore = function(score) {
+		if(score <= 0) {
+			roundScore = 0;
+			// Refreshes the win or lose portion of the text.
+			drawGameOver('Lose!');
+		} else {
+			roundScore = score;
+			// Refreshes the win or lose portion of the text.
+			drawGameOver('Win!');
+			drawScore();
+		}
+	};
 
 	// Should decide where to instantiate the GameOverScreen on the tile map,
 	// and setup any internal logic for the GameOverScreen.

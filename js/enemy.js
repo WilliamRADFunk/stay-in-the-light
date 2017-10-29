@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.21
-Last Updated: 2017-October-04
+Stay in the Light v0.0.22
+Last Updated: 2017-October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -330,7 +330,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 	// and setup any internal logic for the enemy.
 
 	var updateLightCounter = function(){
-		var tempTiles = tileMap.getLightNodes();
+		var tempTiles = tileMap.getNonDarkNodes();
 		currentLightCount = tempTiles.length;
 		//console.log(currentLightCount);
 		return tempTiles;
@@ -693,7 +693,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 		// (ie. tileMap.placeEnemy(); will pick a suitable place to
 		// insatiate the enemy, and return a Tile).
 		//Determine initial light count
-		var lightArray = tileMap.getLightNodes();
+		var lightArray = tileMap.getNonDarkNodes();
 		initialLightCount = lightArray.length;
 		recalculate();
 		enemyTile = tileMap.placeEnemy();
