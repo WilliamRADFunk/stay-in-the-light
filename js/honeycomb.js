@@ -1296,6 +1296,15 @@ var MapWrapper = function(center, difficulty) {
 		}
 		return lightNodes;
 	};
+	tileMap.getNonDarkNodes = function() {
+		var nonDarkNodes = [];
+		for(var i = 0; i < freeNodes.length; i++) {
+			if(!freeNodes[i].state.isDark) {
+				nonDarkNodes.push(freeNodes[i]);
+			}
+		}
+		return nonDarkNodes;
+	};
 	// Called after instantiation in order to build the map and all it's connected to.
 	tileMap.init = function() {
 		// Create map instance here
