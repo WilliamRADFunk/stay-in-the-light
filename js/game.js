@@ -118,6 +118,12 @@ var GameWrapper = function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
+				document.addEventListener('playerWon', function(e) {
+					this.isCounting = false;
+					setTimeout(function() {
+						this.endGame(true);
+					}.bind(this), 6000);
+				}.bind(this));
 			}
 
 			// Create game over screen to be ready
@@ -571,12 +577,6 @@ var GameWrapper = function() {
 			// Updates the HUD game timer used both for scoring and ending game when it runs out.
 			if(this.tickCounter % 60 === 0 && this.isCounting) {
 				this.timer.tickTimer();
-			}
-
-			// Checks to see if all the free nodes on the board have been converted to light nodes.
-			if(this.honeycomb.getFreeNodes().length <= this.honeycomb.getLightNodes().length) {
-				console.log('Player Wins');
-				this.endGame(true);
 			}
 
 			// Checks timer to see if it has reached zero. If so, player loses.

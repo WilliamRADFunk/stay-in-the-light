@@ -14,6 +14,7 @@ var MapWrapper = function(center, difficulty) {
 
 	/*** Internal Variables ***/
 	var enemies = [];
+	var playerWon = false;
 
 	// Dev Mode: uncomment next line for forced enemy death
 	// var tempCounter = 0;
@@ -388,6 +389,15 @@ var MapWrapper = function(center, difficulty) {
 				} else {
 					this.animationCounter++;
 				}
+
+				// Checks to see if all the free nodes on the board have been converted to light nodes.
+				if(this.honeycomb.getFreeNodes().length <= this.honeycomb.getLightNodes().length) {
+					console.log('Player Wins');
+					var event = new Event('playerWon');
+    				document.dispatchEvent(event);
+    				playerWon = true;
+				}
+
 				// Darkness spreading and light receding.
 				if(this.state.isDark) {
 					if(this.lightAnimationCounter) {
@@ -429,6 +439,27 @@ var MapWrapper = function(center, difficulty) {
 							this.currentEnemyGraphic[this.enemyDirection].y = cY - 5 + (this.state.jumpSequencePosition % 10);
 						} else {
 							this.currentEnemyGraphic[this.enemyDirection].y = cY - 5 - (this.state.jumpSequencePosition % 10);
+						}
+					}
+				}
+				// Players jumps up and down when it's a win scenario
+				if(playerWon) {
+					// Set enemy graphic to face down
+					if(this.enemyDirection !== 3) {
+						currentPlayerGraphic = players[line - 1];
+						this.draw(9);
+					}
+					// Progress the animation every other tick
+					if(this.animationCounter % 2) {
+						if(!this.state.jumpSequencePosition) {
+							this.state.jumpSequencePosition = 1;
+						} else {
+							this.state.jumpSequencePosition++;
+						}
+						if(Math.floor(this.state.jumpSequencePosition/5) % 2 === 0) {
+							currentPlayerGraphic.y = cY - 5 + (this.state.jumpSequencePosition % 10);
+						} else {
+							currentPlayerGraphic.y = cY - 5 - (this.state.jumpSequencePosition % 10);
 						}
 					}
 				}
@@ -1006,7 +1037,7 @@ var MapWrapper = function(center, difficulty) {
 	};
 	// Detects when the mouse clicks and moves player to new tile.
 	var mouseClickHandler = function(e) {
-		if(isBoardActive && activeTile && tileMap.playerIsAlive) {
+		if(isBoardActive && activeTile && tileMap.playerIsAlive && !playerWon) {
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
 				oldActive.setInactive();
@@ -1160,7 +1191,7 @@ var MapWrapper = function(center, difficulty) {
 	// Detects when the mouse moves and calculates which hex-rant player is hovering over.
 	var mouseMoveHandler = function(e) {
 		lastMouseMoveEvent = e;
-		if(activeTile && tileMap.playerIsAlive) {
+		if(activeTile && tileMap.playerIsAlive && !playerWon) {
 			var xDiff = activeTile.position.x - e.pageX;
 			var yDiff = activeTile.position.y - e.pageY;
 			var angle = Math.atan2(yDiff, xDiff);
@@ -1251,6 +1282,7 @@ var MapWrapper = function(center, difficulty) {
 	/*** Publicly accessible functions ***/
 	tileMap.activateBoard = function() {
 		isBoardActive = true;
+		// playerWon = true;
 	};
 	tileMap.addPlayer = function() {
 		activeTile.draw(4, 0x00FF00);
