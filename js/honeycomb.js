@@ -391,7 +391,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 
 				// Checks to see if all the free nodes on the board have been converted to light nodes.
-				if(this.honeycomb.getFreeNodes().length <= this.honeycomb.getLightNodes().length) {
+				if(tileMap.getFreeNodes().length <= tileMap.getLightNodes().length) {
 					console.log('Player Wins');
 					var event = new Event('playerWon');
     				document.dispatchEvent(event);
@@ -445,8 +445,9 @@ var MapWrapper = function(center, difficulty) {
 				// Players jumps up and down when it's a win scenario
 				if(playerWon) {
 					// Set enemy graphic to face down
-					if(this.enemyDirection !== 3) {
-						currentPlayerGraphic = players[line - 1];
+					if(hextant !== 2) {
+						hextant = 2;
+						currentPlayerGraphic = players[hextant + 1];
 						this.draw(9);
 					}
 					// Progress the animation every other tick
@@ -1282,7 +1283,7 @@ var MapWrapper = function(center, difficulty) {
 	/*** Publicly accessible functions ***/
 	tileMap.activateBoard = function() {
 		isBoardActive = true;
-		// playerWon = true;
+		playerWon = true;
 	};
 	tileMap.addPlayer = function() {
 		activeTile.draw(4, 0x00FF00);
@@ -1354,7 +1355,7 @@ var MapWrapper = function(center, difficulty) {
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile, enemyId) {
 		//if player died, stop moving around
-		if(!tileMap.playerIsAlive) {
+		if(!tileMap.playerIsAlive || playerWon) {
 			return false;
 		}
 		if(oldTile === newTile) {
