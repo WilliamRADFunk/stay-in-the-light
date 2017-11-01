@@ -391,7 +391,7 @@ var MapWrapper = function(center, difficulty) {
 				}
 
 				// Checks to see if all the free nodes on the board have been converted to light nodes.
-				if(tileMap.getFreeNodes().length <= tileMap.getLightNodes().length) {
+				if(tileMap.getFreeNodes().length <= tileMap.getLightNodes().length && !playerWon) {
 					console.log('Player Wins');
 					var event = new Event('playerWon');
     				document.dispatchEvent(event);
@@ -443,15 +443,17 @@ var MapWrapper = function(center, difficulty) {
 					}
 				}
 				// Players jumps up and down when it's a win scenario
-				if(playerWon) {
-					// Set enemy graphic to face down
-					if(hextant !== 2) {
-						hextant = 2;
-						currentPlayerGraphic = players[hextant + 1];
-						this.draw(9);
+				if(playerWon && this.state.isPlayer) {
+					if(currentPlayerGraphic) {
+						tileMap.hoverContainer.removeChild(currentPlayerGraphic);
 					}
+					if(hextant !== 4) {
+						hextant = 4;
+					}
+					currentPlayerGraphic = players[hextant - 1];
+					currentPlayerGraphic.x = cX;
 					// Progress the animation every other tick
-					if(this.animationCounter % 2) {
+					if(this.animationCounter % 2 || !this.state.jumpSequencePosition) {
 						if(!this.state.jumpSequencePosition) {
 							this.state.jumpSequencePosition = 1;
 						} else {
@@ -463,6 +465,7 @@ var MapWrapper = function(center, difficulty) {
 							currentPlayerGraphic.y = cY - 5 - (this.state.jumpSequencePosition % 10);
 						}
 					}
+					tileMap.hoverContainer.addChild(currentPlayerGraphic);
 				}
 			},
 			// Sets up the basic tile info, and determines (based off neighbors) what it is.
@@ -1283,7 +1286,6 @@ var MapWrapper = function(center, difficulty) {
 	/*** Publicly accessible functions ***/
 	tileMap.activateBoard = function() {
 		isBoardActive = true;
-		playerWon = true;
 	};
 	tileMap.addPlayer = function() {
 		activeTile.draw(4, 0x00FF00);
