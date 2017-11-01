@@ -118,6 +118,12 @@ var GameWrapper = function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
+				document.addEventListener('playerWon', function(e) {
+					this.isCounting = false;
+					setTimeout(function() {
+						this.endGame(true);
+					}.bind(this), 6000);
+				}.bind(this));
 			}
 
 			// Create game over screen to be ready
@@ -550,8 +556,6 @@ var GameWrapper = function() {
 		 */
 		tick: function() {
 			this.tickCounter++;
-			// Move all animations forward one tick.
-			this.honeycomb.runAnimations();
 			// Render the stage for the current frame.
 			this.renderer.render(this.container);
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
@@ -573,12 +577,6 @@ var GameWrapper = function() {
 				this.timer.tickTimer();
 			}
 
-			// Checks to see if all the free nodes on the board have been converted to light nodes.
-			if(this.honeycomb.getFreeNodes().length <= this.honeycomb.getLightNodes().length) {
-				console.log('Player Wins');
-				this.endGame(true);
-			}
-
 			// Checks timer to see if it has reached zero. If so, player loses.
 			if(this.timer.getTime() <= 0) {
 				console.log('Time has run out');
@@ -589,6 +587,9 @@ var GameWrapper = function() {
 				// Begin the next frame.
 				this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
 			}
+
+			// Move all animations forward one tick.
+			this.honeycomb.runAnimations();
 		},
 
 		/**
