@@ -117,6 +117,16 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		//Redraw Fog at radius
 		Fog.redrawFogHole(center);
 	};
+
+	Fog.expandControled = function(center, pixelIncrease){
+			radius += pixelIncrease;
+			//MAX CIELING for radius
+			if(radius > 575){
+				radius = 575;
+			}
+			//Redraw Fog at radius
+			Fog.redrawFogHole(center);
+	};
 	// Contracts the fog by one level (45 pixels), and caps out at 90 pixels (0 level --> 0-3).
 	Fog.contract = function(center) {
 		radius -= 45;
@@ -150,7 +160,8 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 	//Removes fog mask from screen
 	Fog.killFog = function(){
 		//Set mask to null to remove its contents.
-		fogContainer.mask = null;
+		//fogContainer.mask = null;
+
 	};
 
 	return Fog;

@@ -590,6 +590,10 @@ var GameWrapper = function() {
 				this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
 			}
 
+			if(this.tickCounter % 2 === 0 && !this.isCounting){
+				//Decrease fog to oblivion
+				this.fog.expandControled(this.honeycomb.getActiveCenter(), 3);
+			}
 			// Move all animations forward one tick.
 			this.honeycomb.runAnimations();
 		},
