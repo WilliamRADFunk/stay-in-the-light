@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.22
-Last Updated: October-28
+Stay in the Light v0.0.23
+Last Updated: 2017-November-01
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
