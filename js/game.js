@@ -121,6 +121,7 @@ var GameWrapper = function() {
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
+					this.fog.killFog();
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
