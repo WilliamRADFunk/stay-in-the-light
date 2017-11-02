@@ -114,6 +114,7 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
+					this.fog.killFog();
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);

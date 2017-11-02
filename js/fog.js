@@ -147,5 +147,11 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 
 	};
 
+	//Removes fog mask from screen
+	Fog.killFog = function(){
+		//Set mask to null to remove its contents.
+		fogContainer.mask = null;
+	};
+
 	return Fog;
 };
