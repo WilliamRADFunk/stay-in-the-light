@@ -106,6 +106,7 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 	};
 	// Expands the fog by one level (45 pixels), and caps out at 205 pixels (level 3 --> 0-3).
 	Fog.expand = function(center) {
+
 		// Eye of fog gets one increment bigger
 		radius += 45;
 		//MAX CIELING for radius
@@ -156,13 +157,5 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		maskPrime.drawCircle(0, 0, radius);
 
 	};
-
-	//Removes fog mask from screen
-	Fog.killFog = function(){
-		//Set mask to null to remove its contents.
-		//fogContainer.mask = null;
-
-	};
-
 	return Fog;
 };

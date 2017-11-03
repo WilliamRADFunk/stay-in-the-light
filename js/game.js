@@ -12,7 +12,6 @@ var GameWrapper = function() {
 		 * Variables global to the game object. Only accessible inside game's subunits
 		 * if passed into the subunit's create function or various public functions.
 		 */
-
 		// Create the main stage to draw on.
 		this.container = new PIXI.Container();
 		// Create the timer stage to draw on.
@@ -32,6 +31,10 @@ var GameWrapper = function() {
 		this.firstLoad = true;
 		// Fog of war object
 		this.fog = {};
+		//sound object
+		this.sound = {};
+		//Indicates first frame of main game (tick)
+		this.gameStart = false;
 		// Don't render certain things if game is over.
 		this.gameOver = false;
 		// Game over screen object.
@@ -114,14 +117,16 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
-					this.fog.killFog();
+					this.sound.deathSound();
+					this.sound.cutSound();
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
-					this.fog.killFog();
+					this.sound.deathSound();
+					this.sound.cutSound();
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
@@ -259,6 +264,7 @@ var GameWrapper = function() {
 		drawFog: function() {
 			// Sets up variables and function definitions
 			this.fog = new FogWrapper(this.container, this._center, this.honeycomb.container, this.renderer);
+
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 			// Loads fog as mask to main container.
@@ -361,11 +367,14 @@ var GameWrapper = function() {
 		 */
 		endGame: function(isWin) {
 			this.isWin = isWin;
+			this.gameStart = false;
+			this.sound.cutSound();
 			if(this.isWin) {
 				this.calculateScore();
 				this.gameOverScreen.setScore(this.score);
 			}
 			this.gameOver = true;
+			//this.fog.cutSound();
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -444,6 +453,10 @@ var GameWrapper = function() {
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
+
+			//Initialize sound object for sound playing :D
+			this.sound = new SoundWrapper();
+			this.sound.init();
 
 			var interval = 2000;
 			var flickeringInterval = function() {
@@ -565,6 +578,11 @@ var GameWrapper = function() {
 			this.rendererForTimer.render(this.containerForTimer);
 			//Update Fog Sprite creation for overlay
 			// Dev Mode: comment next 3 lines for fog off
+			if(!this.gameStart){
+				this.gameStart = true;
+				this.sound.playLoop();
+			}
+
 			if(this.isLoaded) {
 				this.fog.renderFog();
 			}
