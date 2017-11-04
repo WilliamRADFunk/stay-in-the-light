@@ -106,6 +106,7 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 	};
 	// Expands the fog by one level (45 pixels), and caps out at 205 pixels (level 3 --> 0-3).
 	Fog.expand = function(center) {
+
 		// Eye of fog gets one increment bigger
 		radius += 45;
 		//MAX CIELING for radius
@@ -116,6 +117,16 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		}
 		//Redraw Fog at radius
 		Fog.redrawFogHole(center);
+	};
+
+	Fog.expandControled = function(center, pixelIncrease){
+			radius += pixelIncrease;
+			//MAX CIELING for radius
+			if(radius > 575){
+				radius = 575;
+			}
+			//Redraw Fog at radius
+			Fog.redrawFogHole(center);
 	};
 	// Contracts the fog by one level (45 pixels), and caps out at 90 pixels (0 level --> 0-3).
 	Fog.contract = function(center) {
@@ -146,6 +157,5 @@ var FogWrapper = function(container, center, hContainer, rEnder) {
 		maskPrime.drawCircle(0, 0, radius);
 
 	};
-
 	return Fog;
 };
