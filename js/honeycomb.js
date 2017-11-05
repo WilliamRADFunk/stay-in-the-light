@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.24
-Last Updated: 2017-November-04
+Stay in the Light v0.0.25
+Last Updated: 2017-November-05
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -126,6 +126,8 @@ var MapWrapper = function(center, difficulty) {
 		var deathLayer = new PIXI.Graphics();
 		// Additional light layer
 		var lightLayer = new PIXI.Graphics();
+		// Additional trail layer
+		var trailLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
 		var drawTerrain = function(tileInstance) {
@@ -384,6 +386,19 @@ var MapWrapper = function(center, difficulty) {
 				this.enemyId = enemyId;
 				this.draw(9);
 			},
+			addTrail: function(goToNode, isLightTrail) {
+				var trail = {
+					x: goToNode.position.x,
+					y: goToNode.position.y,
+					fadeLevel: 1
+				};
+				if(isLightTrail) {
+					trail.color = 0xC0C0C0;
+				} else {
+					trail.color = 0x000000;					
+				}
+				this.trails.push(trail);
+			},
 			animate: function() {
 				// Animation counter. Modding against it is used to control speed of animation.
 				if(!this.animationCounter || this.animationCounter === 300) {
@@ -391,6 +406,8 @@ var MapWrapper = function(center, difficulty) {
 				} else {
 					this.animationCounter++;
 				}
+
+				this.updateTrails();
 
 				// Checks to see if all the free nodes on the board have been converted to light nodes.
 				if(tileMap.getFreeNodes().length <= tileMap.getLightNodes().length && !playerWon) {
@@ -498,6 +515,8 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.deathLayerContainer.addChild(deathLayer);
 				// Attach light-tile layer.
 				tileMap.lightLayerContainer.addChild(lightLayer);
+				// Attach movement trail layer.
+				tileMap.trailLayerContainer.addChild(trailLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 
@@ -726,7 +745,25 @@ var MapWrapper = function(center, difficulty) {
 				isLight: false,
 				isPlayer: false,
 			},
-			type: null
+			trails: [],
+			type: null,
+			updateTrails: function() {
+				trailLayer.clear();
+				for(var i = 0; i < this.trails.length; i++) {
+					if(!this.trails[i]) {
+						continue;
+					} else if(this.trails[i].fadeLevel <= 0.05) {
+						this.trails.splice(i, 1);
+						i--;
+						continue;
+					} else {
+						this.trails[i].fadeLevel -= 0.01;
+						trailLayer.moveTo(cX, cY);
+						trailLayer.lineStyle(4, this.trails[i].color, this.trails[i].fadeLevel);
+						trailLayer.lineTo(this.trails[i].x, this.trails[i].y);
+					}
+				}
+			}
 		};
 	};
 
@@ -767,8 +804,9 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.lightLayerContainer = new PIXI.Container();
 				tileMap.deathLayerContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
-				tileMap.hiddenLayerContainer = new PIXI.Container();
 				tileMap.hoverContainer = new PIXI.Container();
+				tileMap.trailLayerContainer = new PIXI.Container();
+				tileMap.hiddenLayerContainer = new PIXI.Container();
 			}
 		};
 		activeTile.goLight();
@@ -1056,6 +1094,7 @@ var MapWrapper = function(center, difficulty) {
 		if(isBoardActive && activeTile && tileMap.playerIsAlive && !playerWon) {
 			var oldActive = activeTile;
 			if(oldActive['link' + hextant] && oldActive['link' + hextant].passable) {
+				oldActive.addTrail(oldActive['link' + hextant], true);
 				oldActive.setInactive();
 				oldActive['link' + hextant].setActive();
 				// Make it light.
@@ -1301,6 +1340,7 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.darkLayerContainer = new PIXI.Container();
 	tileMap.deathLayerContainer = new PIXI.Container();
 	tileMap.lightLayerContainer = new PIXI.Container();
+	tileMap.trailLayerContainer = new PIXI.Container();
 
 	tileMap.enemiesPlaced = 0;
 
@@ -1371,9 +1411,10 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.darkLayerContainer);
 		tileMap.container.addChild(tileMap.lightLayerContainer);
 		tileMap.container.addChild(tileMap.deathLayerContainer);
+		tileMap.container.addChild(tileMap.trailLayerContainer);
+		tileMap.container.addChild(tileMap.hoverContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
 		tileMap.container.addChild(tileMap.hiddenLayerContainer);
-		tileMap.container.addChild(tileMap.hoverContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile, enemyId) {
@@ -1392,6 +1433,7 @@ var MapWrapper = function(center, difficulty) {
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
 			console.log('Enemy has found and killed player');
+			oldTile.addTrail(newTile, false);
 			var graphicPackage = oldTile.currentEnemyGraphic;
 			for(var i = 1; i <= 6; i++) {
 				if(oldTile['link' + i] && oldTile['link' + i].id === newTile.id) {
@@ -1413,6 +1455,7 @@ var MapWrapper = function(center, difficulty) {
 				'Enemy already here: ' + newTile.state.isEnemy);
 			return false;
 		} else {
+			oldTile.addTrail(newTile, false);
 			var graphicPackage = oldTile.currentEnemyGraphic;
 			for(var i = 1; i <= 6; i++) {
 				if(oldTile['link' + i] && oldTile['link' + i].id === newTile.id) {
