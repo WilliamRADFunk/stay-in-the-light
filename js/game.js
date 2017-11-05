@@ -188,6 +188,11 @@ var GameWrapper = function() {
 										this.honeycomb.activateBoard();
 										this.timer.startTimer();
 
+										// Dev Mode: To auto-win the game, uncomment next 3 lines
+										// setTimeout(function() {
+										// 	this.honeycomb.autoLightAllTiles();
+										// }.bind(this), 2000);
+
 										// Begin the first frame.
 										this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
 									}.bind(this), 2000);
@@ -531,6 +536,10 @@ var GameWrapper = function() {
 						this.container = new PIXI.Container();
 						this.containerForTimer = new PIXI.Container();
 						this.enemies = [];
+						// Cleans up tilemap related event listeners
+						if(this.honeycomb.playerIsAlive !== undefined) {
+							this.honeycomb.destroy();							
+						}
 						this.honeycomb = {};
 						this.isCounting = true;
 						this.isLoaded = false;
