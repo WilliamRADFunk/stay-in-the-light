@@ -117,16 +117,18 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
-					this.sound.deathSound();
-					this.sound.cutSound();
+					//death Sound and ending loop sound
+					this.sound.executeSound(0, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
-					this.sound.deathSound();
-					this.sound.cutSound();
+					//death Sound and ending loop sound
+					this.sound.executeSound(0, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
@@ -373,13 +375,12 @@ var GameWrapper = function() {
 		endGame: function(isWin) {
 			this.isWin = isWin;
 			this.gameStart = false;
-			this.sound.cutSound();
+			this.sound.executeSound(1, false, true, true, 0.6);
 			if(this.isWin) {
 				this.calculateScore();
 				this.gameOverScreen.setScore(this.score);
 			}
 			this.gameOver = true;
-			//this.fog.cutSound();
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -589,7 +590,7 @@ var GameWrapper = function() {
 			// Dev Mode: comment next 3 lines for fog off
 			if(!this.gameStart){
 				this.gameStart = true;
-				this.sound.playLoop();
+				this.sound.executeSound(1, true, true, false, 0.6);
 			}
 
 			if(this.isLoaded) {
