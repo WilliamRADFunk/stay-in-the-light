@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.23
-Last Updated: 2017-November-01
+Stay in the Light v0.0.24
+Last Updated: 2017-November-04
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -12,7 +12,6 @@ var GameWrapper = function() {
 		 * Variables global to the game object. Only accessible inside game's subunits
 		 * if passed into the subunit's create function or various public functions.
 		 */
-
 		// Create the main stage to draw on.
 		this.container = new PIXI.Container();
 		// Create the timer stage to draw on.
@@ -32,6 +31,10 @@ var GameWrapper = function() {
 		this.firstLoad = true;
 		// Fog of war object
 		this.fog = {};
+		//sound object
+		this.sound = {};
+		//Indicates first frame of main game (tick)
+		this.gameStart = false;
 		// Don't render certain things if game is over.
 		this.gameOver = false;
 		// Game over screen object.
@@ -114,12 +117,16 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
+					this.sound.deathSound();
+					this.sound.cutSound();
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
+					this.sound.deathSound();
+					this.sound.cutSound();
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
@@ -181,6 +188,11 @@ var GameWrapper = function() {
 										this.honeycomb.activateBoard();
 										this.timer.startTimer();
 
+										// Dev Mode: To auto-win the game, uncomment next 3 lines
+										// setTimeout(function() {
+										// 	this.honeycomb.autoLightAllTiles();
+										// }.bind(this), 2000);
+
 										// Begin the first frame.
 										this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
 									}.bind(this), 2000);
@@ -197,7 +209,7 @@ var GameWrapper = function() {
 		 * Returns final game score.
 		 */
 		calculateScore: function() {
-			this.score += this.timer.getTime() * this.difficulty * 10;
+			this.score += this.timer.getTime() * this.difficulty * 500;
 		},
 		/**
 		 * Picks suitable place on tilemap to place enemies
@@ -257,6 +269,7 @@ var GameWrapper = function() {
 		drawFog: function() {
 			// Sets up variables and function definitions
 			this.fog = new FogWrapper(this.container, this._center, this.honeycomb.container, this.renderer);
+
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 			// Loads fog as mask to main container.
@@ -359,11 +372,14 @@ var GameWrapper = function() {
 		 */
 		endGame: function(isWin) {
 			this.isWin = isWin;
+			this.gameStart = false;
+			this.sound.cutSound();
 			if(this.isWin) {
 				this.calculateScore();
 				this.gameOverScreen.setScore(this.score);
 			}
 			this.gameOver = true;
+			//this.fog.cutSound();
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -443,6 +459,10 @@ var GameWrapper = function() {
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
 
+			//Initialize sound object for sound playing :D
+			this.sound = new SoundWrapper();
+			this.sound.init();
+
 			var interval = 2000;
 			var flickeringInterval = function() {
 	        	clearInterval(flickeringLightsInterval);
@@ -516,6 +536,10 @@ var GameWrapper = function() {
 						this.container = new PIXI.Container();
 						this.containerForTimer = new PIXI.Container();
 						this.enemies = [];
+						// Cleans up tilemap related event listeners
+						if(this.honeycomb.playerIsAlive !== undefined) {
+							this.honeycomb.destroy();							
+						}
 						this.honeycomb = {};
 						this.isCounting = true;
 						this.isLoaded = false;
@@ -563,6 +587,11 @@ var GameWrapper = function() {
 			this.rendererForTimer.render(this.containerForTimer);
 			//Update Fog Sprite creation for overlay
 			// Dev Mode: comment next 3 lines for fog off
+			if(!this.gameStart){
+				this.gameStart = true;
+				this.sound.playLoop();
+			}
+
 			if(this.isLoaded) {
 				this.fog.renderFog();
 			}
@@ -577,17 +606,15 @@ var GameWrapper = function() {
 				this.timer.tickTimer();
 			}
 
-			// Checks timer to see if it has reached zero. If so, player loses.
-			if(this.timer.getTime() <= 0) {
-				console.log('Time has run out');
-				this.endGame(false);
-			}
-
 			if(!this.gameOver) {
 				// Begin the next frame.
 				this.mainGameAniLoop = this.requestAnimationFrame(this.tick.bind(this));
 			}
 
+			if(this.tickCounter % 2 === 0 && !this.isCounting){
+				//Decrease fog to oblivion
+				this.fog.expandControled(this.honeycomb.getActiveCenter(), 3);
+			}
 			// Move all animations forward one tick.
 			this.honeycomb.runAnimations();
 		},

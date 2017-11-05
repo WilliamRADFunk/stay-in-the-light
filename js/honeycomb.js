@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.23
-Last Updated: 2017-November-01
+Stay in the Light v0.0.24
+Last Updated: 2017-November-04
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -86,26 +86,28 @@ var MapWrapper = function(center, difficulty) {
 	var activeCenter = center;
 	// Player's current tile. Used to determine directionality of mouse placement.
 	var activeTile = null;
+	// Contains an array of all tiles to better cycle through them (ie. remove hidden on all tiles).
+	var allTiles = [];
+	// Array of passable nodes. Used for quick check of game over, no islands, and win scenario.
+	var freeNodes = [];
 	// Prevents the procedural recursion from going too far.
 	var hexDepth = 6;
 	// Tracks current hextant player is hovering near
 	var hextant = 4;
+	// Keeps track if board is active and able to receive mouse input.
+	var isBoardActive = false;
 	// Keeps track of last mouse move event for the reuse of mouseMoveHandler.
 	var lastMouseMoveEvent = {
 		pageX: 600,
 		pageY: 500
 	};
 	var level = 1;
+	// Used to keep track of the nodes eligible for autofill during recursion.
+	var nodesToBeFilled = [];
 	// Prevents the procedural unhide recursion from going too far.
 	var revealDepth = 1;
 	// Hash table of all tiles in map.
 	var tileTable = {};
-	// Array of passable nodes. Used for quick check of game over, no islands, and win scenario.
-	var freeNodes = [];
-	// Used to keep track of the nodes eligible for autofill during recursion.
-	var nodesToBeFilled = [];
-	// Keeps track if board is active and able to receive mouse input.
-	var isBoardActive = false;
 
 	/*** Internal constructors ***/
 	// Tile creator
@@ -396,6 +398,7 @@ var MapWrapper = function(center, difficulty) {
 					var event = new Event('playerWon');
     				document.dispatchEvent(event);
     				playerWon = true;
+    				showAllTiles();
 				}
 
 				// Darkness spreading and light receding.
@@ -688,6 +691,7 @@ var MapWrapper = function(center, difficulty) {
 					tileMap.hoverContainer.removeChild(currentPlayerGraphic);
 				}
 				tileMap.playerIsAlive = false;
+				showAllTiles();
 				this.draw(9);
 				this.setDeath(true);
 				var event = new Event('playerDied');
@@ -745,6 +749,7 @@ var MapWrapper = function(center, difficulty) {
 			tileTable[center.x + '-' + center.y] = startNode;
 
 			freeNodes.push(startNode);
+			allTiles.push(startNode);
 
 			makeNeighborNodes(startNode, 0);
 
@@ -755,6 +760,7 @@ var MapWrapper = function(center, difficulty) {
 			} else {
 				console.log('Islands found! Trying again.');
 				tileTable = [];
+				allTiles = [];
 				freeNodes = [];
 				tileMap.terrainContainer = new PIXI.Container();
 				tileMap.darkLayerContainer = new PIXI.Container();
@@ -867,6 +873,7 @@ var MapWrapper = function(center, difficulty) {
 			var node = new Tile(centerNode.position.x, (centerNode.position.y - 46));
 			node.build(centerNode.position.x + '-' + (centerNode.position.y - 46), pickTileTerrain());
 			tileTable[centerNode.position.x + '-' + (centerNode.position.y - 46)] = node;
+			allTiles.push(node);
 			if(node.passable) {
 				freeNodes.push(node);
 			}
@@ -896,6 +903,7 @@ var MapWrapper = function(center, difficulty) {
 			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y - 23));
 			node.build((centerNode.position.x + 39) + '-' + (centerNode.position.y - 23), pickTileTerrain());
 			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y - 23)] = node;
+			allTiles.push(node);
 			if(node.passable) {
 				freeNodes.push(node);
 			}
@@ -925,6 +933,7 @@ var MapWrapper = function(center, difficulty) {
 			var node = new Tile((centerNode.position.x + 39), (centerNode.position.y + 23));
 			node.build((centerNode.position.x + 39) + '-' + (centerNode.position.y + 23), pickTileTerrain());
 			tileTable[(centerNode.position.x + 39) + '-' + (centerNode.position.y + 23)] = node;
+			allTiles.push(node);
 			if(node.passable) {
 				freeNodes.push(node);
 			}
@@ -954,6 +963,7 @@ var MapWrapper = function(center, difficulty) {
 			var node = new Tile(centerNode.position.x, (centerNode.position.y + 46));
 			node.build(centerNode.position.x + '-' + (centerNode.position.y + 46), pickTileTerrain());
 			tileTable[centerNode.position.x + '-' + (centerNode.position.y + 46)] = node;
+			allTiles.push(node);
 			if(node.passable) {
 				freeNodes.push(node);
 			}
@@ -983,6 +993,7 @@ var MapWrapper = function(center, difficulty) {
 			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y + 23));
 			node.build((centerNode.position.x - 39) + '-' + (centerNode.position.y + 23), pickTileTerrain());
 			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y + 23)] = node;
+			allTiles.push(node);
 			if(node.passable) {
 				freeNodes.push(node);
 			}
@@ -1012,6 +1023,7 @@ var MapWrapper = function(center, difficulty) {
 			var node = new Tile((centerNode.position.x - 39), (centerNode.position.y - 23));
 			node.build((centerNode.position.x - 39) + '-' + (centerNode.position.y - 23), pickTileTerrain());
 			tileTable[(centerNode.position.x - 39) + '-' + (centerNode.position.y - 23)] = node;
+			allTiles.push(node);
 			if(node.passable) {
 				freeNodes.push(node);
 			}
@@ -1260,6 +1272,11 @@ var MapWrapper = function(center, difficulty) {
 			else return null;
 		}
 	};
+	var showAllTiles = function() {
+		for(var i = 0; i < allTiles.length; i++) {
+			allTiles[i].show();
+		}
+	};
 	var showTiles = function(tile, layer) {
 		if(tile && layer <= revealDepth) {
 			tile.show();
@@ -1269,6 +1286,10 @@ var MapWrapper = function(center, difficulty) {
 		} else {
 			return;
 		}
+	};
+	// Used to kill player a setoff endgame reaction when timer runs out.
+	var timeoutHandler = function() {
+		activeTile.removePlayer();
 	};
 
 	/*** Publicly accessible variables ***/
@@ -1430,12 +1451,26 @@ var MapWrapper = function(center, difficulty) {
 		enemyTile.goDark();
 		return enemyTile;
 	};
+	// Called to perform the necessary cleanups before reset.
+	tileMap.destroy = function() {
+		document.removeEventListener('click', mouseClickHandler);
+		document.removeEventListener('mousemove', mouseMoveHandler);
+		document.removeEventListener('timeout', timeoutHandler);
+	};
+	// Dev Mode: auto Light all the tiles for testing win scenarios. Uncomment next 5 lines.
+	// tileMap.autoLightAllTiles = function() {
+	// 	for(var i = 0; i < allTiles.length; i++) {
+	// 		allTiles[i].goLight();
+	// 	}
+	// }
 
 	/*** Document level event listeners ***/
 	// Captures click of mouse and passes on to handler.
 	document.addEventListener('click', mouseClickHandler);
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
+	// Captures timer running out event and passes it to handler.
+	document.addEventListener('timeout', timeoutHandler);
 
 	// Pass publically accessible functionality back to main wrapper.
 	return tileMap;

@@ -1,5 +1,5 @@
 /* 
-Stay in the Light v0.0.23
+Stay in the Light v0.0.24
 Last Updated: 2017-October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -40,9 +40,9 @@ var EnemyWrapper = function(center, tileMap, id) {
 	//Tile values judged by A.I. for pathing
 	var nullSpace = 0;
 	var impassableSpace = 0;
-	var playerSpace = 15;
+	var playerSpace = 450;
 	var darkSpace = 0;
-	var lightSpace = 10;
+	var lightSpace = 20;
 	var enemySpace = 0;
 
 	//Testing boolean
@@ -84,7 +84,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 				//console.log("isPlayer at " + j);
 			}
 			else if(!curTile['link' + j].state.isDark) {
-				moveValue[j - 1] = 50000;
+				moveValue[j - 1] = 40;
 				moveValue[j - 1] += examineOut(curTile['link' + j], searchStrategy[j - 1], startDepth, limiter);
 				//console.log("isLightSpace at " + j);
 			}
