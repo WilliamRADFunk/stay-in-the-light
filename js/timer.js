@@ -17,7 +17,7 @@ var TimerWrapper = function(center) {
 	var timerBox = new PIXI.Graphics();
 	var timerText = new PIXI.Graphics();
 
-	var time = 600;
+	var time = 180;
 
 	/**
 	 * internal constructors (like Tile in honeycomb.js) accessible to everything
@@ -84,6 +84,10 @@ var TimerWrapper = function(center) {
 	// Decreases time by one second and redraws the timer to reflect updated time.
 	Timer.tickTimer = function() {
 		time--;
+		if(time === 0) {
+			var event = new Event('timeout');
+			document.dispatchEvent(event);			
+		}
 		// Never go into negative time.
 		if(time < 0) {
 			time = 0;

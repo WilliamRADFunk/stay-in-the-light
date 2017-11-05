@@ -1287,6 +1287,10 @@ var MapWrapper = function(center, difficulty) {
 			return;
 		}
 	};
+	// Used to kill player a setoff endgame reaction when timer runs out.
+	var timeoutHandler = function() {
+		activeTile.removePlayer();
+	};
 
 	/*** Publicly accessible variables ***/
 	tileMap.container = new PIXI.Container();
@@ -1447,12 +1451,11 @@ var MapWrapper = function(center, difficulty) {
 		enemyTile.goDark();
 		return enemyTile;
 	};
-	// Called to perform the ncessary cleanups before reset.
+	// Called to perform the necessary cleanups before reset.
 	tileMap.destroy = function() {
-		// Captures click of mouse and passes on to handler.
 		document.removeEventListener('click', mouseClickHandler);
-		// Captures movement of mouse and passes on to handler.
 		document.removeEventListener('mousemove', mouseMoveHandler);
+		document.removeEventListener('timeout', timeoutHandler);
 	};
 	// Dev Mode: auto Light all the tiles for testing win scenarios. Uncomment next 5 lines.
 	// tileMap.autoLightAllTiles = function() {
@@ -1466,6 +1469,8 @@ var MapWrapper = function(center, difficulty) {
 	document.addEventListener('click', mouseClickHandler);
 	// Captures movement of mouse and passes on to handler.
 	document.addEventListener('mousemove', mouseMoveHandler);
+	// Captures timer running out event and passes it to handler.
+	document.addEventListener('timeout', timeoutHandler);
 
 	// Pass publically accessible functionality back to main wrapper.
 	return tileMap;

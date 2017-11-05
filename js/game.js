@@ -209,7 +209,7 @@ var GameWrapper = function() {
 		 * Returns final game score.
 		 */
 		calculateScore: function() {
-			this.score += this.timer.getTime() * this.difficulty * 10;
+			this.score += this.timer.getTime() * this.difficulty * 500;
 		},
 		/**
 		 * Picks suitable place on tilemap to place enemies
@@ -604,12 +604,6 @@ var GameWrapper = function() {
 			// Updates the HUD game timer used both for scoring and ending game when it runs out.
 			if(this.tickCounter % 60 === 0 && this.isCounting) {
 				this.timer.tickTimer();
-			}
-
-			// Checks timer to see if it has reached zero. If so, player loses.
-			if(this.timer.getTime() <= 0) {
-				console.log('Time has run out');
-				this.endGame(false);
 			}
 
 			if(!this.gameOver) {
