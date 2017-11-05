@@ -126,6 +126,8 @@ var MapWrapper = function(center, difficulty) {
 		var deathLayer = new PIXI.Graphics();
 		// Additional light layer
 		var lightLayer = new PIXI.Graphics();
+		// Additional trail layer
+		var trailLayer = new PIXI.Graphics();
 		// Constant size of the hex tile.
 		var size = 25;
 		var drawTerrain = function(tileInstance) {
@@ -498,6 +500,8 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.deathLayerContainer.addChild(deathLayer);
 				// Attach light-tile layer.
 				tileMap.lightLayerContainer.addChild(lightLayer);
+				// Attach movement trail layer.
+				tileMap.trailLayer.addChild(trailLayer);
 				// Lets graphic be accessible from Tile object.
 				this.graphique = hexagon;
 
@@ -767,8 +771,9 @@ var MapWrapper = function(center, difficulty) {
 				tileMap.lightLayerContainer = new PIXI.Container();
 				tileMap.deathLayerContainer = new PIXI.Container();
 				tileMap.enemyLayerContainer = new PIXI.Container();
-				tileMap.hiddenLayerContainer = new PIXI.Container();
 				tileMap.hoverContainer = new PIXI.Container();
+				tileMap.trailLayerContainer = new PIXI.Container();
+				tileMap.hiddenLayerContainer = new PIXI.Container();
 			}
 		};
 		activeTile.goLight();
@@ -1301,6 +1306,7 @@ var MapWrapper = function(center, difficulty) {
 	tileMap.darkLayerContainer = new PIXI.Container();
 	tileMap.deathLayerContainer = new PIXI.Container();
 	tileMap.lightLayerContainer = new PIXI.Container();
+	tileMap.trailLayerContainer = new PIXI.Container();
 
 	tileMap.enemiesPlaced = 0;
 
@@ -1372,8 +1378,9 @@ var MapWrapper = function(center, difficulty) {
 		tileMap.container.addChild(tileMap.lightLayerContainer);
 		tileMap.container.addChild(tileMap.deathLayerContainer);
 		tileMap.container.addChild(tileMap.enemyLayerContainer);
-		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 		tileMap.container.addChild(tileMap.hoverContainer);
+		tileMap.container.addChild(tileMap.trailLayerContainer);
+		tileMap.container.addChild(tileMap.hiddenLayerContainer);
 	};
 	// Called to increase move enemy from param1 tile to param2 tile.
 	tileMap.moveEnemy = function(oldTile, newTile, enemyId) {

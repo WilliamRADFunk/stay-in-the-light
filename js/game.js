@@ -487,16 +487,16 @@ var GameWrapper = function() {
 
 			this.startScreen.drawOptions();
 
-			// Detects when the mouse moves and calculates which hex-rant player is hovering over.
+			// Detects when the mouse moves and calculates which start screen option player is hovering over.
 			var mouseMoveHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
-					if(mY >= 400 && mY <= 420) {
+					if(mY >= 400 && mY <= 445) {
 						this.startScreen.drawOptions(0);
-					} else if(mY >= 420 && mY <= 480) {
+					} else if(mY >= 450 && mY <= 505) {
 						this.startScreen.drawOptions(1, this.difficulty, mX);
-					} else if(mY >= 480 && mY <= 700) {
+					} else if(mY >= 505 && mY <= 700) {
 						this.startScreen.drawOptions(2);
 					} else {
 						this.startScreen.drawOptions();
@@ -509,7 +509,7 @@ var GameWrapper = function() {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
-					if(mY >= 400 && mY <= 420) {
+					if(mY >= 400 && mY <= 445) {
 						if(this.startScreenAniLoop) {
 							var id = this.cancelAnimationFrame(this.startScreenAniLoop);
 							this.startScreenAniLoop = undefined;
