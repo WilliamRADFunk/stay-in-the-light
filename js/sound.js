@@ -6,7 +6,17 @@ var SoundWrapper = function() {
 	//Audio files appear in order stored in array
 	var deathAudio = new Audio('./sounds/deathSound.wav');
 	var musicLoop = new Audio('./sounds/loop.wav');
-	const audioFileCount = 2;
+	var expandF = new Audio('./sounds/expandFog.wav');
+	var contractF = new Audio('/sounds/contractFog.wav');
+	var clickSound = new Audio('./sounds/click.wav');
+	var enemyDeath = new Audio('./sounds/zombieUgh.mp3');
+	var	musicLoopMenu = new Audio('./sounds/POL-secret-alchemy-short.wav');
+	var playerWin = new Audio('./sounds/win.wav');
+	var hoverSound = new Audio('./sounds/expandFog.wav');
+
+	const audioFileCount = 9;
+
+	var lastPlayed = -1;
 
 	//Array containing Audio objects
 	var audioArray = [];
@@ -16,7 +26,7 @@ var SoundWrapper = function() {
 	//Removes fog mask from screen
 	Sound.init = function(){
 		//Create index of wav files
-		audioArray = [deathAudio, musicLoop];
+		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound];
 
 		for(var i = 0; i < audioFileCount; i++){
 			//Check for valid .wav file
@@ -75,6 +85,7 @@ var SoundWrapper = function() {
 		if(!audioArray[fileNum]){
 			return;
 		}
+		audioArray[fileNum].currentTime = 0;
 		audioArray[fileNum].play();
 	};
 
