@@ -1,7 +1,6 @@
 var SoundWrapper = function() {
 	// Publicly accessible functionality.
 	var Sound = {};
-	
 	//Sound Source initializations
 	//Audio files appear in order stored in array
 	var deathAudio = new Audio('./sounds/deathSound.wav');
@@ -13,21 +12,16 @@ var SoundWrapper = function() {
 	var	musicLoopMenu = new Audio('./sounds/POL-secret-alchemy-short.wav');
 	var playerWin = new Audio('./sounds/win.wav');
 	var hoverSound = new Audio('./sounds/expandFog.wav');
-
 	const audioFileCount = 9;
-
 	var lastPlayed = -1;
-
 	//Array containing Audio objects
 	var audioArray = [];
 	//Array that maps to audioArray checking validity of src file
 	var validFile = [];
-	
 	//HARD-assembles audio array and verifies that each audio object stored is playable.
 	Sound.init = function(){
 		//Create index of wav files
 		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound];
-
 		for(var i = 0; i < audioFileCount; i++){
 			//Check for valid .wav file
 			if(!audioArray[i]){
@@ -39,12 +33,10 @@ var SoundWrapper = function() {
 			}
 		}
 	};
-
 	//Function called externally to inidicate audio to play
 	Sound.executeSound = function(fileNum, isPlay, isLoop, isReset, vol){
 		//Check for wav file
 		var file = fileNum;
-
 		if(typeof fileNum !== "number" || typeof isPlay !== "boolean" || typeof isLoop !== "boolean" || typeof vol !== "number" || typeof isReset !== "boolean" ){
 			console.log("ERROR sound: Invalid input for sound.");
 			return;
@@ -63,7 +55,6 @@ var SoundWrapper = function() {
 			stopSound(file, isReset);
 		}
 	};
-
 	//Called to verify that file being called is valid
 	var isValid = function(fileNum){
 		if(!validFile[fileNum]){
@@ -71,7 +62,6 @@ var SoundWrapper = function() {
 		}
 		return true;
 	};
-
 	//Configure audio sound properties
 	var setupSound = function(fileNum, isLoop, vol){
 		if(!audioArray[fileNum]){
@@ -80,7 +70,6 @@ var SoundWrapper = function() {
 		audioArray[fileNum].loop = isLoop;
 		audioArray[fileNum].volume = vol;
 	};
-
 	//Plays sound associated with index
 	var playSound = function(fileNum){
 		if(!audioArray[fileNum]){
@@ -89,7 +78,6 @@ var SoundWrapper = function() {
 		audioArray[fileNum].currentTime = 0;
 		audioArray[fileNum].play();
 	};
-
 	//Stops sound
 	var stopSound = function(fileNum, isReset){
 		if(!audioArray[fileNum]){

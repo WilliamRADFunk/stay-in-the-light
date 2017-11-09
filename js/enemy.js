@@ -216,6 +216,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 			modeOptions[2] = false;
 		}
 	};
+	//Moves enemy to next hex as last resort method. (clockwise)
 	var bumpMove = function(){
 		mode++;
 		if(mode > (options - 1)){
@@ -271,14 +272,14 @@ var EnemyWrapper = function(center, tileMap, id) {
 			return false;
 		}
 	};
-	// Should decide where to instantiate the enemy on the tile map,
+	// Decide where to instantiate the enemy on the tile map,
 	// and setup any internal logic for the enemy.
 	var updateLightCounter = function(){
 		var tempTiles = tileMap.getNonDarkNodes();
 		currentLightCount = tempTiles.length;
-		//console.log(currentLightCount);
 		return tempTiles;
 	};
+	//Indicates that the command is not faulty (loop, contains errors, etc.)
 	var checkClarivoyance = function(cmdFinal){
 		if(!cmdFinal || !cmdFinal[0] || !cmdFinal[1]){
 			//Return error
@@ -290,6 +291,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 			return false;
 		}
 		else if(tmpCmd.includes(-1)){
+			//Pathing returned one on returned outcome, faulty pathing logic
 			return true;
 		}
 		else{
@@ -552,29 +554,29 @@ var EnemyWrapper = function(center, tileMap, id) {
 	};
 	var computeCommand = function(xDirection, yDirection){
 		var tempCommand = [];
-
+		//Determines roughly which direction in axis to take
 		if(xDirection > 0){
-			//RIGHT
+			//RIGHT on X
 			tempCommand.push(1);
 		}
 		else if(xDirection < 0){
-			//LEFT
+			//LEFT on X
 			tempCommand.push(-1);
 		}
 		else{
-			//STAY
+			//STAY on current X
 			tempCommand.push(0);
 		}
 			if(yDirection > 0){
-			//UP
+			//UP  on X
 			tempCommand.push(-1);
 		}
 		else if(yDirection < 0){
-			//DOWN
+			//DOWN on X
 			tempCommand.push(1);
 		}
 		else{
-			//STAY
+			//STAY on current X
 			tempCommand.push(0);
 		}
 		return tempCommand;
@@ -642,8 +644,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 			var decisive = -1;
 			var finalized = false;
 			decisive = superDecider(enemyTile, 5);
-			//console.log("STARTING LOCATION: " + enemyTile.id);
-			//console.log("ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
+			//console.log("DEV MODE:: STARTING LOCATION: " + enemyTile.id);
+			//console.log("DEV MODE:: ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
 			if(!prePathActive){
 				if(currentLightCount < (initialLightCount * behaviorThreshold)){
 					//Ensure that we are not interupting a valid move.
@@ -665,10 +667,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 					//We have hit end of prepathing, do a normal decision
 					prePathActive = false;
 					prePathCommand = [[],[]];
-					//console.log("END OF PREPATHED ROUTE");
 				}
 				else{
-					//console.log("-------------------------- " + prePathCommand);
 					decisive = prePathCommand[1].shift();
 				}
 				
