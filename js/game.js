@@ -33,9 +33,7 @@ var GameWrapper = function() {
 		this.fog = {};
 		//sound object
 		this.sound = {};
-		//Hover boolean
-		this.hoverSoundPlayed = false;
-		//hover type
+		//hover zone
 		this.hoverArea = -1;
 		//Indicates first frame of main game (tick)
 		this.gameStart = false;
@@ -121,7 +119,7 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
-					//death Sound and ending loop sound
+					//End game music, call death Sound
 					this.sound.executeSound(0, true, false, false, 0.6);
 					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
@@ -130,7 +128,7 @@ var GameWrapper = function() {
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
-					//death Sound and ending loop sound
+					//End game music, play win sound
 					this.sound.executeSound(0, true, false, false, 0.6);
 					this.sound.executeSound(7, false, true, true, 0.6);
 					setTimeout(function() {
@@ -234,6 +232,7 @@ var GameWrapper = function() {
 				for(var i = 0; i < this.enemies.length; i++) {
 					if(this.enemies[i].id === e.enemyId) {
 						this.enemies.splice(i, 1);
+						//Play enemy death sound
 						this.sound.executeSound(5, true, false, false, 0.6);
 						break;
 					}
@@ -467,11 +466,12 @@ var GameWrapper = function() {
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
 
-			//Initialize sound object for sound playing :D
+			//Initialize sound object for sound playing (Potential delay here?)
 			this.sound = new SoundWrapper();
 			this.sound.init();
 
-			this.sound.executeSound(6, true, true, false, 0.3);
+			//Start Main menu music
+			this.sound.executeSound(6, true, true, false, 0.1);
 
 			var interval = 2000;
 			var flickeringInterval = function() {
@@ -501,15 +501,10 @@ var GameWrapper = function() {
 			var newHoverDetector = function(buttonArea){
 				console.log("buttonArea = " + buttonArea);
 				if(this.hoverArea !== buttonArea){
-					console.log("NEW HOVER DETECTED");
-					//this.sound.executeSound(8, true, false, false, 0.3);
+					this.sound.executeSound(8, true, false, false, 0.3);
 					this.hoverArea = buttonArea;
 				}
-				else{
-					console.log("DONT PLAY IT!");
-					this.hoverSoundPlayed = true;
-				}
-			};
+			}.bind(this);
 			var mouseMoveHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
@@ -576,6 +571,7 @@ var GameWrapper = function() {
 						// Start the actual game.
 						this.build();
 					} else if(mY > 420 && mY <= 480) {
+						//Play click sound
 						this.sound.executeSound(4, true, false, false, 0.6);
 						if(mX >= 800 && mX < 830) {
 							this.difficulty = 1;
@@ -616,6 +612,7 @@ var GameWrapper = function() {
 			// Dev Mode: comment next 3 lines for fog off
 			if(!this.gameStart){
 				this.gameStart = true;
+				//Start game loop music
 				this.sound.executeSound(1, true, true, false, 0.6);
 			}
 

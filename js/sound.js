@@ -23,7 +23,7 @@ var SoundWrapper = function() {
 	//Array that maps to audioArray checking validity of src file
 	var validFile = [];
 	
-	//Removes fog mask from screen
+	//HARD-assembles audio array and verifies that each audio object stored is playable.
 	Sound.init = function(){
 		//Create index of wav files
 		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound];
@@ -40,6 +40,7 @@ var SoundWrapper = function() {
 		}
 	};
 
+	//Function called externally to inidicate audio to play
 	Sound.executeSound = function(fileNum, isPlay, isLoop, isReset, vol){
 		//Check for wav file
 		var file = fileNum;
@@ -61,11 +62,9 @@ var SoundWrapper = function() {
 		else{
 			stopSound(file, isReset);
 		}
-		//if play, is it loop?
-		//set volume and play audio object.
-		//else stopping
 	};
 
+	//Called to verify that file being called is valid
 	var isValid = function(fileNum){
 		if(!validFile[fileNum]){
 			return false;
@@ -73,6 +72,7 @@ var SoundWrapper = function() {
 		return true;
 	};
 
+	//Configure audio sound properties
 	var setupSound = function(fileNum, isLoop, vol){
 		if(!audioArray[fileNum]){
 			return;
@@ -81,6 +81,7 @@ var SoundWrapper = function() {
 		audioArray[fileNum].volume = vol;
 	};
 
+	//Plays sound associated with index
 	var playSound = function(fileNum){
 		if(!audioArray[fileNum]){
 			return;
@@ -89,6 +90,7 @@ var SoundWrapper = function() {
 		audioArray[fileNum].play();
 	};
 
+	//Stops sound
 	var stopSound = function(fileNum, isReset){
 		if(!audioArray[fileNum]){
 			return;
