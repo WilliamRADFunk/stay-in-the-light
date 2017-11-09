@@ -307,6 +307,13 @@ var GameWrapper = function() {
 		},
 
 		/**
+		 * Gets top-five scores (arcade-style)
+		 */
+		getScores: function() {
+			this.startScreen.getScores();
+		},
+
+		/**
 		 * Draws the game over screen and animates until player clicks mouse.
 		 */
 		end: function() {
@@ -458,6 +465,8 @@ var GameWrapper = function() {
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
+
+			this.startScreen.getScores();
 
 			//Initialize sound object for sound playing :D
 			this.sound = new SoundWrapper();

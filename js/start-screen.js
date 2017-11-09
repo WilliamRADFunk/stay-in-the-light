@@ -1761,6 +1761,40 @@ var StartScreenWrapper = function(center) {
 		}
 	};
 
+	StartScreen.getScores = function() {
+		var scores = [];
+		$.ajax({
+			type:'GET',
+			url:'https://tenaciousteal.com/games/stay-in-the-light/actions/getScores.php',
+			dataType:'json',
+			crossDomain: true,
+			async: true,
+			success:function(responseData)
+			{
+				console.log('Scores: ', responseData);
+				// this.isOffline = false;
+				// if(this.offlineText !== null)
+				// {
+				// 	container.remove(offlineText);
+				// 	offlineText = null;
+				// }
+				// this.populateTopFive(responseData);
+			},
+			error:function(error)
+			{
+				console.log('Failed to get scores', error);
+				// isOffline = true;
+				// offlineText = new Engine.DisplayText(
+				// 	Engine.canvas.width - 60,
+				// 	Engine.canvas.height - 10,
+				// 	'Offline Mode'
+				// );
+				// scene.add(offlineText);
+				// showingScores = false;
+			}
+		});
+	};
+
 	StartScreen.killProcesses = function() {
 		clearInterval(lightTileAnimation);
 		clearInterval(darkTileAnimation);
