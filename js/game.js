@@ -129,8 +129,8 @@ var GameWrapper = function() {
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
 					//End game music, play win sound
-					this.sound.executeSound(0, true, false, false, 0.6);
-					this.sound.executeSound(7, false, true, true, 0.6);
+					this.sound.executeSound(7, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
@@ -499,7 +499,6 @@ var GameWrapper = function() {
 
 			// Detects when the mouse moves and calculates which start screen option player is hovering over.
 			var newHoverDetector = function(buttonArea){
-				console.log("buttonArea = " + buttonArea);
 				if(this.hoverArea !== buttonArea){
 					this.sound.executeSound(8, true, false, false, 0.3);
 					this.hoverArea = buttonArea;
@@ -541,6 +540,8 @@ var GameWrapper = function() {
 						// Removes move of mouse handler to make way for new one.
 						document.removeEventListener('mousemove', mouseMoveHandler);
 						if(typeof this.startScreen.killProcesses === 'function') {
+							//Kill menu loop music
+							this.sound.executeSound(6, false, false, false, 0.1);
 							this.startScreen.killProcesses();
 						}
 						var loadingStage = document.getElementById('loading-stage');
@@ -570,7 +571,7 @@ var GameWrapper = function() {
 						this.timer = {};
 						// Start the actual game.
 						this.build();
-					} else if(mY > 420 && mY <= 480) {
+					} else if(mY > 450 && mY <= 505) {
 						//Play click sound
 						this.sound.executeSound(4, true, false, false, 0.6);
 						if(mX >= 800 && mX < 830) {
