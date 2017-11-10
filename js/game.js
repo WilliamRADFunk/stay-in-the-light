@@ -33,6 +33,8 @@ var GameWrapper = function() {
 		this.fog = {};
 		//sound object
 		this.sound = {};
+		//hover zone
+		this.hoverArea = -1;
 		//Indicates first frame of main game (tick)
 		this.gameStart = false;
 		// Don't render certain things if game is over.
@@ -117,16 +119,18 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
-					this.sound.deathSound();
-					this.sound.cutSound();
+					//End game music, call death Sound
+					this.sound.executeSound(0, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
-					this.sound.deathSound();
-					this.sound.cutSound();
+					//End game music, play win sound
+					this.sound.executeSound(7, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
@@ -228,6 +232,8 @@ var GameWrapper = function() {
 				for(var i = 0; i < this.enemies.length; i++) {
 					if(this.enemies[i].id === e.enemyId) {
 						this.enemies.splice(i, 1);
+						//Play enemy death sound
+						this.sound.executeSound(5, true, false, false, 0.6);
 						break;
 					}
 				}
@@ -279,6 +285,7 @@ var GameWrapper = function() {
 				if(this.honeycomb.getBoardActivityStatus()) {
 					this.fog.expand(this.honeycomb.getActiveCenter());
 					this.honeycomb.expand();
+					this.sound.executeSound(2, true, false, false, 0.4);
 				}
 			}.bind(this));
 
@@ -286,6 +293,7 @@ var GameWrapper = function() {
 				if(this.honeycomb.getBoardActivityStatus()) {
 					this.fog.contract(this.honeycomb.getActiveCenter());
 					this.honeycomb.contract();
+					this.sound.executeSound(3, true, false, false, 0.6);
 				}
 			}.bind(this));
 
@@ -380,13 +388,12 @@ var GameWrapper = function() {
 		endGame: function(isWin) {
 			this.isWin = isWin;
 			this.gameStart = false;
-			this.sound.cutSound();
+			this.sound.executeSound(1, false, true, true, 0.6);
 			if(this.isWin) {
 				this.calculateScore();
 				this.gameOverScreen.setScore(this.score);
 			}
 			this.gameOver = true;
-			//this.fog.cutSound();
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -472,6 +479,9 @@ var GameWrapper = function() {
 			this.sound = new SoundWrapper();
 			this.sound.init();
 
+			//Start Main menu music
+			this.sound.executeSound(6, true, true, false, 0.1);
+
 			var interval = 2000;
 			var flickeringInterval = function() {
 	        	clearInterval(flickeringLightsInterval);
@@ -497,16 +507,25 @@ var GameWrapper = function() {
 			this.startScreen.drawOptions();
 
 			// Detects when the mouse moves and calculates which start screen option player is hovering over.
+			var newHoverDetector = function(buttonArea){
+				if(this.hoverArea !== buttonArea){
+					this.sound.executeSound(8, true, false, false, 0.3);
+					this.hoverArea = buttonArea;
+				}
+			}.bind(this);
 			var mouseMoveHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 400 && mY <= 445) {
 						this.startScreen.drawOptions(0);
+						newHoverDetector(0);
 					} else if(mY >= 450 && mY <= 505) {
 						this.startScreen.drawOptions(1, this.difficulty, mX);
+						newHoverDetector(1);
 					} else if(mY >= 505 && mY <= 700) {
 						this.startScreen.drawOptions(2);
+						newHoverDetector(2);
 					} else {
 						this.startScreen.drawOptions();
 					}
@@ -520,6 +539,7 @@ var GameWrapper = function() {
 				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 400 && mY <= 445) {
 						if(this.startScreenAniLoop) {
+							this.sound.executeSound(4, true, false, false, 0.6);
 							var id = this.cancelAnimationFrame(this.startScreenAniLoop);
 							this.startScreenAniLoop = undefined;
 						}
@@ -529,6 +549,8 @@ var GameWrapper = function() {
 						// Removes move of mouse handler to make way for new one.
 						document.removeEventListener('mousemove', mouseMoveHandler);
 						if(typeof this.startScreen.killProcesses === 'function') {
+							//Kill menu loop music
+							this.sound.executeSound(6, false, false, false, 0.1);
 							this.startScreen.killProcesses();
 						}
 						var loadingStage = document.getElementById('loading-stage');
@@ -558,7 +580,9 @@ var GameWrapper = function() {
 						this.timer = {};
 						// Start the actual game.
 						this.build();
-					} else if(mY > 420 && mY <= 480) {
+					} else if(mY > 450 && mY <= 505) {
+						//Play click sound
+						this.sound.executeSound(4, true, false, false, 0.6);
 						if(mX >= 800 && mX < 830) {
 							this.difficulty = 1;
 							mouseMoveHandler({pageX: mX, pageY: mY});
@@ -598,7 +622,8 @@ var GameWrapper = function() {
 			// Dev Mode: comment next 3 lines for fog off
 			if(!this.gameStart){
 				this.gameStart = true;
-				this.sound.playLoop();
+				//Start game loop music
+				this.sound.executeSound(1, true, true, false, 0.6);
 			}
 
 			if(this.isLoaded) {
