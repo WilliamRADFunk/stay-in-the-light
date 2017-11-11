@@ -3,10 +3,12 @@ header("content-type:application/json");
 header("Access-Control-Allow-Origin: *");
 include_once "config2.php";
 
-/* 
-Galactic Fighter Engine v0.2.2
-Last Updated: 2017-August-13
-Author: William R.A.D. Funk - http://WilliamRobertFunk.com 
+/*
+Stay in the Light v0.0.26
+Last Updated: 2017-November-10
+Authors: 
+	William R.A.D. Funk - http://WilliamRobertFunk.com
+	Jorge Rodriguez - http://jitorodriguez.com/
 */
 
 // Create connection
