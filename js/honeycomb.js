@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.25
-Last Updated: 2017-November-05
+Stay in the Light v0.0.26
+Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -1103,23 +1103,25 @@ var MapWrapper = function(center, difficulty) {
 				if(oldActive['link' + hextant].state.isEnemy) {
 					console.log('Collision with enemy. Player loses.');
 					oldActive['link' + hextant].goDark();
-					oldActive.removePlayer();
+					oldActive['link' + hextant].removePlayer();
 				}
 				if(activeTile['link' + hextant] && activeTile['link' + hextant].passable) {
 					activeTile.draw(hextant, 0x00FF00);
 				} else {
 					activeTile.draw(hextant, 0xFF0000);
 				}
-				activeCenter = {
-					x: activeTile.position.x,
-					y: activeTile.position.y
-				};
-				hideTiles();
-				showTiles(activeTile, 0);
-				var event = new Event('playerMove');
-    			document.dispatchEvent(event);
-    			mouseMoveHandler(lastMouseMoveEvent);
-    			checkAutoFillLight(activeTile);
+				if(tileMap.playerIsAlive) {
+					activeCenter = {
+						x: activeTile.position.x,
+						y: activeTile.position.y
+					};
+					hideTiles();
+					showTiles(activeTile, 0);
+					var event = new Event('playerMove');
+	    			document.dispatchEvent(event);
+	    			mouseMoveHandler(lastMouseMoveEvent);
+	    			checkAutoFillLight(activeTile);
+	    		}
 			}
 		}
 	};

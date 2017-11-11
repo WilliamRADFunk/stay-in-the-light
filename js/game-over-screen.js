@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.25
-Last Updated: 2017-October-28
+Stay in the Light v0.0.26
+Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -19,6 +19,7 @@ var GameOverScreenWrapper = function(center) {
 	var inText;
 	var theText;
 	var lightText;
+	var muteSoundText;
 	var isLit = false;
 
 	var gameOverScreenBaddyUp = PIXI.Sprite.fromImage('./images/enemy_NE.png');
@@ -167,6 +168,15 @@ var GameOverScreenWrapper = function(center) {
 			lightText.y = 100;
 			GameOverScreen.container.addChild(lightText);
 		}
+	};
+	var drawMuteSoundText = function() {
+		if(muteSoundText) {
+			GameOverScreen.container.removeChild(muteSoundText);
+		}
+		muteSoundText = new PIXI.Text('Press \'m\' to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+		muteSoundText.x = 980;
+		muteSoundText.y = 20;
+		GameOverScreen.container.addChild(muteSoundText);
 	};
 	var drawGameOver = function(statusText) {
 		if(gameOverText && isLit) {
@@ -495,6 +505,7 @@ var GameOverScreenWrapper = function(center) {
 	 * aka starts with 'GameOverScreen'
 	**/
 	GameOverScreen.drawGameOverScreenWords = function() {
+		drawMuteSoundText();
 		drawLight();
 		drawWordStay();
 		drawWordIn();
