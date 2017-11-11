@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.25
-Last Updated: 2017-October-04
+Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -19,6 +19,7 @@ var StartScreenWrapper = function(center) {
 	var inText;
 	var theText;
 	var lightText;
+	var muteSoundText;
 	var startText;
 	var difficultyText;
 	var difficultyLevelText;
@@ -289,6 +290,15 @@ var StartScreenWrapper = function(center) {
 			lightText.y = 100;
 			StartScreen.container.addChild(lightText);
 		}
+	};
+	var drawMuteSoundText = function() {
+		if(muteSoundText) {
+			StartScreen.container.removeChild(muteSoundText);
+		}
+		muteSoundText = new PIXI.Text('Press \'m\' to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+		muteSoundText.x = 980;
+		muteSoundText.y = 20;
+		StartScreen.container.addChild(muteSoundText);
 	};
 	var drawWordStart = function(isHighlighted) {
 		if(startText && isHighlighted) {
@@ -1726,6 +1736,7 @@ var StartScreenWrapper = function(center) {
 	 * aka starts with 'StartScreen'
 	**/
 	StartScreen.drawStartScreenWords = function() {
+		drawMuteSoundText();
 		drawLight();
 		drawWordStay();
 		drawWordIn();

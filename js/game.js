@@ -1,6 +1,6 @@
 /*
 Stay in the Light v0.0.25
-Last Updated: 2017-November-05
+Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -16,6 +16,8 @@ var GameWrapper = function() {
 		this.container = new PIXI.Container();
 		// Create the timer stage to draw on.
 		this.containerForTimer = new PIXI.Container();
+		// Create the timer stage to draw on.
+		this.containerForSoundMute = new PIXI.Container();
 		// Create the loading bar stage to draw on.
 		this.containerForLoadingBar = new PIXI.Container();
 		// Create the start screen stage to draw on.
@@ -47,6 +49,8 @@ var GameWrapper = function() {
 		this.isCounting = true;
 		// Flag to see if loading is done.
 		this.isLoaded = false;
+		// Flag to have sound playing or not
+		this.isSound = true;
 		// Did the player win.
 		this.isWin = false;
 		// Loading Bar object
@@ -82,6 +86,10 @@ var GameWrapper = function() {
 		this.rendererForTimer = new PIXI.CanvasRenderer(100, 50);
 		this.rendererForTimer.transparent = false;
 		document.getElementById('timer-stage').appendChild(this.rendererForTimer.view);
+		// Setup the rendering surface for timer scene.
+		this.rendererForSoundMute = new PIXI.CanvasRenderer(275, 20);
+		this.rendererForSoundMute.transparent = false;
+		document.getElementById('sound-mute-stage').appendChild(this.rendererForSoundMute.view);
 		// Setup the rendering surface for loading bar scene
 		this.rendererForLoadingBar = new PIXI.CanvasRenderer(this._width, this._height);
 		this.rendererForLoadingBar.transparent = true;
@@ -180,6 +188,7 @@ var GameWrapper = function() {
 									var loadingStage = document.getElementById('loading-stage');
 									var gameStage = document.getElementById('game-stage');
 									var timerStage = document.getElementById('timer-stage');
+									var soundMuteStage = document.getElementById('sound-mute-stage');
 
 									this.loadingBar.drawLoadingBarProgress(0, true);
 									this.rendererForLoadingBar.render(this.containerForLoadingBar);
@@ -189,6 +198,7 @@ var GameWrapper = function() {
 										loadingStage.style.display = 'none';
 										gameStage.style.display = 'block';
 										timerStage.style.display = 'block';
+										soundMuteStage.style.display = 'block';
 										this.honeycomb.activateBoard();
 										this.timer.startTimer();
 
@@ -267,6 +277,7 @@ var GameWrapper = function() {
 			this.timer.init();
 			// Adds timerWrapped object to the timer specific container.
 			this.containerForTimer.addChild(this.timer.container);
+			this.containerForSoundMute.addChild(this.timer.containerMute);
 		},
 
 		/**
@@ -461,14 +472,34 @@ var GameWrapper = function() {
 		 * Draws the start screen and animates until player clicks play.
 		 */
 		start: function() {
+			// Sets up ability to toggle sound on and off.
+			if(this.firstLoad) {
+				// Initialize sound object for sound playing (Potential delay here?)
+				this.sound = new SoundWrapper();
+				this.sound.init();
+			}
+
 			this.startScreen = new StartScreenWrapper(this._center);
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
 
-			//Initialize sound object for sound playing (Potential delay here?)
-			this.sound = new SoundWrapper();
-			this.sound.init();
+			// Sets up ability to toggle sound on and off.
+			if(this.firstLoad) {
+				document.addEventListener('toggleSound', function(e) {
+					this.isSound = !this.isSound;
+					// User toggles sound.
+					if(this.isSound) {
+						this.sound.unMuteSounds();
+					} else {
+						this.sound.muteSounds();
+					}
+				}.bind(this));
+				Mousetrap.bind('m', function(){
+					var event = new Event('toggleSound');
+    				document.dispatchEvent(event);
+				}.bind(this));
+			}
 
 			//Start Main menu music
 			this.sound.executeSound(6, true, true, false, 0.1);
@@ -560,6 +591,7 @@ var GameWrapper = function() {
 						// Destroy the old everything else before moving on.
 						this.container = new PIXI.Container();
 						this.containerForTimer = new PIXI.Container();
+						this.containerForSoundMute = new PIXI.Container();
 						this.enemies = [];
 						// Cleans up tilemap related event listeners
 						if(this.honeycomb.playerIsAlive !== undefined) {
@@ -612,6 +644,7 @@ var GameWrapper = function() {
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
 			// Render the timer stage on top of the game stage.
 			this.rendererForTimer.render(this.containerForTimer);
+			this.rendererForSoundMute.render(this.containerForSoundMute);
 			//Update Fog Sprite creation for overlay
 			// Dev Mode: comment next 3 lines for fog off
 			if(!this.gameStart){

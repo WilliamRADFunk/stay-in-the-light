@@ -1,3 +1,10 @@
+/*
+Stay in the Light v0.0.25
+Last Updated: 2017-November-10
+Authors: 
+	William R.A.D. Funk - http://WilliamRobertFunk.com
+	Jorge Rodriguez - http://jitorodriguez.com/
+*/
 var SoundWrapper = function() {
 	// Publicly accessible functionality.
 	var Sound = {};
@@ -14,6 +21,9 @@ var SoundWrapper = function() {
 	var hoverSound = new Audio('./sounds/expandFog.wav');
 	const audioFileCount = 9;
 	var lastPlayed = -1;
+	// Keeps track of which audio files are in play. This allows an "unmute" to simply up the volume on those already in play.
+	var filesInPlay = [];
+	var isSoundMuted = false;
 	//Array containing Audio objects
 	var audioArray = [];
 	//Array that maps to audioArray checking validity of src file
@@ -48,13 +58,53 @@ var SoundWrapper = function() {
 		}
 		//Check if play or not
 		if(isPlay){
-			setupSound(file, isLoop, vol);
+			if(isSoundMuted) {
+				setupSound(file, isLoop, 0);
+			} else {
+				setupSound(file, isLoop, vol);
+			}
 			playSound(file);
+			var fileTracker = {
+				fileNumber: fileNum,
+				volumeLevel: vol
+			};
+			var foundIt = false;
+			for(var i = 0; i < filesInPlay.length; i++) {
+				if(filesInPlay[i].fileNumber === fileNum) {
+					filesInPlay[i].volumeLevel = vol;
+					foundIt = true;
+					break;
+				}
+			}
+			if(!foundIt) {
+				filesInPlay.push(fileTracker);
+			}
 		}
 		else{
 			stopSound(file, isReset);
+			for(var i = 0; i < filesInPlay.length; i++) {
+				if(filesInPlay[i].fileNumber === fileNum) {
+					var fileTracker = filesInPlay[i];
+					filesInPlay.splice(i, 1);
+					break;
+				}
+			}
 		}
 	};
+	// Sets playing sounds' volume to 0, but not off.
+	Sound.muteSounds = function() {
+		isSoundMuted = true;
+		for(var i = 0; i < filesInPlay.length; i++) {
+			audioArray[filesInPlay[i].fileNumber].volume = 0;
+		}
+	}
+	// Sets playing sounds' volume back to original setting.
+	Sound.unMuteSounds = function() {
+		isSoundMuted = false;
+		for(var i = 0; i < filesInPlay.length; i++) {
+			audioArray[filesInPlay[i].fileNumber].volume = filesInPlay[i].volumeLevel;
+		}
+	}
 	//Called to verify that file being called is valid
 	var isValid = function(fileNum){
 		if(!validFile[fileNum]){
