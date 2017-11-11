@@ -1,5 +1,5 @@
 /* 
-Stay in the Light v0.0.25
+Stay in the Light v0.0.26
 Last Updated: 2017-October-28
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -12,11 +12,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 	var Enemy = {};
 	Enemy.id = id;
 	var enemyTile = null;
-	
-	/**
-	 * variables accessible to everything internal to EnemyWrapper go here
-	 * aka starts with 'var'
-	**/
 	//Starting mode that prevents enemy operations and controls 'turn-by-turn' behavior
 	var mode = -1;
 	var tileToMove = -1;
@@ -31,7 +26,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 	var initialLightCount = -1;
 	var currentLightCount = -1;
 	var currentTileSet;
-
 	//Sets a boolean decider to all false [modeOptions]
 	var modeOptions = [];
 	for (n = 0; n < options; ++n) {
@@ -44,62 +38,40 @@ var EnemyWrapper = function(center, tileMap, id) {
 	var darkSpace = 0;
 	var lightSpace = 20;
 	var enemySpace = 0;
-
 	//Testing boolean
 	var test = true;
-
-	/**
-	 * internal constructors (like Tile in honeycomb.js) accessible to everything
-	 * internal to EnemyWrapper go here. aka starts with 'var' but requires 'new'.
-	 * Make sure constructors start with first letter capitolized.
-	**/
-
-	/**
-	 * functions accessible to everything internal to EnemyWrapper go here
-	 * aka starts with 'var'
-	**/
-
 	//Recursive function that decides stength of any particular move
 	var superDecider = function(curTile, limiter){
 		//Define current starting values for accumulation and testing
 		var startDepth = 1;
 		var moveValue =[0,0,0,0,0,0];
 		var searchStrategy = [['6','1','2'], ['1','2','3'], ['2','3','4'], ['3','4','5'], ['4','5','6'], ['5','6','1']];
-
 		for(var j = 1; j <= 6; j++) {
 			if(!curTile['link' + j]){
 				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
-				//console.log("null at " + j);
 			}
 			else if(curTile['link' + j].state.isEnemy) {
 				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
-				//console.log("isEnemy at " + j);
 			}
 			else if(!curTile['link' + j].passable) {
 				moveValue[j - 1] = Number.NEGATIVE_INFINITY;
-				//console.log("impassable at " + j);
 			}
 			else if(curTile['link' + j].state.isPlayer){
 				moveValue[j - 1] = Number.POSITIVE_INFINITY;
-				//console.log("isPlayer at " + j);
 			}
 			else if(!curTile['link' + j].state.isDark) {
 				moveValue[j - 1] = 40;
 				moveValue[j - 1] += examineOut(curTile['link' + j], searchStrategy[j - 1], startDepth, limiter);
-				//console.log("isLightSpace at " + j);
 			}
 			else {
 				moveValue[j - 1] += examineOut(curTile['link' + j], searchStrategy[j - 1], startDepth, limiter);
-				//console.log("isdark at " + j);
 			}
 		}
 		//Determine winner of all returned path options
 		var winner = Math.max(moveValue[0], moveValue[1], moveValue[2], moveValue[3], moveValue[4], moveValue[5]);
-		//console.log("Winning Number " + winner);
 		for(var i = 0; i < 6; i++) {
 			if(winner === moveValue[i]){
-				//return index of matching winning value returned from max
-				//console.log("Tile Winner " + i + "   --> remember to add 1");
+				//Return index of matching winning value returned from max
 				nextMove = winner;
 				var curCoordinates = extractCoordinates(enemyTile.id);
 				appendMove(winner, curCoordinates);
@@ -110,7 +82,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 		console.log("Enemy could not decide on a path. Unknown error in EXECUTION");
 		return 0;
 	};
-
 	var examineOut = function(nextTile, searchPattern, depth, limiter){
 		//Check to see if limiter has been reached (Cannot go further) 
 		if(depth > limiter) {
@@ -132,7 +103,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 				+ tileValue(nextTile, depth);
 		}
 	};
-
 	//Returns the value of importance for tile porportional to enemy distance
 	var tileValue = function(curTile, adjustForDistance){
 		//Check to see if tile passed in is null
@@ -161,32 +131,26 @@ var EnemyWrapper = function(center, tileMap, id) {
 			return lightSpace / adjustForDistance;
 		}
 	};
-
 	var resetModeOptions = function(){
 		for(n = 0; n < options; ++n){
 			modeOptions[n] = true;
 		}
 	};
-
 	var recalculate = function(){
 		//Will decide starting direction the enemy should go. (0 --> links1 || links2,  1 --> links3 || links4,  2 --)
 		if(mode === -1)
 		{
-			//pick a new mode (direction)
+			//Pick a new mode (direction)
 			var rand = (Math.floor(Math.random() * options));
 			mode = rand;
 		}
 		else{
 			//Increment mode to cycle through options.
 			bumpMove();
-			//takeTurn();
 		}
 	};
-
 	var makeMove = function(tileNumber){
-
 		tileToMove = tileNumber;
-
 		if(tileNumber === 1){
 			//console.log('my params', enemyTile, enemyTile.link1);
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link1, Enemy.id)){
@@ -240,29 +204,25 @@ var EnemyWrapper = function(center, tileMap, id) {
 				}
 		}
 	};
-
 	var checkMoves = function(){
 		//Check if link spaces are not transversable or if 'empty' (EDGE CASES)
 		if(enemyTile.link1 == null && enemyTile.link2 == null){
 			modeOptions[0] = false;
 		}
-
 		if(enemyTile.link3 == null && enemyTile.link4 == null){
 			modeOptions[1] = false;
 		}
-
 		if(enemyTile.link5 == null && enemyTile.link6 == null){
 			modeOptions[2] = false;
 		}
 	};
-
+	//Moves enemy to next hex as last resort method. (clockwise)
 	var bumpMove = function(){
 		mode++;
 		if(mode > (options - 1)){
 			mode = 0;
 		}
 	};
-
 	var checkPlayer = function(){
 		//If -1 returned, player is not nearby else the player is on the return number
 		var decisiveMove = -1;
@@ -276,11 +236,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 		}
 		return decisiveMove;
 	};
-
 	var checkDark = function(tileNum){
-
 		var verified = true;
-
 		//Check to see if enemy has already colored tile (Basic)
 		if(tileNum === 1){
 			if(enemyTile.link1.state.isDark){
@@ -315,46 +272,32 @@ var EnemyWrapper = function(center, tileMap, id) {
 			return false;
 		}
 	};
-
-	/**
-	 * variables accessible publicly from EnemyWrapper go here
-	 * aka starts with 'Enemy'
-	**/
-
-	/**
-	 * functions accessible publicly from EnemyWrapper go here
-	 * aka starts with 'Enemy'
-	**/
-
-	// Should decide where to instantiate the enemy on the tile map,
+	// Decide where to instantiate the enemy on the tile map,
 	// and setup any internal logic for the enemy.
-
 	var updateLightCounter = function(){
 		var tempTiles = tileMap.getNonDarkNodes();
 		currentLightCount = tempTiles.length;
-		//console.log(currentLightCount);
 		return tempTiles;
 	};
-
+	//Indicates that the command is not faulty (loop, contains errors, etc.)
 	var checkClarivoyance = function(cmdFinal){
 		if(!cmdFinal || !cmdFinal[0] || !cmdFinal[1]){
 			//Return error
 			return false;
 		}
-
 		var tmpCmd = cmdFinal[1];
 		if(tmpCmd == [] || tmpCmd.includes(-2)){
 			//We have hit a familiar path or no path selected
 			return false;
 		}
 		else if(tmpCmd.includes(-1)){
+			//Pathing returned one on returned outcome, faulty pathing logic
 			return true;
 		}
 		else{
 			return false;
 		}
 	};
-
 	//Possible V3 A.I function that determines directions to take to get from a start tile to end tile
 	var clarivoyance = function(enemyStartTile, enemyEndTile, visitedNodes){
 		//Initial Command list that is used when desired direction is met
@@ -368,7 +311,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 		//Extract coordinates for both the start and end coordinates
 		var endLocation = extractCoordinates(enemyEndTile.id);
 		var startLocation = extractCoordinates(enemyStartTile.id);
-		//debug.log("START LOCATION:");
 		//Determine the final x and y direction on 2-plane axis
 		var xDir = endLocation[0] - startLocation[0];
 		var yDir = endLocation[1] - startLocation[1];
@@ -405,12 +347,10 @@ var EnemyWrapper = function(center, tileMap, id) {
 				commandList[1].unshift(setDirection);
 				commandFinal = commandList;
 			}
-
 			setDirection++;
 			if(setDirection >= 7){
 				setDirection = 1;
 			}
-
 			if(setDirection === startDirection){
 				//we have looped completley
 				return [[25000],[-2]];
@@ -488,7 +428,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 			}
 		}
 	};
-
 		//Utility function to provide summation of provided array
 	var sumOfArray = function(sample){
 		if(!sample){
@@ -501,7 +440,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 		}
 		return total;
 	};
-
 	var commandReturn = function(com){
 		//console.log("THE COMMAND PROVIDED WAS: " + com);
 		if(!com){
@@ -546,7 +484,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 			}
 		}
 	};
-
 	var newDirective = function(){
 		//Check to see if we have reached treshold for scanning instructions for next light tile
 		//We should commence possible forced route changed dependent on situation.
@@ -566,7 +503,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 			var yDir = destination[1] - current[1];
 			//Check if left, right, or neither direction
 			var command = computeCommand(xDir, yDir);
-
 			if(command == [-2,-2]){
 				//ERROR
 			}
@@ -605,7 +541,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 			//console.log("DEV MODE: FINAL COMMAND" + command);
 			//console.log("DEV MODE: X FINAL: " + xDir + " Y FINAL: " + yDir);
 	};
-
 	var extractCoordinates = function(id){
 		if(!id){
 			//Parameter undefined or null, return with error coordinates
@@ -617,37 +552,35 @@ var EnemyWrapper = function(center, tileMap, id) {
 		coordinates = id.split('-');
 		return coordinates;
 	};
-
 	var computeCommand = function(xDirection, yDirection){
 		var tempCommand = [];
-
+		//Determines roughly which direction in axis to take
 		if(xDirection > 0){
-			//RIGHT
+			//RIGHT on X
 			tempCommand.push(1);
 		}
 		else if(xDirection < 0){
-			//LEFT
+			//LEFT on X
 			tempCommand.push(-1);
 		}
 		else{
-			//STAY
+			//STAY on current X
 			tempCommand.push(0);
 		}
 			if(yDirection > 0){
-			//UP
+			//UP  on X
 			tempCommand.push(-1);
 		}
 		else if(yDirection < 0){
-			//DOWN
+			//DOWN on X
 			tempCommand.push(1);
 		}
 		else{
-			//STAY
+			//STAY on current X
 			tempCommand.push(0);
 		}
 		return tempCommand;
 	};
-
 	//Catalogues recent moves to trigger direct route to new paths
 	var appendMove = function(pointValue, coordinate){
 		//Ensure that only 3 moves are prepended at any given time so that the check of 'infinite' loop
@@ -658,7 +591,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 		//Append pointIndex value to lastMoves array
 		lastMoves.unshift(pointIndex);
 	};
-
 	var checkForLoop = function(){
 		if(!lastMoves){
 			//No lastMoves exists, return
@@ -673,13 +605,11 @@ var EnemyWrapper = function(center, tileMap, id) {
 			console.log("ERROR: last moves should not have less than 3 moves.")
 			return false;
 		}
-
 		var temp = lastMoves[0];
 		var temp1 = lastMoves[1];
 		var temp2 = lastMoves[2];
 		var temp3 = lastMoves[3];
 		//Check to see if cached moves are the same
-
 		if((temp.toString() === temp1.toString())  || (temp.toString() === temp2.toString()) || (temp.toString() === temp3.toString()) || (temp1.toString() === temp2.toString()) || ( temp1.toString() === temp3.toString() ) || ( temp2.toString() === temp3.toString() )){
 			//We are stuck in a loop. Return for new directive
 			return true;
@@ -687,7 +617,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 		
 		return false; 
 	};
-
 	Enemy.init = function() {
 		// Note: tileMap is passed in to make api accessible
 		// (ie. tileMap.placeEnemy(); will pick a suitable place to
@@ -699,7 +628,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 		enemyTile = tileMap.placeEnemy();
 		console.log("enemyTile was initialized!");
 		};
-
 	// From here, internal logic will determine which
 	// of the six directions the enemy will take, returning
 	// object containing the old tile, and new tile.
@@ -711,15 +639,13 @@ var EnemyWrapper = function(center, tileMap, id) {
 		// the enemy's current tile. enemyTile.link1.state.isDark will tell you if that same tile
 		// has already been converted to darkness, etc.).
 		// Update state of light tiles and map layout.
-
 		//------FINAL RIG------
 			currentTileSet = updateLightCounter();
 			var decisive = -1;
 			var finalized = false;
 			decisive = superDecider(enemyTile, 5);
-			//console.log("STARTING LOCATION: " + enemyTile.id);
-			//console.log("ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
-
+			//console.log("DEV MODE:: STARTING LOCATION: " + enemyTile.id);
+			//console.log("DEV MODE:: ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
 			if(!prePathActive){
 				if(currentLightCount < (initialLightCount * behaviorThreshold)){
 					//Ensure that we are not interupting a valid move.
@@ -741,10 +667,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 					//We have hit end of prepathing, do a normal decision
 					prePathActive = false;
 					prePathCommand = [[],[]];
-					//console.log("END OF PREPATHED ROUTE");
 				}
 				else{
-					//console.log("-------------------------- " + prePathCommand);
 					decisive = prePathCommand[1].shift();
 				}
 				
@@ -753,7 +677,6 @@ var EnemyWrapper = function(center, tileMap, id) {
 			//Call upon superDecider to check next move (Only form of activity)
 			makeMove(decisive);
 		//------FINAL END------
-
 	 };
 	return Enemy;
 };

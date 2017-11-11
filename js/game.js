@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.25
-Last Updated: 2017-November-05
+Stay in the Light v0.0.26
+Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -16,6 +16,8 @@ var GameWrapper = function() {
 		this.container = new PIXI.Container();
 		// Create the timer stage to draw on.
 		this.containerForTimer = new PIXI.Container();
+		// Create the timer stage to draw on.
+		this.containerForSoundMute = new PIXI.Container();
 		// Create the loading bar stage to draw on.
 		this.containerForLoadingBar = new PIXI.Container();
 		// Create the start screen stage to draw on.
@@ -33,6 +35,8 @@ var GameWrapper = function() {
 		this.fog = {};
 		//sound object
 		this.sound = {};
+		//hover zone
+		this.hoverArea = -1;
 		//Indicates first frame of main game (tick)
 		this.gameStart = false;
 		// Don't render certain things if game is over.
@@ -45,6 +49,8 @@ var GameWrapper = function() {
 		this.isCounting = true;
 		// Flag to see if loading is done.
 		this.isLoaded = false;
+		// Flag to have sound playing or not
+		this.isSound = true;
 		// Did the player win.
 		this.isWin = false;
 		// Loading Bar object
@@ -80,6 +86,10 @@ var GameWrapper = function() {
 		this.rendererForTimer = new PIXI.CanvasRenderer(100, 50);
 		this.rendererForTimer.transparent = false;
 		document.getElementById('timer-stage').appendChild(this.rendererForTimer.view);
+		// Setup the rendering surface for timer scene.
+		this.rendererForSoundMute = new PIXI.CanvasRenderer(275, 20);
+		this.rendererForSoundMute.transparent = false;
+		document.getElementById('sound-mute-stage').appendChild(this.rendererForSoundMute.view);
 		// Setup the rendering surface for loading bar scene
 		this.rendererForLoadingBar = new PIXI.CanvasRenderer(this._width, this._height);
 		this.rendererForLoadingBar.transparent = true;
@@ -117,16 +127,18 @@ var GameWrapper = function() {
 			if(this.firstLoad) {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
-					this.sound.deathSound();
-					this.sound.cutSound();
+					//End game music, call death Sound
+					this.sound.executeSound(0, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(false);
 					}.bind(this), 6000);
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
-					this.sound.deathSound();
-					this.sound.cutSound();
+					//End game music, play win sound
+					this.sound.executeSound(7, true, false, false, 0.6);
+					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(true);
 					}.bind(this), 6000);
@@ -176,6 +188,7 @@ var GameWrapper = function() {
 									var loadingStage = document.getElementById('loading-stage');
 									var gameStage = document.getElementById('game-stage');
 									var timerStage = document.getElementById('timer-stage');
+									var soundMuteStage = document.getElementById('sound-mute-stage');
 
 									this.loadingBar.drawLoadingBarProgress(0, true);
 									this.rendererForLoadingBar.render(this.containerForLoadingBar);
@@ -185,6 +198,7 @@ var GameWrapper = function() {
 										loadingStage.style.display = 'none';
 										gameStage.style.display = 'block';
 										timerStage.style.display = 'block';
+										soundMuteStage.style.display = 'block';
 										this.honeycomb.activateBoard();
 										this.timer.startTimer();
 
@@ -228,6 +242,8 @@ var GameWrapper = function() {
 				for(var i = 0; i < this.enemies.length; i++) {
 					if(this.enemies[i].id === e.enemyId) {
 						this.enemies.splice(i, 1);
+						//Play enemy death sound
+						this.sound.executeSound(5, true, false, false, 0.6);
 						break;
 					}
 				}
@@ -261,6 +277,7 @@ var GameWrapper = function() {
 			this.timer.init();
 			// Adds timerWrapped object to the timer specific container.
 			this.containerForTimer.addChild(this.timer.container);
+			this.containerForSoundMute.addChild(this.timer.containerMute);
 		},
 
 		/**
@@ -279,6 +296,7 @@ var GameWrapper = function() {
 				if(this.honeycomb.getBoardActivityStatus()) {
 					this.fog.expand(this.honeycomb.getActiveCenter());
 					this.honeycomb.expand();
+					this.sound.executeSound(2, true, false, false, 0.4);
 				}
 			}.bind(this));
 
@@ -286,6 +304,7 @@ var GameWrapper = function() {
 				if(this.honeycomb.getBoardActivityStatus()) {
 					this.fog.contract(this.honeycomb.getActiveCenter());
 					this.honeycomb.contract();
+					this.sound.executeSound(3, true, false, false, 0.6);
 				}
 			}.bind(this));
 
@@ -373,13 +392,12 @@ var GameWrapper = function() {
 		endGame: function(isWin) {
 			this.isWin = isWin;
 			this.gameStart = false;
-			this.sound.cutSound();
+			this.sound.executeSound(1, false, true, true, 0.6);
 			if(this.isWin) {
 				this.calculateScore();
 				this.gameOverScreen.setScore(this.score);
 			}
 			this.gameOver = true;
-			//this.fog.cutSound();
 			document.getElementById('game-stage').style.display = 'none';
 			document.getElementById('game-over-stage').style.display = 'block';
 			if(this.mainGameAniLoop) {
@@ -454,14 +472,37 @@ var GameWrapper = function() {
 		 * Draws the start screen and animates until player clicks play.
 		 */
 		start: function() {
+			// Sets up ability to toggle sound on and off.
+			if(this.firstLoad) {
+				// Initialize sound object for sound playing (Potential delay here?)
+				this.sound = new SoundWrapper();
+				this.sound.init();
+			}
+
 			this.startScreen = new StartScreenWrapper(this._center);
 			this.startScreen.init();
 			this.containerForStartScreen.addChild(this.startScreen.container);
 			this.setupBoundaries(2, 0xCFB53B);
 
-			//Initialize sound object for sound playing :D
-			this.sound = new SoundWrapper();
-			this.sound.init();
+			// Sets up ability to toggle sound on and off.
+			if(this.firstLoad) {
+				document.addEventListener('toggleSound', function(e) {
+					this.isSound = !this.isSound;
+					// User toggles sound.
+					if(this.isSound) {
+						this.sound.unMuteSounds();
+					} else {
+						this.sound.muteSounds();
+					}
+				}.bind(this));
+				Mousetrap.bind('m', function(){
+					var event = new Event('toggleSound');
+    				document.dispatchEvent(event);
+				}.bind(this));
+			}
+
+			//Start Main menu music
+			this.sound.executeSound(6, true, true, false, 0.1);
 
 			var interval = 2000;
 			var flickeringInterval = function() {
@@ -488,18 +529,30 @@ var GameWrapper = function() {
 			this.startScreen.drawOptions();
 
 			// Detects when the mouse moves and calculates which start screen option player is hovering over.
+			var newHoverDetector = function(buttonArea){
+				if(this.hoverArea !== buttonArea && buttonArea !== 3){
+					this.sound.executeSound(8, true, false, false, 0.3);
+					this.hoverArea = buttonArea;
+				} else if(buttonArea === 3) {
+					this.hoverArea = buttonArea;
+				}
+			}.bind(this);
 			var mouseMoveHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
-					if(mY >= 400 && mY <= 445) {
+					if(mY >= 300 && mY <= 425) {
 						this.startScreen.drawOptions(0);
-					} else if(mY >= 450 && mY <= 505) {
+						newHoverDetector(0);
+					} else if(mY >= 430 && mY <= 505) {
 						this.startScreen.drawOptions(1, this.difficulty, mX);
+						newHoverDetector(1);
 					} else if(mY >= 505 && mY <= 700) {
 						this.startScreen.drawOptions(2);
+						newHoverDetector(2);
 					} else {
 						this.startScreen.drawOptions();
+						newHoverDetector(3);
 					}
 				} else {
 					this.startScreen.drawOptions();
@@ -509,8 +562,9 @@ var GameWrapper = function() {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
-					if(mY >= 400 && mY <= 445) {
+					if(mY >= 300 && mY <= 425) {
 						if(this.startScreenAniLoop) {
+							this.sound.executeSound(4, true, false, false, 0.6);
 							var id = this.cancelAnimationFrame(this.startScreenAniLoop);
 							this.startScreenAniLoop = undefined;
 						}
@@ -520,6 +574,8 @@ var GameWrapper = function() {
 						// Removes move of mouse handler to make way for new one.
 						document.removeEventListener('mousemove', mouseMoveHandler);
 						if(typeof this.startScreen.killProcesses === 'function') {
+							//Kill menu loop music
+							this.sound.executeSound(6, false, false, false, 0.1);
 							this.startScreen.killProcesses();
 						}
 						var loadingStage = document.getElementById('loading-stage');
@@ -535,6 +591,7 @@ var GameWrapper = function() {
 						// Destroy the old everything else before moving on.
 						this.container = new PIXI.Container();
 						this.containerForTimer = new PIXI.Container();
+						this.containerForSoundMute = new PIXI.Container();
 						this.enemies = [];
 						// Cleans up tilemap related event listeners
 						if(this.honeycomb.playerIsAlive !== undefined) {
@@ -549,7 +606,9 @@ var GameWrapper = function() {
 						this.timer = {};
 						// Start the actual game.
 						this.build();
-					} else if(mY > 420 && mY <= 480) {
+					} else if(mY > 435 && mY <= 505) {
+						//Play click sound
+						this.sound.executeSound(4, true, false, false, 0.6);
 						if(mX >= 800 && mX < 830) {
 							this.difficulty = 1;
 							mouseMoveHandler({pageX: mX, pageY: mY});
@@ -585,11 +644,13 @@ var GameWrapper = function() {
 			this.rendererForLoadingBar.render(this.containerForLoadingBar);
 			// Render the timer stage on top of the game stage.
 			this.rendererForTimer.render(this.containerForTimer);
+			this.rendererForSoundMute.render(this.containerForSoundMute);
 			//Update Fog Sprite creation for overlay
 			// Dev Mode: comment next 3 lines for fog off
 			if(!this.gameStart){
 				this.gameStart = true;
-				this.sound.playLoop();
+				//Start game loop music
+				this.sound.executeSound(1, true, true, false, 0.6);
 			}
 
 			if(this.isLoaded) {

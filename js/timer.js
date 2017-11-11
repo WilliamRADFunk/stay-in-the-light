@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.25
-Last Updated: 2017-November-04
+Stay in the Light v0.0.26
+Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -14,6 +14,7 @@ var TimerWrapper = function(center) {
 	 * variables accessible to everything internal to TimerWrapper go here
 	 * aka starts with 'var'
 	**/
+	var muteSoundText;
 	var timerBox = new PIXI.Graphics();
 	var timerText = new PIXI.Graphics();
 
@@ -46,9 +47,15 @@ var TimerWrapper = function(center) {
 		return digits;
 	};
 	// Calls all the draw components that sum up to make the whole timer.
-	drawTimer = function() {
+	var drawTimer = function() {
 		drawTimerBox();
 		drawTimerDigits(calculateTime());
+	};
+	var drawMuteSoundText = function() {
+		muteSoundText = new PIXI.Text('Press \'m\' to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+		muteSoundText.x = 0;
+		muteSoundText.y = 0;
+		Timer.containerMute.addChild(muteSoundText);
 	};
 	// Draw the border around the timer.
 	var drawTimerBox = function() {
@@ -72,7 +79,6 @@ var TimerWrapper = function(center) {
 	 * variables accessible publicly from TimerWrapper go here
 	 * aka starts with 'Timer'
 	**/
-
 	// Simply returns time remaining in the round.
 	Timer.getTime = function() {
 		return time;
@@ -100,9 +106,12 @@ var TimerWrapper = function(center) {
 	// and setup any internal logic for the Timer.
 	Timer.init = function() {
 		Timer.container = new PIXI.Container();
+		Timer.containerMute = new PIXI.Container();
 
 		Timer.container.addChild(timerBox);
 		Timer.container.addChild(timerText);
+		// Draw sound mute instructions
+		drawMuteSoundText();
 	};
 
 	// Return public api object at very end.
