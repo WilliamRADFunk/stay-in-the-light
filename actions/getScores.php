@@ -19,7 +19,7 @@ if ($conn->connect_error)
     die("Connection failed: " . $conn->connect_error);
 }
 // Get top five scores
-$sql = "SELECT * FROM Top_Scores ORDER BY scores DESC LIMIT 5";
+$sql = "SELECT * FROM Top_Scores ORDER BY scores DESC LIMIT 6";
 $result = $conn->query($sql);
 
 $scores = '{"scores":[';

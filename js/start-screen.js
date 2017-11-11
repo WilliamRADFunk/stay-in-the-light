@@ -23,6 +23,9 @@ var StartScreenWrapper = function(center) {
 	var startText;
 	var difficultyText;
 	var difficultyLevelText;
+	var topScore1;
+	var topScore2;
+	var scoresText = [];
 	var helpText;
 	var isLit = false;
 
@@ -299,6 +302,40 @@ var StartScreenWrapper = function(center) {
 		muteSoundText.x = 980;
 		muteSoundText.y = 20;
 		StartScreen.container.addChild(muteSoundText);
+	};
+	var drawScores = function(topScores) {
+		if(topScore1) {
+			StartScreen.container.removeChild(topScore1);
+		}
+		if(topScore2) {
+			StartScreen.container.removeChild(topScore2);
+		}
+		for(var i = 0; i < scoresText.length; i++) {
+			if(scoresText[i][2]) {
+				StartScreen.container.removeChild(scoresText[i][2]);
+			}
+		}
+		if(topScores && scoresText.length) {
+			topScore1 = new PIXI.Text('Top Scores', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			topScore1.x = 100;
+			topScore1.y = 350;
+			StartScreen.container.addChild(topScore1);
+			topScore2 = new PIXI.Text('Top Scores', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			topScore2.x = 300;
+			topScore2.y = 350;
+			StartScreen.container.addChild(topScore2);
+			for(var j = 0; j < topScores.length; j++) {
+				topScores[j][2] = new PIXI.Text((j + 1) + '. ' + topScores[j][0] + ': ' + topScores[j][1], {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+				if(j < 3) {
+					topScores[j][2].x = 100;
+					topScores[j][2].y = 380 + (j * 30);
+				} else {
+					topScores[j][2].x = 300;
+					topScores[j][2].y = 380 + ((j % 3) * 30);
+				}
+				StartScreen.container.addChild(topScores[j][2]);
+			}
+		}
 	};
 	var drawWordStart = function(isHighlighted) {
 		if(startText && isHighlighted) {
@@ -1750,24 +1787,28 @@ var StartScreenWrapper = function(center) {
 				drawWordStart(true);
 				drawWordDifficulty(false);
 				drawWordHelp(false);
+				drawScores(scoresText);
 				break;
 			}
 			case 1: {
 				drawWordDifficulty(true, difficulty, mX);
 				drawWordStart(false);
 				drawWordHelp(false);
+				drawScores(scoresText);
 				break;
 			}
 			case 2: {
 				drawWordHelp(true);
 				drawWordDifficulty(false);
 				drawWordStart(false);
+				drawScores();
 				break;
 			}
 			default: {
 				drawWordStart(false);
 				drawWordDifficulty(false);
 				drawWordHelp(false);
+				drawScores(scoresText);
 			}
 		}
 	};
@@ -1782,26 +1823,18 @@ var StartScreenWrapper = function(center) {
 			async: true,
 			success:function(responseData)
 			{
-				console.log('Scores: ', responseData);
-				// this.isOffline = false;
-				// if(this.offlineText !== null)
-				// {
-				// 	container.remove(offlineText);
-				// 	offlineText = null;
-				// }
-				// this.populateTopFive(responseData);
+				if(responseData.scores && responseData.scores.length) {
+					for(var i = 0; i < responseData.scores.length; i++) {
+						if(responseData.scores[i] && responseData.scores[i].initials && responseData.scores[i].score) {
+							scoresText.push([responseData.scores[i].initials, responseData.scores[i].score]);
+						}
+					}
+				}
+				drawScores(scoresText);
 			},
 			error:function(error)
 			{
 				console.log('Failed to get scores', error);
-				// isOffline = true;
-				// offlineText = new Engine.DisplayText(
-				// 	Engine.canvas.width - 60,
-				// 	Engine.canvas.height - 10,
-				// 	'Offline Mode'
-				// );
-				// scene.add(offlineText);
-				// showingScores = false;
 			}
 		});
 	};
