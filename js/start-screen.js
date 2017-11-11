@@ -303,7 +303,7 @@ var StartScreenWrapper = function(center) {
 			startText = new PIXI.Text('Start', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		}
 		startText.x = 600;
-		startText.y = 400;
+		startText.y = 350;
 		StartScreen.container.addChild(startText);
 	};
 	var drawWordDifficulty = function(isHighlighted, difficulty, mX) {
@@ -442,7 +442,7 @@ var StartScreenWrapper = function(center) {
 			helpText = new PIXI.Text('Help', {fontFamily: 'Courier', fontSize: 24, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		}
 		helpText.x = 600;
-		helpText.y = 480;
+		helpText.y = 520;
 		StartScreen.container.addChild(helpText);
 
 
@@ -1408,20 +1408,20 @@ var StartScreenWrapper = function(center) {
 		}
 
 		mouseTrackText1 = new PIXI.Text('Direction of possible player', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseTrackText1.x = 350;
-		mouseTrackText1.y = 475;
+		mouseTrackText1.x = 325;
+		mouseTrackText1.y = 500;
 		StartScreen.container.addChild(mouseTrackText1);
 		mouseTrackText2 = new PIXI.Text('movement is tracked by mouse', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseTrackText2.x = 350;
-		mouseTrackText2.y = 490;
+		mouseTrackText2.x = 325;
+		mouseTrackText2.y = 515;
 		StartScreen.container.addChild(mouseTrackText2);
 		mouseTrackText3 = new PIXI.Text('cursor. Red means an impassable', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseTrackText3.x = 350;
-		mouseTrackText3.y = 505;
+		mouseTrackText3.x = 325;
+		mouseTrackText3.y = 530;
 		StartScreen.container.addChild(mouseTrackText3);
 		mouseTrackText4 = new PIXI.Text('tile. Green means a traversable tile.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseTrackText4.x = 350;
-		mouseTrackText4.y = 520;
+		mouseTrackText4.x = 325;
+		mouseTrackText4.y = 545;
 		StartScreen.container.addChild(mouseTrackText4);
 
 		mouseMoveText1 = new PIXI.Text('Left mouse click moves player one tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});

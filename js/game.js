@@ -499,8 +499,10 @@ var GameWrapper = function() {
 
 			// Detects when the mouse moves and calculates which start screen option player is hovering over.
 			var newHoverDetector = function(buttonArea){
-				if(this.hoverArea !== buttonArea){
+				if(this.hoverArea !== buttonArea && buttonArea !== 3){
 					this.sound.executeSound(8, true, false, false, 0.3);
+					this.hoverArea = buttonArea;
+				} else if(buttonArea === 3) {
 					this.hoverArea = buttonArea;
 				}
 			}.bind(this);
@@ -508,10 +510,10 @@ var GameWrapper = function() {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
-					if(mY >= 400 && mY <= 445) {
+					if(mY >= 300 && mY <= 425) {
 						this.startScreen.drawOptions(0);
 						newHoverDetector(0);
-					} else if(mY >= 450 && mY <= 505) {
+					} else if(mY >= 430 && mY <= 505) {
 						this.startScreen.drawOptions(1, this.difficulty, mX);
 						newHoverDetector(1);
 					} else if(mY >= 505 && mY <= 700) {
@@ -519,6 +521,7 @@ var GameWrapper = function() {
 						newHoverDetector(2);
 					} else {
 						this.startScreen.drawOptions();
+						newHoverDetector(3);
 					}
 				} else {
 					this.startScreen.drawOptions();
@@ -528,7 +531,7 @@ var GameWrapper = function() {
 				var mX = e.pageX;
 				var mY = e.pageY;
 				if(mX >= 10 && mX <= 1270) {
-					if(mY >= 400 && mY <= 445) {
+					if(mY >= 300 && mY <= 425) {
 						if(this.startScreenAniLoop) {
 							this.sound.executeSound(4, true, false, false, 0.6);
 							var id = this.cancelAnimationFrame(this.startScreenAniLoop);
@@ -571,7 +574,7 @@ var GameWrapper = function() {
 						this.timer = {};
 						// Start the actual game.
 						this.build();
-					} else if(mY > 450 && mY <= 505) {
+					} else if(mY > 435 && mY <= 505) {
 						//Play click sound
 						this.sound.executeSound(4, true, false, false, 0.6);
 						if(mX >= 800 && mX < 830) {
