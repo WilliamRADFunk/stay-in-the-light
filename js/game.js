@@ -28,6 +28,8 @@ var GameWrapper = function() {
 		this.difficulty = 1;
 		// Enemies array
 		this.enemies = [];
+		// Array of characters making up the player's name for scores.
+		this.enterScoreInitials = [];
 		// First time loading assets, prevents things like loading fog assets
 		// to cache twice (causing collision).
 		this.firstLoad = true;
@@ -57,6 +59,8 @@ var GameWrapper = function() {
 		this.loadingBar = {};
 		// Used when an incremental stage of loading is completed.
 		this.loadingCallback;
+		// If getScores fails, we assume there's a bad connect. Keep track of offline mode
+		this.isOffline = true;
 		// Score holder to be used for sending to db after a round.
 		this.score = 0;
 		// Start Screen object
@@ -330,7 +334,7 @@ var GameWrapper = function() {
 		 */
 		getScores: function() {
 			this.startScreen.getScores();
-		},
+		},		
 
 		/**
 		 * Draws the game over screen and animates until player clicks mouse.
@@ -341,6 +345,8 @@ var GameWrapper = function() {
 			var interval = 2000;
 			var flickeringInterval = function() {
 	        	clearInterval(flickeringLightsInterval);
+
+				this.gameOverScreen.showOffline(this.isOffline);
 
 				this.gameOverScreen.drawGameOverScreenWords();
 
@@ -360,32 +366,57 @@ var GameWrapper = function() {
 
 			var flickeringLightsInterval = setInterval(flickeringInterval, interval);
 
+			var handleKeys = function(e)
+			{
+				if(this.isWin && this.enterScoreInitials !== null && this.enterScoreInitials.length >= 0
+					&& ((e.keyCode >= 65 && e.keyCode <= 122) || (e.which >= 65 && e.which <= 122)))
+				{
+					if(!this.isOffline && this.enterScoreInitials.length < 10 && typeof this.gameOverScreen.changeName === 'function')
+					{
+						this.enterScoreInitials.push(e.keyCode ? String.fromCharCode(e.keyCode).toUpperCase() : String.fromCharCode(e.which).toUpperCase());
+						this.gameOverScreen.changeName(this.enterScoreInitials);
+					}
+				}
+			}.bind(this);
+
 			var mouseClickHandler = function(e) {
-				if(this.gameOverAniLoop) {
-					var id = this.cancelAnimationFrame(this.gameOverAniLoop);
-					this.gameOverAniLoop = undefined;
+				if(this.isWin && this.enterScoreInitials !== null && this.enterScoreInitials.length >= 0) {
+					clearInterval(flickeringLightsInterval);
+					// Removes listeners to make way for new ones.
+					document.removeEventListener('keyup', handleKeys);
+					document.removeEventListener('click', mouseClickHandler);
+					if(typeof this.gameOverScreen.killProcesses === 'function') {
+						this.gameOverScreen.killProcesses();
+					}
+					this.sendScore(this.enterScoreInitials);
+				} else {
+					if(this.gameOverAniLoop) {
+						var id = this.cancelAnimationFrame(this.gameOverAniLoop);
+						this.gameOverAniLoop = undefined;
+					}
+					// Removes listeners to make way for new ones.
+					document.removeEventListener('keyup', handleKeys);
+					document.removeEventListener('click', mouseClickHandler);
+					if(typeof this.gameOverScreen.killProcesses === 'function') {
+						this.gameOverScreen.killProcesses();
+					}
+					var gameOverStage = document.getElementById('game-over-stage');
+					var startStage = document.getElementById('start-stage');
+					gameOverStage.style.display = 'none';
+					startStage.style.display = 'block';
+					// Destroy old game over content.
+					this.gameOverScreen = {};
+					this.containerForGameOverScreen = new PIXI.Container();
+					this.gameOver = false;
+					this.firstLoad = false;
+					// Return to start screen.
+					this.start();
 				}
-				clearInterval(flickeringLightsInterval);
-				// Removes click of mouse handler to make way for new one.
-				document.removeEventListener('click', mouseClickHandler);
-				if(typeof this.gameOverScreen.killProcesses === 'function') {
-					this.gameOverScreen.killProcesses();
-				}
-				var gameOverStage = document.getElementById('game-over-stage');
-				var startStage = document.getElementById('start-stage');
-				gameOverStage.style.display = 'none';
-				startStage.style.display = 'block';
-				// Destroy old game over content.
-				this.gameOverScreen = {};
-				this.containerForGameOverScreen = new PIXI.Container();
-				this.gameOver = false;
-				this.firstLoad = false;
-				// Return to start screen.
-				this.start();
 			}.bind(this);
 
 			// Captures click of mouse and passes on to handler.
 			setTimeout(function() {
+				document.addEventListener('keyup', handleKeys, false);
 				document.addEventListener('click', mouseClickHandler, false);
 			}, 1000);
 
@@ -397,6 +428,8 @@ var GameWrapper = function() {
 		 * Goes through end game sequence
 		 */
 		endGame: function(isWin) {
+			Mousetrap.unbind('a');
+			Mousetrap.unbind('d');
 			this.isWin = isWin;
 			this.gameStart = false;
 			this.sound.executeSound(1, false, true, true, 0.6);
@@ -412,6 +445,61 @@ var GameWrapper = function() {
 				this.mainGameAniLoop = undefined;
 			}
 			this.end();
+		},
+
+		/*
+		 * Sends the users name to score db
+		 */
+		sendScore: function()
+		{
+			if(this.enterScoreInitials && this.enterScoreInitials.length)
+			{
+				var scorePackage = {
+					initials: '',
+					score: this.score
+				};
+				for(var i = 0; i < this.enterScoreInitials.length; i++) {
+					scorePackage.initials += this.enterScoreInitials[i];
+				}
+			}
+
+			$.ajax({
+				type:'POST',
+				url:'https://tenaciousteal.com/games/stay-in-the-light/actions/insert.php',
+				data: JSON.stringify(scorePackage),
+				contentType:'application/x-www-form-urlencoded; charset=utf-8',
+				dataType:'text',
+				crossDomain: true,
+				async: true,
+				success:function(data)
+				{
+					console.log(data);
+					restart();
+				},
+				error:function(error)
+				{
+					console.log(error);
+					this.isOffline = true;
+				}
+			});
+
+			var restart = function() {
+				if(this.gameOverAniLoop) {
+					var id = this.cancelAnimationFrame(this.gameOverAniLoop);
+					this.gameOverAniLoop = undefined;
+				}
+				var gameOverStage = document.getElementById('game-over-stage');
+				var startStage = document.getElementById('start-stage');
+				gameOverStage.style.display = 'none';
+				startStage.style.display = 'block';
+				// Destroy old game over content.
+				this.gameOverScreen = {};
+				this.containerForGameOverScreen = new PIXI.Container();
+				this.gameOver = false;
+				this.firstLoad = false;
+				// Return to start screen.
+				this.start();
+			}.bind(this);
 		},
 
 		/**
@@ -503,9 +591,12 @@ var GameWrapper = function() {
 						this.sound.muteSounds();
 					}
 				}.bind(this));
-				Mousetrap.bind('m', function(){
+				Mousetrap.bind('*', function(){
 					var event = new Event('toggleSound');
     				document.dispatchEvent(event);
+				}.bind(this));
+				document.addEventListener('onlineDetected', function(e) {
+					this.isOffline = false;
 				}.bind(this));
 			}
 

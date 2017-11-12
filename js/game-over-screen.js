@@ -173,7 +173,7 @@ var GameOverScreenWrapper = function(center) {
 		if(muteSoundText) {
 			GameOverScreen.container.removeChild(muteSoundText);
 		}
-		muteSoundText = new PIXI.Text('Press \'m\' to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+		muteSoundText = new PIXI.Text('Press * to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
 		muteSoundText.x = 980;
 		muteSoundText.y = 20;
 		GameOverScreen.container.addChild(muteSoundText);
@@ -504,6 +504,12 @@ var GameOverScreenWrapper = function(center) {
 	 * variables accessible publicly from GameOverScreenWrapper go here
 	 * aka starts with 'GameOverScreen'
 	**/
+	GameOverScreen.changeName = function(name) {
+		if(name) {
+			console.log(name);
+		}
+	};
+
 	GameOverScreen.drawGameOverScreenWords = function() {
 		drawMuteSoundText();
 		drawLight();
@@ -535,6 +541,12 @@ var GameOverScreenWrapper = function(center) {
 			// Refreshes the win or lose portion of the text.
 			drawGameOver('Win!');
 			drawScore();
+		}
+	};
+
+	GameOverScreen.showOffline = function(isOffline) {
+		if(isOffline) {
+			console.log('drawing offline text');
 		}
 	};
 

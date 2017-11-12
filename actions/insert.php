@@ -15,7 +15,7 @@ $input = file_get_contents('php://input');
 $object = json_encode($input, JSON_FORCE_OBJECT);
 
 $inputArray = explode(",", $input);
-$initials = substr($inputArray[0], 13, 3);
+$initials = substr($inputArray[0], 13, 10);
 $score = substr($inputArray[1], 8, (strlen($inputArray[1]) - 1 - 8));
 
 // Create connection
