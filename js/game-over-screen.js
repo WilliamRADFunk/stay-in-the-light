@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.26
-Last Updated: 2017-November-10
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -20,7 +20,9 @@ var GameOverScreenWrapper = function(center) {
 	var theText;
 	var lightText;
 	var muteSoundText;
+	var officialName = [];
 	var isLit = false;
+	var isOffline = false;
 
 	var gameOverScreenBaddyUp = PIXI.Sprite.fromImage('./images/enemy_NE.png');
 	gameOverScreenBaddyUp.anchor.set(0.5);
@@ -58,6 +60,8 @@ var GameOverScreenWrapper = function(center) {
 
 	var gameOverText;
 	var clickText;
+	var nameText1;
+	var nameText2;
 	var scoreText;
 
 	var light = new PIXI.Graphics();
@@ -173,7 +177,7 @@ var GameOverScreenWrapper = function(center) {
 		if(muteSoundText) {
 			GameOverScreen.container.removeChild(muteSoundText);
 		}
-		muteSoundText = new PIXI.Text('Press \'m\' to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+		muteSoundText = new PIXI.Text('Press * to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
 		muteSoundText.x = 980;
 		muteSoundText.y = 20;
 		GameOverScreen.container.addChild(muteSoundText);
@@ -215,6 +219,46 @@ var GameOverScreenWrapper = function(center) {
 			GameOverScreen.container.addChild(mouseImageLeft);
 			GameOverScreen.container.addChild(mouseImageRight);
 		}
+	};
+	var drawName = function() {
+		if(nameText1 && isLit) {
+			GameOverScreen.container.removeChild(nameText1);
+			GameOverScreen.container.removeChild(nameText2);
+			nameText1 = new PIXI.Text('Add your name to the leaderboard. a-z and spaces only.', {fontFamily: 'Courier', fontSize: 20, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			nameText1.x = 350;
+			nameText1.y = 575;
+			var nombre = drawNameBuildName();
+			nameText2 = new PIXI.Text(nombre, {fontFamily: 'Courier', fontSize: 24, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			nameText2.x = 460;
+			nameText2.y = 650;
+			GameOverScreen.container.addChild(nameText1);
+			GameOverScreen.container.addChild(nameText2);
+		} else if(nameText1) {
+			GameOverScreen.container.removeChild(nameText1);
+			GameOverScreen.container.removeChild(nameText2);
+		} else if(isLit) {
+			nameText1 = new PIXI.Text('Add your name to the leaderboard. a-z and spaces only.', {fontFamily: 'Courier', fontSize: 20, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			nameText1.x = 350;
+			nameText1.y = 575;
+			var nombre = drawNameBuildName();
+			nameText2 = new PIXI.Text(nombre, {fontFamily: 'Courier', fontSize: 24, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			nameText2.x = 460;
+			nameText2.y = 650;
+			GameOverScreen.container.addChild(nameText1);
+			GameOverScreen.container.addChild(nameText2);
+		}
+	};
+	var drawNameBuildName = function() {
+		var constructedName = '';
+		for(var i = 0; i < officialName.length; i++) {
+			constructedName += officialName[i];
+			constructedName += '  ';
+		}
+		for(var j = 0; j < (10 - officialName.length); j++) {
+			constructedName += '-';
+			constructedName += '  ';
+		}
+		return constructedName;
 	};
 	var drawScore = function() {
 		var offsetX = 550;
@@ -504,6 +548,13 @@ var GameOverScreenWrapper = function(center) {
 	 * variables accessible publicly from GameOverScreenWrapper go here
 	 * aka starts with 'GameOverScreen'
 	**/
+	GameOverScreen.changeName = function(name) {
+		officialName = name;
+		if(!isOffline) {
+			drawName();
+		}
+	};
+
 	GameOverScreen.drawGameOverScreenWords = function() {
 		drawMuteSoundText();
 		drawLight();
@@ -513,6 +564,9 @@ var GameOverScreenWrapper = function(center) {
 		drawWordLight();
 		if(roundScore > 0) {
 			drawGameOver('Win!');
+			if(!isOffline) {
+				drawName();
+			}
 			drawScore();
 		} else {
 			drawGameOver('Lose!');
@@ -534,8 +588,15 @@ var GameOverScreenWrapper = function(center) {
 			roundScore = score;
 			// Refreshes the win or lose portion of the text.
 			drawGameOver('Win!');
+			if(!isOffline) {
+				drawName();
+			}
 			drawScore();
 		}
+	};
+
+	GameOverScreen.toggleOffline = function(b_isOffline) {
+		isOffline = b_isOffline;
 	};
 
 	// Should decide where to instantiate the GameOverScreen on the tile map,
