@@ -5,7 +5,7 @@ include_once "config2.php";
 
 /*
 Stay in the Light v0.0.26
-Last Updated: 2017-November-10
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/

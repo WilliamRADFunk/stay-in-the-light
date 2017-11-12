@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.26
-Last Updated: 2017-November-10
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -411,7 +411,7 @@ var MapWrapper = function(center, difficulty) {
 
 				// Checks to see if all the free nodes on the board have been converted to light nodes.
 				if(tileMap.getFreeNodes().length <= tileMap.getLightNodes().length && !playerWon) {
-					console.log('Player Wins');
+					if(window.DEBUG_MODE) { console.log('Player Wins'); }
 					var event = new Event('playerWon');
     				document.dispatchEvent(event);
     				playerWon = true;
@@ -795,7 +795,7 @@ var MapWrapper = function(center, difficulty) {
 			if(checkForIslands(startNode)) {
 				break;
 			} else {
-				console.log('Islands found! Trying again.');
+				if(window.DEBUG_MODE) { console.log('Islands found! Trying again.'); }
 				tileTable = [];
 				allTiles = [];
 				freeNodes = [];
@@ -1101,7 +1101,7 @@ var MapWrapper = function(center, difficulty) {
 				oldActive['link' + hextant].goLight();
 				// If enemy present, game over
 				if(oldActive['link' + hextant].state.isEnemy) {
-					console.log('Collision with enemy. Player loses.');
+					if(window.DEBUG_MODE) { console.log('Collision with enemy. Player loses.'); }
 					oldActive['link' + hextant].goDark();
 					oldActive['link' + hextant].removePlayer();
 				}
@@ -1212,11 +1212,11 @@ var MapWrapper = function(center, difficulty) {
 	*/
 	var encompassTilesDark = function() {
 		for(var i = 0; i < nodesToBeFilled.length; i++) {
-			console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with DARK!');
+			if(window.DEBUG_MODE) { console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with DARK!'); }
 			nodesToBeFilled[i].goDark();
 
 			if(nodesToBeFilled[i].state.isPlayer) {
-				console.log('Player dies by being surrounded by darkness.')
+				if(window.DEBUG_MODE) { console.log('Player dies by being surrounded by darkness.'); }
 				nodesToBeFilled[i].setDeath(true);
 				var event = new Event('playerDied');
 				document.dispatchEvent(event);
@@ -1231,7 +1231,7 @@ var MapWrapper = function(center, difficulty) {
 	*/
 	var encompassTilesLight = function() {
 		for(var i = 0; i < nodesToBeFilled.length; i++) {
-			console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with LIGHT!');
+			if(window.DEBUG_MODE) { console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with LIGHT!'); }
 			nodesToBeFilled[i].goLight();
 
 			if(nodesToBeFilled[i].state.isEnemy) {
@@ -1426,7 +1426,7 @@ var MapWrapper = function(center, difficulty) {
 		}
 		if(oldTile === newTile) {
 			// Enemy has decided not to move
-			console.log('Enemy stands still');
+			if(window.DEBUG_MODE) { console.log('Enemy stands still'); }
 			return false;
 		}
 		else if(!newTile) {
@@ -1434,7 +1434,7 @@ var MapWrapper = function(center, difficulty) {
 		}
 		else if(newTile.state.isPlayer) {
 			// Game over. Player loses.
-			console.log('Enemy has found and killed player');
+			if(window.DEBUG_MODE) { console.log('Enemy has found and killed player'); }
 			oldTile.addTrail(newTile, false);
 			var graphicPackage = oldTile.currentEnemyGraphic;
 			for(var i = 1; i <= 6; i++) {
@@ -1451,10 +1451,10 @@ var MapWrapper = function(center, difficulty) {
 		} else if(!newTile.passable || newTile.state.isEnemy) {
 			// Invalid choice in movement.
 			// Can't move to impassable tile, can't share tile with other enemy.
-			console.log(
+			if(window.DEBUG_MODE) { console.log(
 				'Already Dark: ' + newTile.state.isDark,
 				'Not passable: ' + !newTile.passable,
-				'Enemy already here: ' + newTile.state.isEnemy);
+				'Enemy already here: ' + newTile.state.isEnemy); }
 			return false;
 		} else {
 			oldTile.addTrail(newTile, false);

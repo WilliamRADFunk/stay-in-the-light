@@ -1,6 +1,6 @@
 /*
 Stay in the Light v0.0.26
-Last Updated: 2017-November-10
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -346,9 +346,9 @@ var GameWrapper = function() {
 			var flickeringInterval = function() {
 	        	clearInterval(flickeringLightsInterval);
 
-				this.gameOverScreen.showOffline(this.isOffline);
-
-				this.gameOverScreen.drawGameOverScreenWords();
+				if(this.gameOverScreen && typeof this.gameOverScreen.drawGameOverScreenWords === 'function') {
+					this.gameOverScreen.drawGameOverScreenWords();
+				}
 
 				if(interval === 2000) {
 					interval = 150;
@@ -369,18 +369,24 @@ var GameWrapper = function() {
 			var handleKeys = function(e)
 			{
 				if(this.isWin && this.enterScoreInitials !== null && this.enterScoreInitials.length >= 0
-					&& ((e.keyCode >= 65 && e.keyCode <= 122) || (e.which >= 65 && e.which <= 122)))
-				{
+					&& ((e.keyCode >= 65 && e.keyCode <= 122) || (e.which >= 65 && e.which <= 122) || (e.keyCode === 32 || e.which === 32))) {
 					if(!this.isOffline && this.enterScoreInitials.length < 10 && typeof this.gameOverScreen.changeName === 'function')
 					{
 						this.enterScoreInitials.push(e.keyCode ? String.fromCharCode(e.keyCode).toUpperCase() : String.fromCharCode(e.which).toUpperCase());
+						this.gameOverScreen.changeName(this.enterScoreInitials);
+					}
+				} else if(this.isWin && this.enterScoreInitials !== null && this.enterScoreInitials.length >= 0
+					&& ((e.keyCode === 46 || e.which === 46) || (e.keyCode === 8 || e.which === 8))) {
+					if(!this.isOffline && typeof this.gameOverScreen.changeName === 'function')
+					{
+						this.enterScoreInitials.pop();
 						this.gameOverScreen.changeName(this.enterScoreInitials);
 					}
 				}
 			}.bind(this);
 
 			var mouseClickHandler = function(e) {
-				if(this.isWin && this.enterScoreInitials !== null && this.enterScoreInitials.length >= 0) {
+				if(this.isWin && !this.isOffline && this.enterScoreInitials !== null && this.enterScoreInitials.length >= 0) {
 					clearInterval(flickeringLightsInterval);
 					// Removes listeners to make way for new ones.
 					document.removeEventListener('keyup', handleKeys);
@@ -461,6 +467,9 @@ var GameWrapper = function() {
 				for(var i = 0; i < this.enterScoreInitials.length; i++) {
 					scorePackage.initials += this.enterScoreInitials[i];
 				}
+				for(var i = 0; i < 10 - this.enterScoreInitials.length; i++) {
+					scorePackage.initials += ' ';
+				}
 			}
 
 			$.ajax({
@@ -473,12 +482,12 @@ var GameWrapper = function() {
 				async: true,
 				success:function(data)
 				{
-					console.log(data);
+					if(window.DEBUG_MODE) { console.log(data); }
 					restart();
 				},
 				error:function(error)
 				{
-					console.log(error);
+					if(window.DEBUG_MODE) { console.log(error); }
 					this.isOffline = true;
 				}
 			});
@@ -534,6 +543,8 @@ var GameWrapper = function() {
 			this.gameOverScreen = new GameOverScreenWrapper(this._center);
 			this.gameOverScreen.init();
 			this.containerForGameOverScreen.addChild(this.gameOverScreen.container);
+
+			this.gameOverScreen.toggleOffline(this.isOffline);
 
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(10);
@@ -597,6 +608,22 @@ var GameWrapper = function() {
 				}.bind(this));
 				document.addEventListener('onlineDetected', function(e) {
 					this.isOffline = false;
+					if(this.startScreen && typeof this.startScreen.toggleOffline === 'function') {
+						this.startScreen.toggleOffline(this.isOffline);
+					}
+					if(this.gameOverScreen && typeof this.gameOverScreen.toggleOffline === 'function') {
+						this.gameOverScreen.toggleOffline(this.isOffline);
+					}
+				}.bind(this));
+				document.addEventListener('offlineDetected', function(e) {
+					this.isOffline = true;
+					if(window.DEBUG_MODE) { console.log('offline Detected'); }
+					if(this.startScreen && typeof this.startScreen.toggleOffline === 'function') {
+						this.startScreen.toggleOffline(this.isOffline);
+					}
+					if(this.gameOverScreen && typeof this.gameOverScreen.toggleOffline === 'function') {
+						this.gameOverScreen.toggleOffline(this.isOffline);
+					}
 				}.bind(this));
 			}
 

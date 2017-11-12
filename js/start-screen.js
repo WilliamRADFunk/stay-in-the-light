@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v0.0.26
-Last Updated: 2017-November-10
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -28,6 +28,7 @@ var StartScreenWrapper = function(center) {
 	var scoresText = [];
 	var helpText;
 	var isLit = false;
+	var isOffline = false;
 
 	var difficultyLevel1 = new PIXI.Graphics();
 	var difficultyLevel2 = new PIXI.Graphics();
@@ -310,31 +311,42 @@ var StartScreenWrapper = function(center) {
 		if(topScore2) {
 			StartScreen.container.removeChild(topScore2);
 		}
-		for(var i = 0; i < scoresText.length; i++) {
-			if(scoresText[i][2]) {
-				StartScreen.container.removeChild(scoresText[i][2]);
+		if(!isOffline) {
+			for(var i = 0; i < scoresText.length; i++) {
+				if(scoresText[i][2]) {
+					StartScreen.container.removeChild(scoresText[i][2]);
+				}
 			}
-		}
-		if(topScores && scoresText.length) {
-			topScore1 = new PIXI.Text('Top Scores', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			if(topScores && scoresText.length) {
+				topScore1 = new PIXI.Text('Top Scores', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+				topScore1.x = 50;
+				topScore1.y = 350;
+				StartScreen.container.addChild(topScore1);
+				topScore2 = new PIXI.Text('Top Scores', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+				topScore2.x = 310;
+				topScore2.y = 350;
+				StartScreen.container.addChild(topScore2);
+				for(var j = 0; j < topScores.length; j++) {
+					topScores[j][2] = new PIXI.Text((j + 1) + '. ' + topScores[j][0] + ': ' + topScores[j][1], {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+					if(j < 3) {
+						topScores[j][2].x = 50;
+						topScores[j][2].y = 380 + (j * 30);
+					} else {
+						topScores[j][2].x = 310;
+						topScores[j][2].y = 380 + ((j % 3) * 30);
+					}
+					StartScreen.container.addChild(topScores[j][2]);
+				}
+			}
+		} else if(topScores) {
+			topScore1 = new PIXI.Text('Unable to connect to server.', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
 			topScore1.x = 100;
 			topScore1.y = 350;
 			StartScreen.container.addChild(topScore1);
-			topScore2 = new PIXI.Text('Top Scores', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
-			topScore2.x = 300;
-			topScore2.y = 350;
+			topScore2 = new PIXI.Text('BEWARE: Scoring will be unavailable.', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+			topScore2.x = 100;
+			topScore2.y = 375;
 			StartScreen.container.addChild(topScore2);
-			for(var j = 0; j < topScores.length; j++) {
-				topScores[j][2] = new PIXI.Text((j + 1) + '. ' + topScores[j][0] + ': ' + topScores[j][1], {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
-				if(j < 3) {
-					topScores[j][2].x = 100;
-					topScores[j][2].y = 380 + (j * 30);
-				} else {
-					topScores[j][2].x = 300;
-					topScores[j][2].y = 380 + ((j % 3) * 30);
-				}
-				StartScreen.container.addChild(topScores[j][2]);
-			}
 		}
 	};
 	var drawWordStart = function(isHighlighted) {
@@ -1826,17 +1838,20 @@ var StartScreenWrapper = function(center) {
 				if(responseData.scores && responseData.scores.length) {
 					for(var i = 0; i < responseData.scores.length; i++) {
 						if(responseData.scores[i] && responseData.scores[i].initials && responseData.scores[i].score) {
-							scoresText.push([responseData.scores[i].initials, responseData.scores[i].score]);
+							scoresText.push([responseData.scores[i].initials.trim(), responseData.scores[i].score]);
 						}
 					}
 				}
 				drawScores(scoresText);
 				var event = new Event('onlineDetected');
-    			document.dispatchEvent(event);
+				document.dispatchEvent(event);
 			},
 			error:function(error)
 			{
-				console.log('Failed to get scores', error);
+				if(window.DEBUG_MODE) { console.log('Failed to get scores', error); }
+				isOffline = true;
+				var event = new Event('offlineDetected');
+				document.dispatchEvent(event);
 			}
 		});
 	};
@@ -1844,6 +1859,10 @@ var StartScreenWrapper = function(center) {
 	StartScreen.killProcesses = function() {
 		clearInterval(lightTileAnimation);
 		clearInterval(darkTileAnimation);
+	};
+
+	StartScreen.toggleOffline = function(b_isOffline) {
+		isOffline = b_isOffline;
 	};
 
 	/**
