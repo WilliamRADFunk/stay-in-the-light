@@ -4,7 +4,7 @@ header("Access-Control-Allow-Origin: *");
 include_once "config2.php";
 
 /*
-Stay in the Light v0.0.26
+Stay in the Light v0.1.0
 Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
