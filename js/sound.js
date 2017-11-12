@@ -1,6 +1,6 @@
 /*
-Stay in the Light v0.0.26
-Last Updated: 2017-November-10
+Stay in the Light v0.1.0
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -35,7 +35,7 @@ var SoundWrapper = function() {
 		for(var i = 0; i < audioFileCount; i++){
 			//Check for valid .wav file
 			if(!audioArray[i]){
-				console.log("Invalid Audio object.");
+				if(window.DEBUG_MODE) { console.log("Invalid Audio object."); }
 				validFile.push(false);
 			}
 			else{
@@ -48,12 +48,12 @@ var SoundWrapper = function() {
 		//Check for wav file
 		var file = fileNum;
 		if(typeof fileNum !== "number" || typeof isPlay !== "boolean" || typeof isLoop !== "boolean" || typeof vol !== "number" || typeof isReset !== "boolean" ){
-			console.log("ERROR sound: Invalid input for sound.");
+			if(window.DEBUG_MODE) { console.log("ERROR sound: Invalid input for sound."); }
 			return;
 		}
 		//Check if file is valid
 		if(!isValid(file)){
-			console.log("You tried playing an invalid sound file. (file#" + fileNum);
+			if(window.DEBUG_MODE) { console.log("You tried playing an invalid sound file. (file#" + fileNum); }
 			return;
 		}
 		//Check if play or not

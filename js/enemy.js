@@ -1,6 +1,6 @@
 /* 
-Stay in the Light v0.0.26
-Last Updated: 2017-October-28
+Stay in the Light v0.1.0
+Last Updated: 2017-November-12
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -79,7 +79,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 			}
 		}
 		// Dev Mode: Should not reach here, but just in case. ERROR
-		console.log("Enemy could not decide on a path. Unknown error in EXECUTION");
+		if(window.DEBUG_MODE) { console.log("Enemy could not decide on a path. Unknown error in EXECUTION"); }
 		return 0;
 	};
 	var examineOut = function(nextTile, searchPattern, depth, limiter){
@@ -152,7 +152,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 	var makeMove = function(tileNumber){
 		tileToMove = tileNumber;
 		if(tileNumber === 1){
-			//console.log('my params', enemyTile, enemyTile.link1);
+			if(window.DEBUG_MODE_FULL) { console.log('my params', enemyTile, enemyTile.link1); }
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link1, Enemy.id)){
 					enemyTile = enemyTile.link1;
 				} else {
@@ -161,7 +161,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 				}
 		}
 		if(tileNumber === 2){
-			//console.log('my params', enemyTile, enemyTile.link2);
+			if(window.DEBUG_MODE_FULL) { console.log('my params', enemyTile, enemyTile.link2); }
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link2, Enemy.id)){
 					enemyTile = enemyTile.link2;
 				} else {
@@ -170,7 +170,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 				}
 		}
 		if(tileNumber === 3){
-			//console.log('my params', enemyTile, enemyTile.link3);
+			if(window.DEBUG_MODE_FULL) { console.log('my params', enemyTile, enemyTile.link3); }
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link3, Enemy.id)){
 					enemyTile = enemyTile.link3;
 				} else {
@@ -179,7 +179,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 				}
 		}
 		if(tileNumber === 4){
-			//console.log('my params', enemyTile, enemyTile.link4);
+			if(window.DEBUG_MODE_FULL) { console.log('my params', enemyTile, enemyTile.link4); }
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link4, Enemy.id)){
 					enemyTile = enemyTile.link4;
 				} else {
@@ -187,7 +187,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 					makeMove(Math.floor(Math.random() * 6));
 				}
 		}if(tileNumber === 5){
-			//console.log('my params', enemyTile, enemyTile.link5);
+			if(window.DEBUG_MODE_FULL) { console.log('my params', enemyTile, enemyTile.link5); }
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link5, Enemy.id)){
 					enemyTile = enemyTile.link5;
 				} else {
@@ -195,7 +195,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 					makeMove(Math.floor(Math.random() * 6));
 				}
 		}if(tileNumber === 6){
-			//console.log('my params', enemyTile, enemyTile.link6);
+			if(window.DEBUG_MODE_FULL) { console.log('my params', enemyTile, enemyTile.link6); }
 			if(tileMap.moveEnemy(enemyTile, enemyTile.link6, Enemy.id)){
 					enemyTile = enemyTile.link6;
 				} else {
@@ -314,7 +314,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 		//Determine the final x and y direction on 2-plane axis
 		var xDir = endLocation[0] - startLocation[0];
 		var yDir = endLocation[1] - startLocation[1];
-		//console.log(xDir, yDir);
+		if(window.DEBUG_MODE_FULL) { console.log(xDir, yDir); }
 		//Total the maximum 'distance' remaining
 		var totalEffort = (Math.abs(xDir) + Math.abs(yDir));
 		//Determine the direction in a 2-axis mode where roughly the A.I. should go
@@ -376,7 +376,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 					if(tempDir <= 0){
 						tempDir = 6;
 					}
-					//console.log(tempDir);
+					if(window.DEBUG_MODE_FULL) { console.log(tempDir); }
 					//Check to see if this is passable
 					if(!startingTile['link' + tempDir] || !startingTile['link' + tempDir].passable){
 						//NULL
@@ -388,7 +388,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 			}
 			if(!passable){
 				//Something went wrong, we are stuck in an island with this piece
-				//console.log("WE SHOULDNT EVER LAND HERE!!!!");
+				if(window.DEBUG_MODE_FULL) { console.log("WE SHOULDNT EVER LAND HERE!!!!"); }
 				return -1;
 			}
 			else{
@@ -420,7 +420,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 			}
 			if(!passable){
 				//Something went wrong, we are stuck in an island with this piece
-				//console.log("WE SHOULDNT EVER LAND HERE!!!!");
+				if(window.DEBUG_MODE_FULL) { console.log("WE SHOULDNT EVER LAND HERE!!!!"); }
 				return -1;
 			}
 			else{
@@ -441,7 +441,7 @@ var EnemyWrapper = function(center, tileMap, id) {
 		return total;
 	};
 	var commandReturn = function(com){
-		//console.log("THE COMMAND PROVIDED WAS: " + com);
+		if(window.DEBUG_MODE_FULL) { console.log("THE COMMAND PROVIDED WAS: " + com); }
 		if(!com){
 			//ERROR
 		}
@@ -489,14 +489,14 @@ var EnemyWrapper = function(center, tileMap, id) {
 		//We should commence possible forced route changed dependent on situation.
 		//Read current tile map and pull random light tile
 			var rand = Math.floor(Math.random() * currentLightCount);
-			// console.log("Random Number for new directive initiative: " + rand);
+			if(window.DEBUG_MODE_FULL) { console.log("Random Number for new directive initiative: " + rand); }
 			//Pull x,y coordinates from both light tile and enemyTile.
 			var destination = extractCoordinates(currentTileSet[rand].id);
-			//console.log("DEV MODE: Destination ID:" + currentTileSet[rand].id);
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE: Destination ID:" + currentTileSet[rand].id); }
 			var current = extractCoordinates(enemyTile.id);
-			//console.log("DEV MODE: Current ID: " + enemyTile.id);
-			// console.log("DEV MODE: [][][][][]DESTINATION[][][][][]" + destination);
-			// console.log("DEV MODE: [][][][]CURRENT[][][][][][]" + current);
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE: Current ID: " + enemyTile.id); }
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE: [][][][][]DESTINATION[][][][][]" + destination); }
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE: [][][][]CURRENT[][][][][][]" + current); }
 			//Determine direction general 2axis plane direction. (up, down, left, right);
 			//I could use this for a recursive mapping to the target
 			var xDir = destination[0] - current[0];
@@ -538,8 +538,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 					return 6;
 				}
 			}
-			//console.log("DEV MODE: FINAL COMMAND" + command);
-			//console.log("DEV MODE: X FINAL: " + xDir + " Y FINAL: " + yDir);
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE: FINAL COMMAND" + command); }
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE: X FINAL: " + xDir + " Y FINAL: " + yDir); }
 	};
 	var extractCoordinates = function(id){
 		if(!id){
@@ -598,11 +598,11 @@ var EnemyWrapper = function(center, tileMap, id) {
 		}
 		if(lastMoves.length > 4){
 			//Incorrect amount of lastMoves registered.
-			console.log("ERROR: lastMoves should not have more than 3 moves.");
+			if(window.DEBUG_MODE) { console.log("ERROR: lastMoves should not have more than 3 moves."); }
 			return false;
 		}
 		if(lastMoves.length < 4){
-			console.log("ERROR: last moves should not have less than 3 moves.")
+			if(window.DEBUG_MODE) { console.log("ERROR: last moves should not have less than 3 moves."); }
 			return false;
 		}
 		var temp = lastMoves[0];
@@ -626,8 +626,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 		initialLightCount = lightArray.length;
 		recalculate();
 		enemyTile = tileMap.placeEnemy();
-		console.log("enemyTile was initialized!");
-		};
+		if(window.DEBUG_MODE) { console.log("enemyTile was initialized!"); }
+	};
 	// From here, internal logic will determine which
 	// of the six directions the enemy will take, returning
 	// object containing the old tile, and new tile.
@@ -644,8 +644,8 @@ var EnemyWrapper = function(center, tileMap, id) {
 			var decisive = -1;
 			var finalized = false;
 			decisive = superDecider(enemyTile, 5);
-			//console.log("DEV MODE:: STARTING LOCATION: " + enemyTile.id);
-			//console.log("DEV MODE:: ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id);
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE:: STARTING LOCATION: " + enemyTile.id); }
+			if(window.DEBUG_MODE_FULL) { console.log("DEV MODE:: ENDING LOCATION: (IF PREPATHED)" + currentTileSet[0].id); }
 			if(!prePathActive){
 				if(currentLightCount < (initialLightCount * behaviorThreshold)){
 					//Ensure that we are not interupting a valid move.

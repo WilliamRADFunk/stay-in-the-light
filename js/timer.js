@@ -1,5 +1,5 @@
 /* 
-Stay in the Light v0.0.26
+Stay in the Light v0.1.0
 Last Updated: 2017-November-10
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
@@ -52,7 +52,7 @@ var TimerWrapper = function(center) {
 		drawTimerDigits(calculateTime());
 	};
 	var drawMuteSoundText = function() {
-		muteSoundText = new PIXI.Text('Press \'m\' to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
+		muteSoundText = new PIXI.Text('Press * to toggle sound', {fontFamily: 'Courier', fontSize: 18, fontWeight: 500, fill: 0xCFB53B, align: 'left'});
 		muteSoundText.x = 0;
 		muteSoundText.y = 0;
 		Timer.containerMute.addChild(muteSoundText);
