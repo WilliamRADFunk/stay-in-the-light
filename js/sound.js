@@ -11,15 +11,16 @@ var SoundWrapper = function() {
 	//Sound Source initializations
 	//Audio files appear in order stored in array
 	var deathAudio = new Audio('./sounds/deathSound.wav');
-	var musicLoop = new Audio('./sounds/loop.wav');
+	var gameOverLoop = new Audio('./sounds/loop.wav');
 	var expandF = new Audio('./sounds/expandFog.wav');
 	var contractF = new Audio('/sounds/contractFog.wav');
 	var clickSound = new Audio('./sounds/click.wav');
 	var enemyDeath = new Audio('./sounds/zombieUgh.mp3');
 	var	musicLoopMenu = new Audio('./sounds/POL-secret-alchemy-short.wav');
 	var playerWin = new Audio('./sounds/win.wav');
-	var hoverSound = new Audio('./sounds/expandFog.wav');
-	const audioFileCount = 9;
+	var hoverSound = new Audio('./sounds/hover.wav');
+	var musicLoop = new Audio('./sounds/gameOver.mp3');
+	const audioFileCount = 10;
 	var lastPlayed = -1;
 	// Keeps track of which audio files are in play. This allows an "unmute" to simply up the volume on those already in play.
 	var filesInPlay = [];
@@ -31,7 +32,7 @@ var SoundWrapper = function() {
 	//HARD-assembles audio array and verifies that each audio object stored is playable.
 	Sound.init = function(){
 		//Create index of wav files
-		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound];
+		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound, gameOverLoop];
 		for(var i = 0; i < audioFileCount; i++){
 			//Check for valid .wav file
 			if(!audioArray[i]){

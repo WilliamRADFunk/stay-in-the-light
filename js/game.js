@@ -340,6 +340,8 @@ var GameWrapper = function() {
 		 * Draws the game over screen and animates until player clicks mouse.
 		 */
 		end: function() {
+			//Play Game over Music
+			this.sound.executeSound(9, true, true, false, 0.3);
 			this.setupBoundaries(3, 0xCFB53B);
 
 			var interval = 2000;
@@ -359,7 +361,6 @@ var GameWrapper = function() {
 				} else {
 					interval = 2000;
 				}
-
 				flickeringLightsInterval = setInterval(flickeringInterval, interval);
 			}.bind(this);
 
@@ -397,6 +398,8 @@ var GameWrapper = function() {
 					this.sendScore(this.enterScoreInitials);
 				} else {
 					if(this.gameOverAniLoop) {
+						//kill GameOver Music
+						this.sound.executeSound(9, false, true, false, 0.6);
 						var id = this.cancelAnimationFrame(this.gameOverAniLoop);
 						this.gameOverAniLoop = undefined;
 					}
@@ -438,7 +441,7 @@ var GameWrapper = function() {
 			Mousetrap.unbind('d');
 			this.isWin = isWin;
 			this.gameStart = false;
-			this.sound.executeSound(1, false, true, true, 0.6);
+			this.sound.executeSound(1, false, true, true, 0.3);
 			if(this.isWin) {
 				this.calculateScore();
 				this.gameOverScreen.setScore(this.score);
@@ -657,7 +660,7 @@ var GameWrapper = function() {
 			// Detects when the mouse moves and calculates which start screen option player is hovering over.
 			var newHoverDetector = function(buttonArea){
 				if(this.hoverArea !== buttonArea && buttonArea !== 3){
-					this.sound.executeSound(8, true, false, false, 0.3);
+					this.sound.executeSound(8, true, false, false, 0.8);
 					this.hoverArea = buttonArea;
 				} else if(buttonArea === 3) {
 					this.hoverArea = buttonArea;
@@ -776,7 +779,7 @@ var GameWrapper = function() {
 			if(!this.gameStart){
 				this.gameStart = true;
 				//Start game loop music
-				this.sound.executeSound(1, true, true, false, 0.6);
+				this.sound.executeSound(1, true, true, false, 0.3);
 			}
 
 			if(this.isLoaded) {
