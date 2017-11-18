@@ -178,6 +178,7 @@ var StartScreenWrapper = function(center) {
 	var fillGraphic = new PIXI.Graphics();
 	var impassableTiles = new PIXI.Graphics();
 	var passableTiles = new PIXI.Graphics();
+	var timeBoxHelpGraphic = new PIXI.Graphics();
 	var isLightPhase = false;
 	var colorFillText1;
 	var colorFillText2;
@@ -190,6 +191,12 @@ var StartScreenWrapper = function(center) {
 	var passableText1;
 	var passableText2;
 	var passableText3;
+
+	var timerText1;
+	var timerText2;
+	var timerText3;
+	var timerText4;
+	var timerText5;
 
 	var currentDifficulty1;
 	var currentDifficulty2;
@@ -581,6 +588,18 @@ var StartScreenWrapper = function(center) {
 				passableText3 = null;
 
 			}
+			if(timerText1) {
+				StartScreen.container.removeChild(timerText1);
+				StartScreen.container.removeChild(timerText2);
+				StartScreen.container.removeChild(timerText3);
+				StartScreen.container.removeChild(timerText4);
+				StartScreen.container.removeChild(timerText5);
+				timerText1 = null;
+				timerText2 = null;
+				timerText3 = null;
+				timerText4 = null;
+				timerText5 = null;
+			}
 			if(currentMouseMoveGoody) {
 				StartScreen.container.removeChild(currentMouseMoveGoody);
 				currentMouseMoveGoody = null;
@@ -604,6 +623,7 @@ var StartScreenWrapper = function(center) {
 			fillGraphic.clear();
 			impassableTiles.clear();
 			passableTiles.clear();
+			timeBoxHelpGraphic.clear();
 			mouseMoveGraphic.clear();
 			buttonAniIteration = 0;
 		}
@@ -918,9 +938,15 @@ var StartScreenWrapper = function(center) {
 			}
 		}
 	};
+	var drawTimeBoxHelp = function() {
+		timeBoxHelpGraphic.lineStyle(5, 0xCFB53B, 0.5);
+		timeBoxHelpGraphic.drawRect(1130, 630, 100, 50);
+		timeBoxHelpGraphic.endFill();
+	};
 	var drawHelpAnimation = function() {
 		impassableTiles.clear();
 		passableTiles.clear();
+		timeBoxHelpGraphic.clear();
 		unfoggedGraphic.clear();
 		mouseGraphic.clear();
 		fillGraphic.clear();
@@ -1009,10 +1035,24 @@ var StartScreenWrapper = function(center) {
 			passableText2 = null;				
 			passableText3 = null;
 		}
+		if(timerText1) {
+			StartScreen.container.removeChild(timerText1);
+			StartScreen.container.removeChild(timerText2);
+			StartScreen.container.removeChild(timerText3);
+			StartScreen.container.removeChild(timerText4);
+			StartScreen.container.removeChild(timerText5);
+			timerText1 = null;
+			timerText2 = null;
+			timerText3 = null;
+			timerText4 = null;
+			timerText5 = null;
+		}
 
 		drawPassableTile('forest', 1100, 487);
 		drawPassableTile('desert', 1140, 512);
 		drawPassableTile('mountains', 1180, 487);
+
+		drawTimeBoxHelp();
 
 		if(buttonAniIteration === 0) {
 			// Draw basic map
@@ -1758,12 +1798,12 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(mouseTrackText4);
 
 		mouseMoveText1 = new PIXI.Text('Left mouse click moves player one tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseMoveText1.x = 550;
-		mouseMoveText1.y = 650;
+		mouseMoveText1.x = 450;
+		mouseMoveText1.y = 675;
 		StartScreen.container.addChild(mouseMoveText1);
 		mouseMoveText2 = new PIXI.Text('where green line indicates current direction.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseMoveText2.x = 550;
-		mouseMoveText2.y = 665;
+		mouseMoveText2.x = 450;
+		mouseMoveText2.y = 690;
 		StartScreen.container.addChild(mouseMoveText2);
 
 		colorFillText1 = new PIXI.Text('Your goal is to illuminate darkness. Your enemy\'s is to', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
@@ -1812,6 +1852,23 @@ var StartScreenWrapper = function(center) {
 		passableText3.x = 1040;
 		passableText3.y = 444;
 		StartScreen.container.addChild(passableText3);
+
+		timerText1 = new PIXI.Text('Run out of time and lose the', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		timerText1.x = 870;
+		timerText1.y = 645;
+		StartScreen.container.addChild(timerText1);
+		timerText2 = new PIXI.Text('game. When all tiles are lit,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		timerText2.x = 870;
+		timerText2.y = 660;
+		StartScreen.container.addChild(timerText2);
+		timerText3 = new PIXI.Text('extra time adds to score.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		timerText3.x = 870;
+		timerText3.y = 675;
+		StartScreen.container.addChild(timerText3);
+		timerText4 = new PIXI.Text('SCORE = seconds * difficulty level * 500', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB54B, align: 'left'});
+		timerText4.x = 870;
+		timerText4.y = 690;
+		StartScreen.container.addChild(timerText4);
 
 		buttonAniIteration++;
 		if(buttonAniIteration > 12) {
@@ -2181,6 +2238,7 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(fillGraphic);
 		StartScreen.container.addChild(passableTiles);
 		StartScreen.container.addChild(impassableTiles);
+		StartScreen.container.addChild(timeBoxHelpGraphic);
 		StartScreen.container.addChild(mouseMoveGraphic);
 		StartScreen.drawStartScreenWords();
 
