@@ -1,2 +1,6 @@
 # stay-in-the-light
-(In-Progress) 
+(Complete)
+
+See help section on start screen
+
+https://tenaciousteal.com/games/stay-in-the-light/ 
