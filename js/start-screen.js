@@ -197,6 +197,7 @@ var StartScreenWrapper = function(center) {
 	var timerText3;
 	var timerText4;
 	var timerText5;
+	var timerDigitText;
 
 	var currentDifficulty1;
 	var currentDifficulty2;
@@ -600,6 +601,10 @@ var StartScreenWrapper = function(center) {
 				timerText4 = null;
 				timerText5 = null;
 			}
+			if(timerDigitText) {
+				StartScreen.container.removeChild(timerDigitText);
+				timerDigitText = null;
+			}
 			if(currentMouseMoveGoody) {
 				StartScreen.container.removeChild(currentMouseMoveGoody);
 				currentMouseMoveGoody = null;
@@ -940,8 +945,15 @@ var StartScreenWrapper = function(center) {
 	};
 	var drawTimeBoxHelp = function() {
 		timeBoxHelpGraphic.lineStyle(5, 0xCFB53B, 0.5);
-		timeBoxHelpGraphic.drawRect(1130, 630, 100, 50);
+		timeBoxHelpGraphic.drawRect(1130, 650, 75, 35);
 		timeBoxHelpGraphic.endFill();
+	};
+	var drawTimeDigitsHelp = function(digit1, digit2, digit3) {
+		timerDigitText = new PIXI.Text(digit1 + ':' + digit2 + '' + digit3, {fontFamily: 'Courier', fontSize: 24, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+		// Relative to the timer's renderer box.
+		timerDigitText.x = 1140;
+		timerDigitText.y = 655;
+		StartScreen.container.addChild(timerDigitText);
 	};
 	var drawHelpAnimation = function() {
 		impassableTiles.clear();
@@ -1047,6 +1059,10 @@ var StartScreenWrapper = function(center) {
 			timerText4 = null;
 			timerText5 = null;
 		}
+		if(timerDigitText) {
+			StartScreen.container.removeChild(timerDigitText);
+			timerDigitText = null;
+		}
 
 		drawPassableTile('forest', 1100, 487);
 		drawPassableTile('desert', 1140, 512);
@@ -1088,6 +1104,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(3, 0, 0);
 			} else {
 				drawColorFillHelpTile(true, 900, 405);
 				drawColorFillHelpTile(true, 939, 428);
@@ -1100,6 +1117,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 7);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 450;
@@ -1143,6 +1161,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 9);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(true, 939, 428);
@@ -1155,6 +1174,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 6);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 490;
@@ -1198,6 +1218,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 8);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(true, 939, 428);
@@ -1210,6 +1231,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 5);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
 			currentMouseMoveGoody.x = 490;
@@ -1253,6 +1275,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 7);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1265,6 +1288,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 4);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
 			currentMouseMoveGoody.x = 450;
@@ -1308,6 +1332,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 6);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1320,6 +1345,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 3);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 450;
@@ -1363,6 +1389,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 5);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1375,6 +1402,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 2);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 490;
@@ -1414,6 +1442,7 @@ var StartScreenWrapper = function(center) {
 					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 5, 4);
 				} else {
 					drawColorFillHelpTile(false, 900, 405);
 					drawColorFillHelpTile(false, 939, 428);
@@ -1426,6 +1455,7 @@ var StartScreenWrapper = function(center) {
 					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 4, 1);
 				}
 				currentMouseMoveGoody = mouseMoveGoodyUp;
 				currentMouseMoveGoody.x = 490;
@@ -1453,6 +1483,7 @@ var StartScreenWrapper = function(center) {
 					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 5, 3);
 				} else {
 					drawColorFillHelpTile(false, 900, 405);
 					drawColorFillHelpTile(false, 939, 428);
@@ -1465,6 +1496,7 @@ var StartScreenWrapper = function(center) {
 					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 4, 0);
 				}
 				currentMouseMoveGoody = mouseMoveGoodyUp;
 				currentMouseMoveGoody.x = 450;
@@ -1515,6 +1547,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 2);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1527,6 +1560,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 9);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 450;
@@ -1570,6 +1604,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 1);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1582,6 +1617,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 8);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
 			currentMouseMoveGoody.x = 490;
@@ -1625,6 +1661,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 0);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1637,6 +1674,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 7);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
 			currentMouseMoveGoody.x = 490;
@@ -1680,6 +1718,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 9);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1692,6 +1731,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 6);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
 			currentMouseMoveGoody.x = 450;
@@ -1735,6 +1775,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 8);
 			} else {
 				drawColorFillHelpTile(false, 900, 405);
 				drawColorFillHelpTile(false, 939, 428);
@@ -1747,6 +1788,7 @@ var StartScreenWrapper = function(center) {
 				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 6);
 			}
 			isLightPhase = !isLightPhase;
 
