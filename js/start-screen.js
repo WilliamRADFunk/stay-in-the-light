@@ -176,6 +176,9 @@ var StartScreenWrapper = function(center) {
 	startScreenBaddy6.scale.y = 0.4;
 	var currentColorFillCharacter;
 	var fillGraphic = new PIXI.Graphics();
+	var impassableTiles = new PIXI.Graphics();
+	var passableTiles = new PIXI.Graphics();
+	var timeBoxHelpGraphic = new PIXI.Graphics();
 	var isLightPhase = false;
 	var colorFillText1;
 	var colorFillText2;
@@ -183,6 +186,18 @@ var StartScreenWrapper = function(center) {
 	var colorFillText4;
 	var colorFillText5;
 	var colorFillText6;
+	var impassableText1;
+	var impassableText2;
+	var passableText1;
+	var passableText2;
+	var passableText3;
+
+	var timerText1;
+	var timerText2;
+	var timerText3;
+	var timerText4;
+	var timerText5;
+	var timerDigitText;
 
 	var currentDifficulty1;
 	var currentDifficulty2;
@@ -559,6 +574,37 @@ var StartScreenWrapper = function(center) {
 				colorFillText5 = null;
 				colorFillText6 = null;
 			}
+			if(impassableText1) {
+				StartScreen.container.removeChild(impassableText1);
+				StartScreen.container.removeChild(impassableText2);
+				impassableText1 = null;
+				impassableText2 = null;
+			}
+			if(passableText1) {
+				StartScreen.container.removeChild(passableText1);
+				StartScreen.container.removeChild(passableText2);
+				StartScreen.container.removeChild(passableText3);
+				passableText1 = null;
+				passableText2 = null;				
+				passableText3 = null;
+
+			}
+			if(timerText1) {
+				StartScreen.container.removeChild(timerText1);
+				StartScreen.container.removeChild(timerText2);
+				StartScreen.container.removeChild(timerText3);
+				StartScreen.container.removeChild(timerText4);
+				StartScreen.container.removeChild(timerText5);
+				timerText1 = null;
+				timerText2 = null;
+				timerText3 = null;
+				timerText4 = null;
+				timerText5 = null;
+			}
+			if(timerDigitText) {
+				StartScreen.container.removeChild(timerDigitText);
+				timerDigitText = null;
+			}
 			if(currentMouseMoveGoody) {
 				StartScreen.container.removeChild(currentMouseMoveGoody);
 				currentMouseMoveGoody = null;
@@ -580,6 +626,9 @@ var StartScreenWrapper = function(center) {
 			unfoggedGraphic.clear();
 			mouseGraphic.clear();
 			fillGraphic.clear();
+			impassableTiles.clear();
+			passableTiles.clear();
+			timeBoxHelpGraphic.clear();
 			mouseMoveGraphic.clear();
 			buttonAniIteration = 0;
 		}
@@ -669,7 +718,209 @@ var StartScreenWrapper = function(center) {
 		}
 		fillGraphic.endFill();
 	};
+	var drawImpassableTile = function(terrain, x, y) {
+		var cX = x;
+		var cY = y;
+		var size = 25;
+
+		if(terrain === 'pit') {
+			// The base tile without hover borders.
+			impassableTiles.moveTo(cX + size, cY);
+			impassableTiles.beginFill(0x654321);
+			impassableTiles.lineStyle(3, 0x654321, 2);
+			for (var k = 0; k <= 6; k++) {
+				var angle = 2 * Math.PI / 6 * k;
+				var x_k = cX + size * Math.cos(angle);
+				var y_k = cY + size * Math.sin(angle);
+				impassableTiles.lineTo(x_k, y_k);
+			}
+			impassableTiles.endFill();
+			// preset ones to ensure a decent look.
+			var pits = [
+				[12, 2], [-16, -3], [-7, 15], [-7, -13], [6, -16], [0, 1]
+			];
+			impassableTiles.lineStyle(0.5, 0x000000, 1);
+			// Math.sqrt(100 - x2)
+			for(var i = 0; i < pits.length; i++) {
+				impassableTiles.moveTo(cX + pits[i][0], cY + pits[i][1] + Math.sqrt(-75));
+				for(var j = -9; j <= 10; j++) {
+					impassableTiles.lineTo(cX + pits[i][0] + j, cY + pits[i][1] + Math.sqrt(25 - (j * j)));
+				}
+				for(var j = 10; j >= -10; j--) {
+					impassableTiles.lineTo(cX + pits[i][0] + j, cY + pits[i][1] - Math.sqrt(25 - (j * j)));
+				}
+			}
+		} else if(terrain === 'water') {
+			// The base tile without hover borders.
+			impassableTiles.moveTo(cX + size, cY);
+			impassableTiles.beginFill(0x40A4DF);
+			impassableTiles.lineStyle(3, 0x40A4DF, 2);
+			for (var k = 0; k <= 6; k++) {
+				var angle = 2 * Math.PI / 6 * k;
+				var x_k = cX + size * Math.cos(angle);
+				var y_k = cY + size * Math.sin(angle);
+				impassableTiles.lineTo(x_k, y_k);
+			}
+			impassableTiles.endFill();
+			var waves = [
+				[3, 0], [-22, 0], [-10, 15], [-10, -15]
+			];
+			impassableTiles.lineStyle(0.5, 0x000000, 1);
+			for(var i = 0; i < waves.length; i++) {
+				impassableTiles.moveTo(cX + waves[i][0], cY + waves[i][1]);
+				for(var j = 0; j < 20; j++) {
+					impassableTiles.lineTo(cX + waves[i][0] + j, cY + waves[i][1] + (3 * Math.sin(j)));
+				}
+			}
+		} else {
+			// Null space
+			// The base tile without hover borders.
+			impassableTiles.moveTo(cX + size, cY);
+			impassableTiles.beginFill(0x000000);
+			impassableTiles.lineStyle(3, 0x333333, 2);
+			for (var k = 0; k <= 6; k++) {
+				var angle = 2 * Math.PI / 6 * k;
+				var x_k = cX + size * Math.cos(angle);
+				var y_k = cY + size * Math.sin(angle);
+				impassableTiles.lineTo(x_k, y_k);
+			}
+			impassableTiles.endFill();
+		}
+	};
+	var drawPassableTile = function(terrain, x, y) {
+		var cX = x;
+		var cY = y;
+		var size = 25;
+
+		if(terrain === 'forest') {
+			passableTiles.moveTo(cX + size, cY);
+			passableTiles.beginFill(0x006400);
+			passableTiles.lineStyle(3, 0x006400, 2);
+			for (var k = 0; k <= 6; k++) {
+				var angle = 2 * Math.PI / 6 * k;
+				var x_k = cX + size * Math.cos(angle);
+				var y_k = cY + size * Math.sin(angle);
+				passableTiles.lineTo(x_k, y_k);
+			}
+			passableTiles.endFill();
+			// preset ones to ensure a decent look.
+			var treeRoot = [
+				[0, 0], [2, -14], [-3, -3], [-7, -7], [10, 10],
+				[-3, 3], [5, -5], [-7, 7], [10, -10], [9, 14],
+				[14, 9], [14, 9], [18, 0], [6, 17], [-6, 17],
+				[-12, 0], [-18, 10]
+			];
+			passableTiles.lineStyle(0.5, 0x000000, 1);
+			for(var i = 0; i < treeRoot.length; i++) {
+				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1]);
+				passableTiles.lineTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+				passableTiles.lineTo(cX + treeRoot[i][0] - 1, cY + treeRoot[i][1] - 7);
+				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 10);
+				passableTiles.lineTo(cX + treeRoot[i][0] + 1, cY + treeRoot[i][1] - 7);
+				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+				passableTiles.lineTo(cX + treeRoot[i][0] - 2, cY + treeRoot[i][1] - 5);
+				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 5);
+				passableTiles.lineTo(cX + treeRoot[i][0] + 2, cY + treeRoot[i][1] - 5);
+				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+				passableTiles.lineTo(cX + treeRoot[i][0] - 3, cY + treeRoot[i][1] - 2);
+				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1] - 2);
+				passableTiles.lineTo(cX + treeRoot[i][0] + 3, cY + treeRoot[i][1] - 2);
+			}
+		} else if(terrain === 'desert') {
+			passableTiles.moveTo(cX + size, cY);
+			passableTiles.beginFill(0xEDC9AF);
+			passableTiles.lineStyle(3, 0xEDC9AF, 2);
+			for (var k = 0; k <= 6; k++) {
+				var angle = 2 * Math.PI / 6 * k;
+				var x_k = cX + size * Math.cos(angle);
+				var y_k = cY + size * Math.sin(angle);
+				passableTiles.lineTo(x_k, y_k);
+			}
+			passableTiles.endFill();
+			// preset ones to ensure a decent look.
+			var cactus = [
+				[0, 0], [-7, -7], [-9, 14],
+				[6, 17], [-6, 17], [6, -12],
+				[3, -3], [-12, 0], [12, 0]
+			];
+			passableTiles.lineStyle(0.5, 0x006400, 1);
+			for(var k = 0; k < cactus.length; k++) {
+				passableTiles.moveTo(cX + cactus[k][0], cY + cactus[k][1]);
+				passableTiles.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 10);
+				passableTiles.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 10);
+				passableTiles.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 10);
+				passableTiles.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 8);
+				passableTiles.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 8);
+				passableTiles.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 8);
+				passableTiles.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 6);
+				passableTiles.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 6);
+				passableTiles.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 6);
+				passableTiles.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 4);
+				passableTiles.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 4);
+				passableTiles.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 4);
+				passableTiles.lineTo(cX + cactus[k][0], cY + cactus[k][1] - 2);
+				passableTiles.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1] - 2);
+				passableTiles.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1] - 2);
+				passableTiles.lineTo(cX + cactus[k][0], cY + cactus[k][1]);
+				passableTiles.moveTo(cX + cactus[k][0] - 1, cY + cactus[k][1]);
+				passableTiles.lineTo(cX + cactus[k][0] + 1, cY + cactus[k][1]);
+				passableTiles.moveTo(cX + cactus[k][0] - 3, cY + cactus[k][1] - 5);
+				passableTiles.lineTo(cX + cactus[k][0] + 3, cY + cactus[k][1] - 5);
+				passableTiles.moveTo(cX + cactus[k][0] - 4, cY + cactus[k][1] - 7);
+				passableTiles.lineTo(cX + cactus[k][0] - 2, cY + cactus[k][1] - 7);
+				passableTiles.moveTo(cX + cactus[k][0] - 4, cY + cactus[k][1] - 9);
+				passableTiles.lineTo(cX + cactus[k][0] - 2, cY + cactus[k][1] - 9);
+				passableTiles.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 7);
+				passableTiles.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 7);
+				passableTiles.moveTo(cX + cactus[k][0] + 4, cY + cactus[k][1] - 9);
+				passableTiles.lineTo(cX + cactus[k][0] + 2, cY + cactus[k][1] - 9);
+			}
+		} else if(terrain === 'mountains') {
+			passableTiles.moveTo(cX + size, cY);
+			passableTiles.beginFill(0x968D99);
+			passableTiles.lineStyle(3, 0x968D99, 2);
+			for (var k = 0; k <= 6; k++) {
+				var angle = 2 * Math.PI / 6 * k;
+				var x_k = cX + size * Math.cos(angle);
+				var y_k = cY + size * Math.sin(angle);
+				passableTiles.lineTo(x_k, y_k);
+			}
+			passableTiles.endFill();
+			// preset ones to ensure a decent look.
+			var mountainPeak = [
+				[0, 0], [-3, -13], [15, 5], [-7, -7], [-10, 12],
+				[10, 10], [5, -5], [-20, 0], [-16, 4], [-10, -16]
+			];
+			passableTiles.lineStyle(0.5, 0x000000, 1);
+			for(var i = 0; i < mountainPeak.length; i++) {
+				passableTiles.moveTo(cX + mountainPeak[i][0], cY + mountainPeak[i][1]);
+				passableTiles.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+				passableTiles.lineTo(cX + mountainPeak[i][0] + 10, cY + mountainPeak[i][1]);
+				passableTiles.beginFill(0xFFFFFF);
+				passableTiles.moveTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+				passableTiles.lineTo(cX + mountainPeak[i][0] + 7.5, cY + mountainPeak[i][1] - 2.5);
+				passableTiles.lineTo(cX + mountainPeak[i][0] + 5, cY + mountainPeak[i][1] - 5);
+				passableTiles.lineTo(cX + mountainPeak[i][0] + 2.5, cY + mountainPeak[i][1] - 2.5);
+				passableTiles.endFill();
+			}
+		}
+	};
+	var drawTimeBoxHelp = function() {
+		timeBoxHelpGraphic.lineStyle(5, 0xCFB53B, 0.5);
+		timeBoxHelpGraphic.drawRect(1130, 650, 75, 35);
+		timeBoxHelpGraphic.endFill();
+	};
+	var drawTimeDigitsHelp = function(digit1, digit2, digit3) {
+		timerDigitText = new PIXI.Text(digit1 + ':' + digit2 + '' + digit3, {fontFamily: 'Courier', fontSize: 24, fontWeight: 800, fill: 0xCFB53B, align: 'left'});
+		// Relative to the timer's renderer box.
+		timerDigitText.x = 1140;
+		timerDigitText.y = 655;
+		StartScreen.container.addChild(timerDigitText);
+	};
 	var drawHelpAnimation = function() {
+		impassableTiles.clear();
+		passableTiles.clear();
+		timeBoxHelpGraphic.clear();
 		unfoggedGraphic.clear();
 		mouseGraphic.clear();
 		fillGraphic.clear();
@@ -740,6 +991,47 @@ var StartScreenWrapper = function(center) {
 			currentColorFillCharacter = null;
 		}
 
+		drawImpassableTile('pit', 1100, 365);
+		drawImpassableTile('', 1140, 388);
+		drawImpassableTile('water', 1180, 365);
+
+		if(impassableText1) {
+			StartScreen.container.removeChild(impassableText1);
+			StartScreen.container.removeChild(impassableText2);
+			impassableText1 = null;
+			impassableText2 = null;
+		}
+		if(passableText1) {
+			StartScreen.container.removeChild(passableText1);
+			StartScreen.container.removeChild(passableText2);
+			StartScreen.container.removeChild(passableText3);
+			passableText1 = null;
+			passableText2 = null;				
+			passableText3 = null;
+		}
+		if(timerText1) {
+			StartScreen.container.removeChild(timerText1);
+			StartScreen.container.removeChild(timerText2);
+			StartScreen.container.removeChild(timerText3);
+			StartScreen.container.removeChild(timerText4);
+			StartScreen.container.removeChild(timerText5);
+			timerText1 = null;
+			timerText2 = null;
+			timerText3 = null;
+			timerText4 = null;
+			timerText5 = null;
+		}
+		if(timerDigitText) {
+			StartScreen.container.removeChild(timerDigitText);
+			timerDigitText = null;
+		}
+
+		drawPassableTile('forest', 1100, 487);
+		drawPassableTile('desert', 1140, 512);
+		drawPassableTile('mountains', 1180, 487);
+
+		drawTimeBoxHelp();
+
 		if(buttonAniIteration === 0) {
 			// Draw basic map
 			currentAButton = aButtonBlack;
@@ -759,40 +1051,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 450;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0x00FF00, 550, 600);
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+			drawMouseTrackHelpTile(1, 0x00FF00, 450, 600);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody1;
-				currentColorFillCharacter.x = 950;
+				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(3, 0, 0);
 			} else {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy1;
-				currentColorFillCharacter.x = 950;
+				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 7);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 550;
+			currentMouseMoveGoody.x = 450;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 1) {
@@ -814,40 +1108,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 425;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 550, 600);
-			drawMouseTrackHelpTile(1, 0x00FF00, 590, 623);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 450, 600);
+			drawMouseTrackHelpTile(1, 0x00FF00, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody1;
-				currentColorFillCharacter.x = 950;
+				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 9);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy1;
-				currentColorFillCharacter.x = 950;
+				currentColorFillCharacter.x = 900;
 				currentColorFillCharacter.y = 405;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 6);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 590;
+			currentMouseMoveGoody.x = 490;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveRightImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 2) {
@@ -869,40 +1165,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 375;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 550, 600);
-			drawMouseTrackHelpTile(4, 0x00FF00, 590, 623);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 450, 600);
+			drawMouseTrackHelpTile(4, 0x00FF00, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody2;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 8);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy2;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 5);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
-			currentMouseMoveGoody.x = 590;
+			currentMouseMoveGoody.x = 490;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveImage;
-			currentMouseMoveImage.x = 510;
+			currentMouseMoveImage.x = 410;
 			currentMouseMoveImage.y = 575;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 3) {
@@ -924,40 +1222,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 350;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(4, 0x00FF00, 550, 600);
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+			drawMouseTrackHelpTile(4, 0x00FF00, 450, 600);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody2;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 7);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy2;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 4);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
-			currentMouseMoveGoody.x = 550;
+			currentMouseMoveGoody.x = 450;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveRightImage;
-			currentMouseMoveImage.x = 510;
+			currentMouseMoveImage.x = 410;
 			currentMouseMoveImage.y = 575;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 4) {
@@ -979,40 +1279,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 375;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0x00FF00, 550, 600);
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+			drawMouseTrackHelpTile(1, 0x00FF00, 450, 600);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody3;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 6);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy3;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 3);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 550;
+			currentMouseMoveGoody.x = 450;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 5) {
@@ -1034,40 +1336,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 425;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 550, 600);
-			drawMouseTrackHelpTile(1, 0x00FF00, 590, 623);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 450, 600);
+			drawMouseTrackHelpTile(1, 0x00FF00, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody3;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 5);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy3;
-				currentColorFillCharacter.x = 989;
+				currentColorFillCharacter.x = 939;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 2);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 590;
+			currentMouseMoveGoody.x = 490;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveRightImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 6 || buttonAniIteration === 7) { // Pause before switch
@@ -1085,79 +1389,83 @@ var StartScreenWrapper = function(center) {
 			if(buttonAniIteration === 6) {
 				drawMouseTrackHelpTile(2, 0xFF0000, 450, 400);
 
-				drawMouseTrackHelpTile(1, 0xC0C0C0, 550, 600);
-				drawMouseTrackHelpTile(4, 0x00FF00, 590, 623);
+				drawMouseTrackHelpTile(1, 0xC0C0C0, 450, 600);
+				drawMouseTrackHelpTile(4, 0x00FF00, 490, 623);
 
 				if(isLightPhase) {
-					drawColorFillHelpTile(true, 950, 405);
-					drawColorFillHelpTile(true, 989, 428);
-					drawColorFillHelpTile(true, 989, 472);
-					drawColorFillHelpTile(false, 950, 495);
-					drawColorFillHelpTile(false, 911, 472);
-					drawColorFillHelpTile(false, 911, 428);
-					drawColorFillHelpTile(false, 950, 450);
+					drawColorFillHelpTile(true, 900, 405);
+					drawColorFillHelpTile(true, 939, 428);
+					drawColorFillHelpTile(true, 939, 472);
+					drawColorFillHelpTile(false, 900, 495);
+					drawColorFillHelpTile(false, 861, 472);
+					drawColorFillHelpTile(false, 861, 428);
+					drawColorFillHelpTile(false, 900, 450);
 					currentColorFillCharacter = startScreenGoody4;
-					currentColorFillCharacter.x = 950;
+					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 5, 4);
 				} else {
-					drawColorFillHelpTile(false, 950, 405);
-					drawColorFillHelpTile(false, 989, 428);
-					drawColorFillHelpTile(false, 989, 472);
-					drawColorFillHelpTile(true, 950, 495);
-					drawColorFillHelpTile(true, 911, 472);
-					drawColorFillHelpTile(true, 911, 428);
-					drawColorFillHelpTile(true, 950, 450);
+					drawColorFillHelpTile(false, 900, 405);
+					drawColorFillHelpTile(false, 939, 428);
+					drawColorFillHelpTile(false, 939, 472);
+					drawColorFillHelpTile(true, 900, 495);
+					drawColorFillHelpTile(true, 861, 472);
+					drawColorFillHelpTile(true, 861, 428);
+					drawColorFillHelpTile(true, 900, 450);
 					currentColorFillCharacter = startScreenBaddy4;
-					currentColorFillCharacter.x = 950;
+					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 4, 1);
 				}
 				currentMouseMoveGoody = mouseMoveGoodyUp;
-				currentMouseMoveGoody.x = 590;
+				currentMouseMoveGoody.x = 490;
 				currentMouseMoveGoody.y = 623;
 				StartScreen.container.addChild(currentMouseMoveGoody);
 				currentMouseMoveImage = mouseMoveImage;
-				currentMouseMoveImage.x = 510;
+				currentMouseMoveImage.x = 410;
 				currentMouseMoveImage.y = 575;
 				StartScreen.container.addChild(currentMouseMoveImage);
 			} else {
 				drawMouseTrackHelpTile(2, 0x00FF00, 450, 400);
 
-				drawMouseTrackHelpTile(4, 0x00FF00, 550, 600);
-				drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+				drawMouseTrackHelpTile(4, 0x00FF00, 450, 600);
+				drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 				if(isLightPhase) {
-					drawColorFillHelpTile(true, 950, 405);
-					drawColorFillHelpTile(true, 989, 428);
-					drawColorFillHelpTile(true, 989, 472);
-					drawColorFillHelpTile(true, 950, 495);
-					drawColorFillHelpTile(false, 911, 472);
-					drawColorFillHelpTile(false, 911, 428);
-					drawColorFillHelpTile(false, 950, 450);
+					drawColorFillHelpTile(true, 900, 405);
+					drawColorFillHelpTile(true, 939, 428);
+					drawColorFillHelpTile(true, 939, 472);
+					drawColorFillHelpTile(true, 900, 495);
+					drawColorFillHelpTile(false, 861, 472);
+					drawColorFillHelpTile(false, 861, 428);
+					drawColorFillHelpTile(false, 900, 450);
 					currentColorFillCharacter = startScreenGoody4;
-					currentColorFillCharacter.x = 950;
+					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 5, 3);
 				} else {
-					drawColorFillHelpTile(false, 950, 405);
-					drawColorFillHelpTile(false, 989, 428);
-					drawColorFillHelpTile(false, 989, 472);
-					drawColorFillHelpTile(false, 950, 495);
-					drawColorFillHelpTile(true, 911, 472);
-					drawColorFillHelpTile(true, 911, 428);
-					drawColorFillHelpTile(true, 950, 450);
+					drawColorFillHelpTile(false, 900, 405);
+					drawColorFillHelpTile(false, 939, 428);
+					drawColorFillHelpTile(false, 939, 472);
+					drawColorFillHelpTile(false, 900, 495);
+					drawColorFillHelpTile(true, 861, 472);
+					drawColorFillHelpTile(true, 861, 428);
+					drawColorFillHelpTile(true, 900, 450);
 					currentColorFillCharacter = startScreenBaddy4;
-					currentColorFillCharacter.x = 950;
+					currentColorFillCharacter.x = 900;
 					currentColorFillCharacter.y = 495;
 					StartScreen.container.addChild(currentColorFillCharacter);
+					drawTimeDigitsHelp(2, 4, 0);
 				}
 				currentMouseMoveGoody = mouseMoveGoodyUp;
-				currentMouseMoveGoody.x = 550;
+				currentMouseMoveGoody.x = 450;
 				currentMouseMoveGoody.y = 600;
 				StartScreen.container.addChild(currentMouseMoveGoody);
 				currentMouseMoveImage = mouseMoveRightImage;
-				currentMouseMoveImage.x = 510;
+				currentMouseMoveImage.x = 410;
 				currentMouseMoveImage.y = 575;
 				StartScreen.container.addChild(currentMouseMoveImage);
 			}
@@ -1186,40 +1494,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 425;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0x00FF00, 550, 600);
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+			drawMouseTrackHelpTile(1, 0x00FF00, 450, 600);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody5;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 2);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy5;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 9);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 550;
+			currentMouseMoveGoody.x = 450;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 9) {
@@ -1241,40 +1551,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 375;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 550, 600);
-			drawMouseTrackHelpTile(1, 0x00FF00, 590, 623);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 450, 600);
+			drawMouseTrackHelpTile(1, 0x00FF00, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody5;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 1);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy5;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 472;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 8);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 590;
+			currentMouseMoveGoody.x = 490;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveRightImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 10) {
@@ -1296,40 +1608,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 350;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 550, 600);
-			drawMouseTrackHelpTile(4, 0x00FF00, 590, 623);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 450, 600);
+			drawMouseTrackHelpTile(4, 0x00FF00, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody6;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 5, 0);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy6;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 7);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
-			currentMouseMoveGoody.x = 590;
+			currentMouseMoveGoody.x = 490;
 			currentMouseMoveGoody.y = 623;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveImage;
-			currentMouseMoveImage.x = 510;
+			currentMouseMoveImage.x = 410;
 			currentMouseMoveImage.y = 575;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 11) {
@@ -1351,40 +1665,42 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 375;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(4, 0x00FF00, 550, 600);
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+			drawMouseTrackHelpTile(4, 0x00FF00, 450, 600);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenGoody6;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 9);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenBaddy6;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 6);
 			}
 			currentMouseMoveGoody = mouseMoveGoodyUp;
-			currentMouseMoveGoody.x = 550;
+			currentMouseMoveGoody.x = 450;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveRightImage;
-			currentMouseMoveImage.x = 510;
+			currentMouseMoveImage.x = 410;
 			currentMouseMoveImage.y = 575;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		} else if(buttonAniIteration === 12) {
@@ -1406,42 +1722,44 @@ var StartScreenWrapper = function(center) {
 			currentMouseImage.y = 425;
 			StartScreen.container.addChild(currentMouseImage);
 
-			drawMouseTrackHelpTile(1, 0x00FF00, 550, 600);
-			drawMouseTrackHelpTile(1, 0xC0C0C0, 590, 623);
+			drawMouseTrackHelpTile(1, 0x00FF00, 450, 600);
+			drawMouseTrackHelpTile(1, 0xC0C0C0, 490, 623);
 
 			if(isLightPhase) {
-				drawColorFillHelpTile(true, 950, 405);
-				drawColorFillHelpTile(true, 989, 428);
-				drawColorFillHelpTile(true, 989, 472);
-				drawColorFillHelpTile(true, 950, 495);
-				drawColorFillHelpTile(true, 911, 472);
-				drawColorFillHelpTile(true, 911, 428);
-				drawColorFillHelpTile(true, 950, 450);
+				drawColorFillHelpTile(true, 900, 405);
+				drawColorFillHelpTile(true, 939, 428);
+				drawColorFillHelpTile(true, 939, 472);
+				drawColorFillHelpTile(true, 900, 495);
+				drawColorFillHelpTile(true, 861, 472);
+				drawColorFillHelpTile(true, 861, 428);
+				drawColorFillHelpTile(true, 900, 450);
 				currentColorFillCharacter = startScreenGoody6;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 4, 8);
 			} else {
-				drawColorFillHelpTile(false, 950, 405);
-				drawColorFillHelpTile(false, 989, 428);
-				drawColorFillHelpTile(false, 989, 472);
-				drawColorFillHelpTile(false, 950, 495);
-				drawColorFillHelpTile(false, 911, 472);
-				drawColorFillHelpTile(false, 911, 428);
-				drawColorFillHelpTile(false, 950, 450);
+				drawColorFillHelpTile(false, 900, 405);
+				drawColorFillHelpTile(false, 939, 428);
+				drawColorFillHelpTile(false, 939, 472);
+				drawColorFillHelpTile(false, 900, 495);
+				drawColorFillHelpTile(false, 861, 472);
+				drawColorFillHelpTile(false, 861, 428);
+				drawColorFillHelpTile(false, 900, 450);
 				currentColorFillCharacter = startScreenBaddy6;
-				currentColorFillCharacter.x = 911;
+				currentColorFillCharacter.x = 861;
 				currentColorFillCharacter.y = 428;
 				StartScreen.container.addChild(currentColorFillCharacter);
+				drawTimeDigitsHelp(2, 3, 6);
 			}
 			isLightPhase = !isLightPhase;
 
 			currentMouseMoveGoody = mouseMoveGoodyDown;
-			currentMouseMoveGoody.x = 550;
+			currentMouseMoveGoody.x = 450;
 			currentMouseMoveGoody.y = 600;
 			StartScreen.container.addChild(currentMouseMoveGoody);
 			currentMouseMoveImage = mouseMoveImage;
-			currentMouseMoveImage.x = 625;
+			currentMouseMoveImage.x = 525;
 			currentMouseMoveImage.y = 650;
 			StartScreen.container.addChild(currentMouseMoveImage);
 		}
@@ -1484,38 +1802,77 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(mouseTrackText4);
 
 		mouseMoveText1 = new PIXI.Text('Left mouse click moves player one tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseMoveText1.x = 650;
-		mouseMoveText1.y = 650;
+		mouseMoveText1.x = 450;
+		mouseMoveText1.y = 675;
 		StartScreen.container.addChild(mouseMoveText1);
 		mouseMoveText2 = new PIXI.Text('where green line indicates current direction.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
-		mouseMoveText2.x = 650;
-		mouseMoveText2.y = 665;
+		mouseMoveText2.x = 450;
+		mouseMoveText2.y = 690;
 		StartScreen.container.addChild(mouseMoveText2);
 
 		colorFillText1 = new PIXI.Text('Your goal is to illuminate darkness. Your enemy\'s is to', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText1.x = 720;
-		colorFillText1.y = 525;
+		colorFillText1.y = 540;
 		StartScreen.container.addChild(colorFillText1);
 		colorFillText2 = new PIXI.Text('spread it. Enter a square to convert it. Encompass a dark tile', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText2.x = 720;
-		colorFillText2.y = 540;
+		colorFillText2.y = 555;
 		StartScreen.container.addChild(colorFillText2);
 		colorFillText3 = new PIXI.Text('(or linear chain of tiles) with light and auto-convert it (them).', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText3.x = 720;
-		colorFillText3.y = 555;
+		colorFillText3.y = 570;
 		StartScreen.container.addChild(colorFillText3);
 		colorFillText4 = new PIXI.Text('Beware: the opposite holds true. An enemy must always be', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText4.x = 720;
-		colorFillText4.y = 570;
+		colorFillText4.y = 585;
 		StartScreen.container.addChild(colorFillText4);
 		colorFillText5 = new PIXI.Text('on or adjacent a dark tile, or it dies. Same goes for you,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText5.x = 720;
-		colorFillText5.y = 585;
+		colorFillText5.y = 600;
 		StartScreen.container.addChild(colorFillText5);
 		colorFillText6 = new PIXI.Text('but with light tiles.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
 		colorFillText6.x = 720;
-		colorFillText6.y = 600;
+		colorFillText6.y = 615;
 		StartScreen.container.addChild(colorFillText6);
+
+		impassableText1 = new PIXI.Text('These tile types block', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		impassableText1.x = 1040;
+		impassableText1.y = 310;
+		StartScreen.container.addChild(impassableText1);
+		impassableText2 = new PIXI.Text('player, and enemies, alike.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		impassableText2.x = 1040;
+		impassableText2.y = 325;
+		StartScreen.container.addChild(impassableText2);
+
+		passableText1 = new PIXI.Text('These tile types can be', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		passableText1.x = 1040;
+		passableText1.y = 414;
+		StartScreen.container.addChild(passableText1);
+		passableText2 = new PIXI.Text('traveled over and must all', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		passableText2.x = 1040;
+		passableText2.y = 429;
+		StartScreen.container.addChild(passableText2);
+		passableText3 = new PIXI.Text('be lit to win.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		passableText3.x = 1040;
+		passableText3.y = 444;
+		StartScreen.container.addChild(passableText3);
+
+		timerText1 = new PIXI.Text('Run out of time and lose the', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		timerText1.x = 870;
+		timerText1.y = 645;
+		StartScreen.container.addChild(timerText1);
+		timerText2 = new PIXI.Text('game. When all tiles are lit,', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		timerText2.x = 870;
+		timerText2.y = 660;
+		StartScreen.container.addChild(timerText2);
+		timerText3 = new PIXI.Text('extra time adds to score.', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB53B, align: 'left'});
+		timerText3.x = 870;
+		timerText3.y = 675;
+		StartScreen.container.addChild(timerText3);
+		timerText4 = new PIXI.Text('SCORE = seconds * difficulty level * 500', {fontFamily: 'Courier', fontSize: 14, fontWeight: 200, fill: 0xCFB54B, align: 'left'});
+		timerText4.x = 870;
+		timerText4.y = 690;
+		StartScreen.container.addChild(timerText4);
 
 		buttonAniIteration++;
 		if(buttonAniIteration > 12) {
@@ -1883,6 +2240,9 @@ var StartScreenWrapper = function(center) {
 		StartScreen.container.addChild(unfoggedGraphic);
 		StartScreen.container.addChild(mouseGraphic);
 		StartScreen.container.addChild(fillGraphic);
+		StartScreen.container.addChild(passableTiles);
+		StartScreen.container.addChild(impassableTiles);
+		StartScreen.container.addChild(timeBoxHelpGraphic);
 		StartScreen.container.addChild(mouseMoveGraphic);
 		StartScreen.drawStartScreenWords();
 
