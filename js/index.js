@@ -5,6 +5,6 @@ Authors:
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
 */
-window.DEBUG_MODE = true;
+window.DEBUG_MODE = false;
 window.DEBUG_MODE_FULL = false;
 var game = new GameWrapper();

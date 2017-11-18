@@ -373,6 +373,7 @@ var GameWrapper = function() {
 					&& ((e.keyCode >= 65 && e.keyCode <= 122) || (e.which >= 65 && e.which <= 122) || (e.keyCode === 32 || e.which === 32))) {
 					if(!this.isOffline && this.enterScoreInitials.length < 10 && typeof this.gameOverScreen.changeName === 'function')
 					{
+						this.sound.executeSound(4, true, false, false, 0.6);
 						this.enterScoreInitials.push(e.keyCode ? String.fromCharCode(e.keyCode).toUpperCase() : String.fromCharCode(e.which).toUpperCase());
 						this.gameOverScreen.changeName(this.enterScoreInitials);
 					}
@@ -380,6 +381,7 @@ var GameWrapper = function() {
 					&& ((e.keyCode === 46 || e.which === 46) || (e.keyCode === 8 || e.which === 8))) {
 					if(!this.isOffline && typeof this.gameOverScreen.changeName === 'function')
 					{
+						this.sound.executeSound(4, true, false, false, 0.6);
 						this.enterScoreInitials.pop();
 						this.gameOverScreen.changeName(this.enterScoreInitials);
 					}
@@ -393,6 +395,8 @@ var GameWrapper = function() {
 					document.removeEventListener('keyup', handleKeys);
 					document.removeEventListener('click', mouseClickHandler);
 					if(typeof this.gameOverScreen.killProcesses === 'function') {
+						//Kill menu loop music
+						this.sound.executeSound(9, false, false, false, 0.3);
 						this.gameOverScreen.killProcesses();
 					}
 					this.sendScore(this.enterScoreInitials);
@@ -657,7 +661,6 @@ var GameWrapper = function() {
 
 			this.startScreen.drawOptions();
 
-			// Detects when the mouse moves and calculates which start screen option player is hovering over.
 			var newHoverDetector = function(buttonArea){
 				if(this.hoverArea !== buttonArea && buttonArea !== 3){
 					this.sound.executeSound(8, true, false, false, 0.8);
@@ -666,6 +669,7 @@ var GameWrapper = function() {
 					this.hoverArea = buttonArea;
 				}
 			}.bind(this);
+			// Detects when the mouse moves and calculates which start screen option player is hovering over.
 			var mouseMoveHandler = function(e) {
 				var mX = e.pageX;
 				var mY = e.pageY;
