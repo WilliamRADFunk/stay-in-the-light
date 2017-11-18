@@ -737,18 +737,8 @@ var StartScreenWrapper = function(center) {
 			impassableTiles.endFill();
 			// preset ones to ensure a decent look.
 			var pits = [
-				[12, 2], [-16, -3], [-7, 15], [-7, -13], [6, -16]
+				[12, 2], [-16, -3], [-7, 15], [-7, -13], [6, -16], [0, 1]
 			];
-			// Adds a few random ones.
-			for(var i = 0; i < 2; i ++) {
-				var entry = [];
-				for(var j = 0; j < 2; j ++) {
-					var num = Math.floor(Math.random() * 4);
-					num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
-					entry[j] = num;
-				}
-				pits.push(entry);
-			}
 			impassableTiles.lineStyle(0.5, 0x000000, 1);
 			// Math.sqrt(100 - x2)
 			for(var i = 0; i < pits.length; i++) {
@@ -815,20 +805,11 @@ var StartScreenWrapper = function(center) {
 			passableTiles.endFill();
 			// preset ones to ensure a decent look.
 			var treeRoot = [
-				[0, 0], [2, 2], [-3, -3], [-7, -7], [10, 10],
+				[0, 0], [2, -14], [-3, -3], [-7, -7], [10, 10],
 				[-3, 3], [5, -5], [-7, 7], [10, -10], [9, 14],
-				[14, 9], [14, 9], [18, 0], [6, 17], [-6, 17]
+				[14, 9], [14, 9], [18, 0], [6, 17], [-6, 17],
+				[-12, 0], [-18, 10]
 			];
-			// Adds a few random ones.
-			for(var i = 0; i < 5; i ++) {
-				var entry = [];
-				for(var j = 0; j < 2; j ++) {
-					var num = Math.floor(Math.random() * 18);
-					num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
-					entry[j] = num;
-				}
-				treeRoot.push(entry);
-			}
 			passableTiles.lineStyle(0.5, 0x000000, 1);
 			for(var i = 0; i < treeRoot.length; i++) {
 				passableTiles.moveTo(cX + treeRoot[i][0], cY + treeRoot[i][1]);
@@ -860,17 +841,8 @@ var StartScreenWrapper = function(center) {
 			var cactus = [
 				[0, 0], [-7, -7], [-9, 14],
 				[6, 17], [-6, 17], [6, -12],
+				[3, -3], [-12, 0], [12, 0]
 			];
-			// Adds a few random ones.
-			for(var i = 0; i < 3; i ++) {
-				var entry = [];
-				for(var j = 0; j < 2; j ++) {
-					var num = Math.floor(Math.random() * 16);
-					num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
-					entry[j] = num;
-				}
-				cactus.push(entry);
-			}
 			passableTiles.lineStyle(0.5, 0x006400, 1);
 			for(var k = 0; k < cactus.length; k++) {
 				passableTiles.moveTo(cX + cactus[k][0], cY + cactus[k][1]);
@@ -919,16 +891,6 @@ var StartScreenWrapper = function(center) {
 				[0, 0], [-3, -13], [15, 5], [-7, -7], [-10, 12],
 				[10, 10], [5, -5], [-20, 0], [-16, 4], [-10, -16]
 			];
-			// Adds a few random ones.
-			for(var i = 0; i < 4; i ++) {
-				var entry = [];
-				for(var j = 0; j < 2; j ++) {
-					var num = Math.floor(Math.random() * 12);
-					num *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
-					entry[j] = num;
-				}
-				mountainPeak.push(entry);
-			}
 			passableTiles.lineStyle(0.5, 0x000000, 1);
 			for(var i = 0; i < mountainPeak.length; i++) {
 				passableTiles.moveTo(cX + mountainPeak[i][0], cY + mountainPeak[i][1]);
