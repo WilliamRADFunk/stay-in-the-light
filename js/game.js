@@ -132,7 +132,8 @@ var GameWrapper = function() {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
 					//End game music, call death Sound
-					this.sound.executeSound(0, true, false, false, 0.6);
+					// this.sound.executeSound(0, true, false, false, 0.6);
+					this.sound.executeSound(10, true, false, false, 0.6);
 					this.sound.executeSound(1, false, true, true, 0.6);
 					setTimeout(function() {
 						this.endGame(false);
