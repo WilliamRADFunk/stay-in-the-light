@@ -1,13 +1,13 @@
 /* 
-Stay in the Light v1.0.0
-Last Updated: 2017-November-12
+Stay in the Light v1.0.1
+Last Updated: 2017-December-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
 */
 
 // Wrapped tile map object
-var MapWrapper = function(center, difficulty) {
+var MapWrapper = function(center, difficulty, autoFillSoundTrigger) {
 	// Publicly accessible functionality.
 	var tileMap = {};
 	tileMap.playerIsAlive = true;
@@ -15,6 +15,7 @@ var MapWrapper = function(center, difficulty) {
 	/*** Internal Variables ***/
 	var enemies = [];
 	var playerWon = false;
+	var playAutoFill = autoFillSoundTrigger;
 
 	// Dev Mode: uncomment next line for forced enemy death
 	// var tempCounter = 0;
@@ -1214,6 +1215,7 @@ var MapWrapper = function(center, difficulty) {
 		for(var i = 0; i < nodesToBeFilled.length; i++) {
 			if(window.DEBUG_MODE) { console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with DARK!'); }
 			nodesToBeFilled[i].goDark();
+			playAutoFill();
 
 			if(nodesToBeFilled[i].state.isPlayer) {
 				if(window.DEBUG_MODE) { console.log('Player dies by being surrounded by darkness.'); }
@@ -1233,6 +1235,7 @@ var MapWrapper = function(center, difficulty) {
 		for(var i = 0; i < nodesToBeFilled.length; i++) {
 			if(window.DEBUG_MODE) { console.log('Tile ' + nodesToBeFilled[i].id + ' has been autofilled with LIGHT!'); }
 			nodesToBeFilled[i].goLight();
+			playAutoFill();
 
 			if(nodesToBeFilled[i].state.isEnemy) {
 				var event = new Event('enemyDied');
