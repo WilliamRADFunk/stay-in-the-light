@@ -1,6 +1,6 @@
 /*
 Stay in the Light v1.0.0
-Last Updated: 2017-November-12
+Last Updated: 2017-December-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -10,17 +10,18 @@ var SoundWrapper = function() {
 	var Sound = {};
 	//Sound Source initializations
 	//Audio files appear in order stored in array
-	var deathAudio = new Audio('./sounds/deathSound.wav');
-	var gameOverLoop = new Audio('./sounds/loop.wav');
-	var expandF = new Audio('./sounds/expandFog.wav');
-	var contractF = new Audio('/sounds/contractFog.wav');
-	var clickSound = new Audio('./sounds/click.wav');
-	var enemyDeath = new Audio('./sounds/zombieUgh.mp3');
-	var	musicLoopMenu = new Audio('./sounds/POL-secret-alchemy-short.wav');
-	var playerWin = new Audio('./sounds/win.wav');
+	var deathAudio = new Audio('./sounds/player_death.mp3');
+	var gameOverLoop = new Audio('./sounds/game_over_screen.mp3');
+	var expandF = new Audio('./sounds/fog_expand.mp3');
+	var contractF = new Audio('/sounds/fog_contract.mp3');
+	var clickSound = new Audio('./sounds/select.mp3');
+	var enemyDeath = new Audio('./sounds/enemy_death.mp3');
+	var	musicLoopMenu = new Audio('./sounds/title_screen.mp3');
+	var playerWin = new Audio('./sounds/you_win.mp3');
 	var hoverSound = new Audio('./sounds/hover.wav');
-	var musicLoop = new Audio('./sounds/gameOver.mp3');
-	const audioFileCount = 10;
+	var musicLoop = new Audio('./sounds/game_play.mp3');
+	var playerLost = new Audio('./sounds/you_lose.mp3');
+	var autoFill = new Audio('./sounds/auto_fill.mp3');
 	var lastPlayed = -1;
 	// Keeps track of which audio files are in play. This allows an "unmute" to simply up the volume on those already in play.
 	var filesInPlay = [];
@@ -32,8 +33,8 @@ var SoundWrapper = function() {
 	//HARD-assembles audio array and verifies that each audio object stored is playable.
 	Sound.init = function(){
 		//Create index of wav files
-		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound, gameOverLoop];
-		for(var i = 0; i < audioFileCount; i++){
+		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound, gameOverLoop, playerLost, autoFill];
+		for(var i = 0; i < audioArray.length; i++){
 			//Check for valid .wav file
 			if(!audioArray[i]){
 				if(window.DEBUG_MODE) { console.log("Invalid Audio object."); }

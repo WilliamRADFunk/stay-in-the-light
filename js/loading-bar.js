@@ -1,6 +1,6 @@
 /* 
 Stay in the Light v1.0.0
-Last Updated: 2017-September-10
+Last Updated: 2017-December-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -37,6 +37,10 @@ var LoadingBarWrapper = function(center) {
 	var inText;
 	var theText;
 	var lightText;
+	var musicText;
+	var copyrightText;
+	var progsText;
+	var artText;
 
 	var light1 = new PIXI.Graphics();
 	var light2 = new PIXI.Graphics();
@@ -220,32 +224,44 @@ var LoadingBarWrapper = function(center) {
 		loadingBox.endFill();
 
 		if(currentPercentage <= 20) {
+			if(copyrightText) {
+				LoadingBar.container.removeChild(copyrightText);
+			}
 			drawWordStay(true);
-			var copyrightText = new PIXI.Text('Copyright 2017: Tenacious Teal Games', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			copyrightText = new PIXI.Text('Copyright 2017: Tenacious Teal Games', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
 			copyrightText.x = 50;
 			copyrightText.y = 600;
 			LoadingBar.container.addChild(copyrightText);
 		} else if(currentPercentage <= 35) {
+			if(progsText) {
+				LoadingBar.container.removeChild(progsText);
+			}
 			drawWordStay(false);
 			drawWordIn(true);
-			var progsText = new PIXI.Text('Programmed By: William Funk & Jorge Rodriguez', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			progsText = new PIXI.Text('Programmed By: William Funk & Jorge Rodriguez', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
 			progsText.x = 50;
 			progsText.y = 620;
 			LoadingBar.container.addChild(progsText);
 		} else if(currentPercentage <= 80) {
+			if(artText) {
+				LoadingBar.container.removeChild(artText);
+			}
 			drawWordStay(false);
 			drawWordIn(false);
 			drawWordThe(true);
-			var artText = new PIXI.Text('Art By: William Funk, Andrea Acosta Duarte, & Kenny Graphics', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			artText = new PIXI.Text('Art By: William Funk, & Kenny Graphics', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
 			artText.x = 50;
 			artText.y = 640;
 			LoadingBar.container.addChild(artText);
 		} else {
+			if(musicText) {
+				LoadingBar.container.removeChild(musicText);
+			}
 			drawWordStay(false);
 			drawWordIn(false);
 			drawWordThe(false);
 			drawWordLight(true);
-			var musicText = new PIXI.Text('Music & Sound FX By: Some brave soul', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
+			musicText = new PIXI.Text('Music & Sound FX By: Wyatt Walker', {fontFamily: 'Courier', fontSize: 18, fill: 0xCFB53B, align: 'left'});
 			musicText.x = 50;
 			musicText.y = 660;
 			LoadingBar.container.addChild(musicText);

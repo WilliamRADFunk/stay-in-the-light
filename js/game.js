@@ -1,6 +1,6 @@
 /*
 Stay in the Light v1.0.0
-Last Updated: 2017-November-17
+Last Updated: 2017-December-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -132,11 +132,12 @@ var GameWrapper = function() {
 				document.addEventListener('playerDied', function(e) {
 					this.isCounting = false;
 					//End game music, call death Sound
-					this.sound.executeSound(0, true, false, false, 0.6);
+					this.sound.executeSound(10, true, false, false, 0.6);
 					this.sound.executeSound(1, false, true, true, 0.6);
+					this.sound.executeSound(0, true, false, false, 0.6);
 					setTimeout(function() {
 						this.endGame(false);
-					}.bind(this), 6000);
+					}.bind(this), 7000);
 				}.bind(this));
 				document.addEventListener('playerWon', function(e) {
 					this.isCounting = false;
@@ -262,7 +263,7 @@ var GameWrapper = function() {
 		 */
 		createTileMap: function() {
 			// Sets up variables and function definitions
-			this.honeycomb = new MapWrapper(this._center, this.difficulty);
+			this.honeycomb = new MapWrapper(this._center, this.difficulty, this.sound.executeSound.bind(this.sound.executeSound, 11, true, false, false, 0.6));
 			// Move loading bar progress by a small degree.
 			this.loadingCallback(5);
 			// Runs through actual terrain build and recursive checks.
@@ -373,7 +374,7 @@ var GameWrapper = function() {
 					&& ((e.keyCode >= 65 && e.keyCode <= 122) || (e.which >= 65 && e.which <= 122) || (e.keyCode === 32 || e.which === 32))) {
 					if(!this.isOffline && this.enterScoreInitials.length < 10 && typeof this.gameOverScreen.changeName === 'function')
 					{
-						this.sound.executeSound(4, true, false, false, 0.6);
+						this.sound.executeSound(8, true, false, false, 0.6);
 						this.enterScoreInitials.push(e.keyCode ? String.fromCharCode(e.keyCode).toUpperCase() : String.fromCharCode(e.which).toUpperCase());
 						this.gameOverScreen.changeName(this.enterScoreInitials);
 					}
@@ -381,7 +382,7 @@ var GameWrapper = function() {
 					&& ((e.keyCode === 46 || e.which === 46) || (e.keyCode === 8 || e.which === 8))) {
 					if(!this.isOffline && typeof this.gameOverScreen.changeName === 'function')
 					{
-						this.sound.executeSound(4, true, false, false, 0.6);
+						this.sound.executeSound(8, true, false, false, 0.6);
 						this.enterScoreInitials.pop();
 						this.gameOverScreen.changeName(this.enterScoreInitials);
 					}
@@ -635,7 +636,7 @@ var GameWrapper = function() {
 			}
 
 			//Start Main menu music
-			this.sound.executeSound(6, true, true, false, 0.1);
+			this.sound.executeSound(6, true, true, false, 0.2);
 
 			var interval = 2000;
 			var flickeringInterval = function() {
@@ -697,7 +698,7 @@ var GameWrapper = function() {
 				if(mX >= 10 && mX <= 1270) {
 					if(mY >= 300 && mY <= 425) {
 						if(this.startScreenAniLoop) {
-							this.sound.executeSound(4, true, false, false, 0.6);
+							this.sound.executeSound(4, true, false, false, 0.4);
 							var id = this.cancelAnimationFrame(this.startScreenAniLoop);
 							this.startScreenAniLoop = undefined;
 						}
@@ -708,7 +709,7 @@ var GameWrapper = function() {
 						document.removeEventListener('mousemove', mouseMoveHandler);
 						if(typeof this.startScreen.killProcesses === 'function') {
 							//Kill menu loop music
-							this.sound.executeSound(6, false, false, false, 0.1);
+							this.sound.executeSound(6, false, false, false, 0.2);
 							this.startScreen.killProcesses();
 						}
 						var loadingStage = document.getElementById('loading-stage');
@@ -741,7 +742,7 @@ var GameWrapper = function() {
 						this.build();
 					} else if(mY > 435 && mY <= 505) {
 						//Play click sound
-						this.sound.executeSound(4, true, false, false, 0.6);
+						this.sound.executeSound(4, true, false, false, 0.4);
 						if(mX >= 800 && mX < 830) {
 							this.difficulty = 1;
 							mouseMoveHandler({pageX: mX, pageY: mY});
