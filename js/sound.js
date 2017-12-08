@@ -1,6 +1,6 @@
 /*
 Stay in the Light v1.0.0
-Last Updated: 2017-November-12
+Last Updated: 2017-December-08
 Authors: 
 	William R.A.D. Funk - http://WilliamRobertFunk.com
 	Jorge Rodriguez - http://jitorodriguez.com/
@@ -22,7 +22,6 @@ var SoundWrapper = function() {
 	var musicLoop = new Audio('./sounds/game_play.mp3');
 	var playerLost = new Audio('./sounds/you_lose.mp3');
 	var autoFill = new Audio('./sounds/auto_fill.mp3');
-	const audioFileCount = 10;
 	var lastPlayed = -1;
 	// Keeps track of which audio files are in play. This allows an "unmute" to simply up the volume on those already in play.
 	var filesInPlay = [];
@@ -35,7 +34,7 @@ var SoundWrapper = function() {
 	Sound.init = function(){
 		//Create index of wav files
 		audioArray = [deathAudio, musicLoop, expandF, contractF, clickSound, enemyDeath, musicLoopMenu, playerWin, hoverSound, gameOverLoop, playerLost, autoFill];
-		for(var i = 0; i < audioFileCount; i++){
+		for(var i = 0; i < audioArray.length; i++){
 			//Check for valid .wav file
 			if(!audioArray[i]){
 				if(window.DEBUG_MODE) { console.log("Invalid Audio object."); }
