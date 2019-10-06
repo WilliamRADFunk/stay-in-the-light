@@ -1,5 +1,4 @@
 # stay-in-the-light
-(Complete)
 
 See help section on start screen
 
